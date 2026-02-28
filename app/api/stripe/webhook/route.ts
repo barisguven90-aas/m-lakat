@@ -4,21 +4,19 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
 // Use Admin client for Webhook actions (bypass RLS)
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+const getSupabase = () => createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321', // Fallback for build phase
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key'
 );
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_123', {
-
+const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_123', {
     apiVersion: '2025-02-24.acacia' as any,
-
-
 });
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
 export async function POST(req: Request) {
+    const supabase = getSupabase();
+    const stripe = getStripe();
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy';
     const body = await req.text();
     // In Next.js 15+ headers() is async/awaitable, but in 14 it's sync. Assuming sync for now or check version.
     // Next 16 might require await.
