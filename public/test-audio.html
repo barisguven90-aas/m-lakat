@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button id="start">Start WebRTC with Greeting</button>
+<div id="log"></div>
+<audio id="audio" autoplay playsinline controls></audio>
+<script>
+const logEl = document.getElementById('log');
+function log(msg) { logEl.innerHTML += msg + '<br>'; }
+document.getElementById('start').onclick = async () => {
+    try {
+        log("Fetching token...");
+        const res = await fetch('/api/interview/voice/token');
+        const token = (await res.json()).client_secret.value;
+        log("Token received.");
+        
+        const pc = new RTCPeerConnection();
+        pc.ontrack = e => {
+            log("Track received.");
+            const audio = document.getElementById('audio');
+            audio.srcObject = e.streams[0];
+            audio.play().catch(err => log("Play err: " + err));
+        };
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        pc.addTrack(stream.getTracks()[0]);
+        
+        const dc = pc.createDataChannel('oai-events');
+        let greetingSent = false;
+        
+        dc.onmessage = e => {
+            const msg = JSON.parse(e.data);
+            if(msg.type === 'response.audio_transcript.done') log("AI: " + msg.transcript);
+            if(msg.type === 'error') log("Err: " + JSON.stringify(msg.error));
+            if(msg.type === 'session.updated' && !greetingSent) {
+                greetingSent = true;
+                log("Session Updated. Sending greeting request...");
+                dc.send(JSON.stringify({
+                    type: "conversation.item.create",
+                    item: {
+                         type: "message", role: "user",
+                         content: [{type: "input_text", text: "Say 'Hello from the terminal' immediately."}]
+                    }
+                }));
+                dc.send(JSON.stringify({ type: "response.create" }));
+            }
+        };
+        
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        log("Exchanging SDP...");
+        const sdp = await fetch("https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17", {
+            method: "POST", body: offer.sdp,
+            headers: {"Authorization": "Bearer " + token, "Content-Type" : "application/sdp"}
+        });
+        
+        await pc.setRemoteDescription({ type: 'answer', sdp: await sdp.text() });
+        log("Connected. Waiting for session.updated...");
+        
+        dc.onopen = () => {
+            log("Data channel open.");
+            dc.send(JSON.stringify({
+                type: "session.update",
+                session: { modalities: ["audio", "text"] }
+            }));
+        };
+    } catch(e) { log("Error: " + e.message); }
+};
+</script>
+</body>
+</html>

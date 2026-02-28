@@ -1,0 +1,565 @@
+"use client";
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Mic, MicOff, PhoneOff, Clock, Loader2, BrainCircuit, Volume2, MessageSquare, ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { AudioVisualizer } from './AudioVisualizer';
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface TranscriptEntry {
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+}
+
+interface VoiceInterviewInterfaceProps {
+    sessionId: string;
+    applicationContext: {
+        jobTitle: string;
+        jobCompany: string;
+        jobDescription: string;
+        cvData: any;
+    };
+    language: string;
+    companyStyle: string;
+}
+
+const MAX_QUESTIONS = 5;
+
+export default function VoiceInterviewInterface({
+    sessionId,
+    applicationContext,
+    language,
+    companyStyle,
+}: VoiceInterviewInterfaceProps) {
+    const router = useRouter();
+
+    // State
+    const [phase, setPhase] = useState<'countdown' | 'interview' | 'ending'>('countdown');
+    const [countdown, setCountdown] = useState(3);
+    const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [turnNumber, setTurnNumber] = useState(1);
+
+    const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [showTranscript, setShowTranscript] = useState(true);
+    const [currentUserText, setCurrentUserText] = useState('');
+
+    // Refs
+    const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+    const recognitionRef = useRef<any>(null);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const transcriptEndRef = useRef<HTMLDivElement>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const isGeneratingRef = useRef(false); // Mutex to prevent concurrent AI calls
+    const transcriptRef = useRef<TranscriptEntry[]>([]); // Keep transcript in sync with ref
+
+    const t = {
+        aiSpeaking: language === 'tr' ? 'AI Mülakatçı konuşuyor...' : 'AI Interviewer speaking...',
+        listening: language === 'tr' ? 'Sizi dinliyorum...' : 'Listening to you...',
+        processing: language === 'tr' ? 'Düşünüyorum...' : 'Thinking...',
+        waiting: language === 'tr' ? 'Mikrofona basarak konuşun' : 'Press mic to speak',
+        endInterview: language === 'tr' ? 'Mülakatı Bitir' : 'End Interview',
+        question: language === 'tr' ? 'Soru' : 'Question',
+    };
+
+    // Auto-scroll transcript
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    }, [transcript]);
+
+    // Countdown → Start interview
+    useEffect(() => {
+        if (phase !== 'countdown') return;
+        if (countdown <= 0) {
+            setPhase('interview');
+            timerRef.current = setInterval(() => setElapsedTime(s => s + 1), 1000);
+            // AI starts the interview (only once)
+            if (!isGeneratingRef.current) {
+                generateAIResponse([], true);
+            }
+            return;
+        }
+        const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [countdown, phase]);
+
+    // Cleanup
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+            recognitionRef.current?.stop();
+        };
+    }, []);
+
+    const formatTime = (s: number) => {
+        const m = Math.floor(s / 60).toString().padStart(2, '0');
+        const sec = (s % 60).toString().padStart(2, '0');
+        return `${m}:${sec}`;
+    };
+
+    // ===== ElevenLabs TTS =====
+    const speakText = async (text: string): Promise<void> => {
+        if (ttsAudioRef.current) {
+            ttsAudioRef.current.pause();
+            ttsAudioRef.current = null;
+        }
+
+        return new Promise(async (resolve) => {
+            try {
+                setIsSpeaking(true);
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text.slice(0, 1000) })
+                });
+
+                if (!res.ok) throw new Error('TTS failed');
+
+                const audioBlob = await res.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                ttsAudioRef.current = audio;
+
+                audio.onended = () => {
+                    setIsSpeaking(false);
+                    URL.revokeObjectURL(audioUrl);
+                    ttsAudioRef.current = null;
+                    resolve();
+                };
+                audio.onerror = () => {
+                    setIsSpeaking(false);
+                    URL.revokeObjectURL(audioUrl);
+                    ttsAudioRef.current = null;
+                    resolve();
+                };
+
+                await audio.play();
+            } catch {
+                setIsSpeaking(false);
+                resolve();
+            }
+        });
+    };
+
+    // ===== Speech Recognition (STT) =====
+    const startListening = useCallback(() => {
+        if (isSpeaking || isProcessing) return; // Don't listen while AI is talking
+
+        // Stop any playing audio
+        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; setIsSpeaking(false); }
+
+        const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SR) { toast.error("Speech recognition not supported."); return; }
+
+        const recognition = new SR();
+        const langCodeMap: Record<string, string> = {
+            en: 'en-US', tr: 'tr-TR', es: 'es-ES', fr: 'fr-FR', de: 'de-DE', zh: 'zh-CN'
+        };
+        recognition.lang = langCodeMap[language] || 'en-US';
+        recognition.interimResults = true;
+        recognition.continuous = true;
+        recognition.maxAlternatives = 1;
+
+        let finalText = '';
+        let silenceTimer: NodeJS.Timeout | null = null;
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            setCurrentUserText('');
+            finalText = '';
+        };
+
+        recognition.onresult = (event: any) => {
+            let interim = '';
+            let newFinal = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    newFinal += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
+            }
+            if (newFinal) finalText += (finalText ? ' ' : '') + newFinal;
+            setCurrentUserText(finalText + (interim ? ' ' + interim : ''));
+
+            // Reset silence timer — auto-stop after 2s of silence
+            if (silenceTimer) clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(() => {
+                recognition.stop();
+            }, 2500);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+            if (silenceTimer) clearTimeout(silenceTimer);
+            const spoken = finalText.trim();
+            if (spoken) {
+                setCurrentUserText('');
+                handleUserResponse(spoken);
+            }
+        };
+
+        recognition.onerror = (e: any) => {
+            setIsListening(false);
+            if (e.error === 'not-allowed') toast.error("Microphone access denied.");
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+    }, [isSpeaking, isProcessing, language]);
+
+    const stopListening = useCallback(() => {
+        recognitionRef.current?.stop();
+    }, []);
+
+    // ===== AI Response (Groq via voice chat endpoint) =====
+    const generateAIResponse = async (history: TranscriptEntry[], isFirst: boolean) => {
+        // Prevent concurrent calls
+        if (isGeneratingRef.current) {
+            console.log('[Voice] Skipping duplicate AI call — already generating');
+            return;
+        }
+        isGeneratingRef.current = true;
+        setIsProcessing(true);
+
+        try {
+            const body = {
+                sessionId,
+                language,
+                companyStyle,
+                applicationContext,
+                isFirst,
+                previousTurns: history.map(h => ({ role: h.role, content: h.content })),
+                responseText: !isFirst ? history[history.length - 1]?.content || '' : undefined,
+                turnNumber,
+            };
+
+            const res = await fetch('/api/interview/voice/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || 'AI response failed');
+            }
+            const data = await res.json();
+
+            const aiText = isFirst
+                ? data.question || data.firstQuestion
+                : data.nextQuestion;
+
+            if (data.isCompleted) {
+                setPhase('ending');
+                toast.success(language === 'tr' ? "Mülakat tamamlandı!" : "Interview complete!");
+                router.push(`/dashboard/interview/${sessionId}/feedback`);
+                return;
+            }
+
+            if (aiText) {
+                const newEntry: TranscriptEntry = { role: 'assistant', content: aiText, timestamp: new Date() };
+                transcriptRef.current = [...transcriptRef.current, newEntry];
+                setTranscript([...transcriptRef.current]);
+                if (!isFirst) setTurnNumber(data.turnNumber || turnNumber + 1);
+
+                // Speak the AI response (stops any previous audio first)
+                await speakText(aiText);
+            }
+        } catch (error) {
+            console.error('AI Error:', error);
+            toast.error(language === 'tr' ? "AI yanıt veremedi." : "AI could not respond.");
+        } finally {
+            setIsProcessing(false);
+            isGeneratingRef.current = false;
+        }
+    };
+
+    // ===== Handle User Response =====
+    const handleUserResponse = async (text: string) => {
+        if (isGeneratingRef.current) return; // Skip if already processing
+
+        const userEntry: TranscriptEntry = { role: 'user', content: text, timestamp: new Date() };
+        transcriptRef.current = [...transcriptRef.current, userEntry];
+        setTranscript([...transcriptRef.current]);
+
+        // Generate AI response with full history
+        await generateAIResponse(transcriptRef.current, false);
+    };
+
+    // ===== End Interview =====
+    const handleEndInterview = async () => {
+        setPhase('ending');
+        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+        recognitionRef.current?.stop();
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        try {
+            await fetch('/api/interview/end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId })
+            });
+            toast.success(language === 'tr' ? "Rapor hazırlanıyor..." : "Generating report...");
+            router.push(`/dashboard/interview/${sessionId}/feedback`);
+        } catch {
+            toast.error("Could not end interview.");
+        }
+    };
+
+    // ===== Countdown Screen =====
+    if (phase === 'countdown') {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-80px)] bg-neutral-950">
+                <div className="text-center">
+                    <div className="relative">
+                        <div className="h-40 w-40 rounded-full border-4 border-blue-500/30 flex items-center justify-center mx-auto mb-8">
+                            <span className="text-7xl font-bold text-blue-400 animate-pulse">{countdown}</span>
+                        </div>
+                        <div className="absolute inset-0 h-40 w-40 mx-auto rounded-full border-4 border-blue-500/20 animate-ping" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">
+                        {language === 'tr' ? 'Mülakat Başlıyor' : 'Interview Starting'}
+                    </h2>
+                    <p className="text-neutral-400 text-sm">
+                        {applicationContext.jobTitle} — {applicationContext.jobCompany}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // ===== Interview Screen =====
+    const statusText = isSpeaking ? t.aiSpeaking
+        : isProcessing ? t.processing
+            : isListening ? t.listening
+                : t.waiting;
+
+    const statusColor = isSpeaking ? "bg-blue-500/10 border-blue-500/30 text-blue-300"
+        : isProcessing ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+            : isListening ? "bg-red-500/10 border-red-500/30 text-red-300"
+                : "bg-neutral-800 border-neutral-700 text-neutral-400";
+
+    const dotColor = isSpeaking ? "bg-blue-400 animate-pulse"
+        : isProcessing ? "bg-amber-400 animate-pulse"
+            : isListening ? "bg-red-400 animate-pulse"
+                : "bg-neutral-500";
+
+    return (
+        <div className="flex flex-col lg:flex-row bg-neutral-950 h-[calc(100vh-80px)] w-full rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
+
+            {/* LEFT: AI Presence */}
+            <div className={cn("flex flex-col relative transition-all duration-300", showTranscript ? "flex-1" : "w-full")}>
+
+                {/* Top Bar */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 font-mono text-xs">
+                            <Clock className="h-3.5 w-3.5 text-blue-400" />
+                            <span className="text-blue-400 font-semibold tracking-widest">{formatTime(elapsedTime)}</span>
+                        </div>
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                            <span className="text-green-400 text-[10px] font-semibold">LIVE</span>
+                        </div>
+                        {language === 'tr' && (
+                            <span className="text-[11px] text-amber-400/80 border border-amber-500/20 bg-amber-500/5 px-2 py-0.5 rounded-full">🇹🇷 Türkçe</span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <span className="text-neutral-500 text-xs uppercase tracking-widest">{t.question}</span>
+                        <div className="flex gap-1.5">
+                            {Array.from({ length: MAX_QUESTIONS }).map((_, i) => (
+                                <div key={i} className={cn(
+                                    "h-1.5 w-6 rounded-full transition-all duration-500",
+                                    i < turnNumber ? "bg-blue-500" : "bg-neutral-700"
+                                )} />
+                            ))}
+                        </div>
+                        <span className="text-neutral-300 text-sm font-semibold">{turnNumber}/{MAX_QUESTIONS}</span>
+                    </div>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" disabled={phase === 'ending'}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 gap-1.5 text-xs">
+                                {phase === 'ending' ? <Loader2 className="h-3 w-3 animate-spin" /> : <PhoneOff className="h-3 w-3" />}
+                                {t.endInterview}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-neutral-900 border-neutral-700 text-white">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>{language === 'tr' ? 'Mülakatı bitir?' : 'End Interview?'}</AlertDialogTitle>
+                                <AlertDialogDescription className="text-neutral-400">
+                                    {language === 'tr' ? 'Şimdiye kadarki cevaplarınız ile rapor hazırlanacak.' : 'Your report will be based on answers given so far.'}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-neutral-800 border-neutral-600 text-white hover:bg-neutral-700">
+                                    {language === 'tr' ? 'Devam Et' : 'Keep Going'}
+                                </AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleEndInterview}>
+                                    {language === 'tr' ? 'Bitir & Rapor Al' : 'End & Get Report'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+
+                {/* AI Presence Area */}
+                <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-neutral-900 to-neutral-950 relative overflow-hidden">
+                    {/* Grid pattern */}
+                    <div className="absolute inset-0 opacity-[0.04]" style={{
+                        backgroundImage: 'linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)',
+                        backgroundSize: '60px 60px'
+                    }} />
+
+                    {/* Ambient glow */}
+                    {isSpeaking && <div className="absolute inset-0 bg-blue-500/5 animate-pulse rounded-full blur-3xl" />}
+                    {isListening && <div className="absolute inset-0 bg-red-500/5 animate-pulse rounded-full blur-3xl" />}
+
+                    {/* Status pill */}
+                    <div className="absolute top-4">
+                        <div className={cn("flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-500", statusColor)}>
+                            <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
+                            {statusText}
+                        </div>
+                    </div>
+
+                    {/* Brain Icon */}
+                    <div className={cn(
+                        "relative z-10 rounded-full p-8 transition-all duration-700",
+                        isSpeaking ? "bg-blue-500/10 scale-110 shadow-[0_0_80px_rgba(59,130,246,0.12)]"
+                            : isListening ? "bg-red-500/10 scale-105 shadow-[0_0_60px_rgba(239,68,68,0.08)]"
+                                : "bg-neutral-800/30"
+                    )}>
+                        <BrainCircuit className={cn("h-20 w-20 transition-colors duration-500",
+                            isSpeaking ? "text-blue-400" : isListening ? "text-red-400" : "text-neutral-500"
+                        )} />
+                        {(isSpeaking || isListening) && <span className={cn(
+                            "animate-ping absolute inset-0 rounded-full opacity-[0.07]",
+                            isSpeaking ? "bg-blue-400" : "bg-red-400"
+                        )} />}
+                    </div>
+
+                    <div className="mt-6 h-12">
+                        <AudioVisualizer isSpeaking={isSpeaking || isListening} />
+                    </div>
+
+                    {/* Current speech text */}
+                    {isListening && currentUserText && (
+                        <div className="mt-4 max-w-md px-4 py-2 bg-neutral-800/60 border border-neutral-700 rounded-xl text-sm text-neutral-300 text-center animate-in fade-in">
+                            {currentUserText}
+                        </div>
+                    )}
+
+                    {/* Replay button */}
+                    {!isListening && !isProcessing && transcript.length > 0 && (
+                        <button
+                            onClick={() => {
+                                const lastAI = [...transcript].reverse().find(t => t.role === 'assistant');
+                                if (lastAI) speakText(lastAI.content);
+                            }}
+                            className="mt-4 text-neutral-600 hover:text-neutral-400 text-xs flex items-center gap-1.5 transition-colors"
+                        >
+                            <Volume2 className="h-3.5 w-3.5" />
+                            {language === 'tr' ? 'Soruyu Tekrar Dinle' : 'Replay Question'}
+                        </button>
+                    )}
+                </div>
+
+                {/* Bottom Controls */}
+                <div className="flex items-center justify-center py-6 bg-neutral-950 border-t border-neutral-800">
+                    <div className="flex items-center gap-4 bg-neutral-900/90 backdrop-blur-md px-6 py-3 rounded-full border border-neutral-700 shadow-xl">
+                        <Button
+                            variant={isListening ? "destructive" : "default"}
+                            size="icon"
+                            onClick={isListening ? stopListening : startListening}
+                            disabled={isSpeaking || isProcessing || phase === 'ending'}
+                            className={cn("rounded-full shadow-lg transition-all duration-200 h-14 w-14 border-0",
+                                isListening ? "animate-pulse ring-4 ring-red-500/25 scale-110 bg-red-600 hover:bg-red-500"
+                                    : "bg-blue-600 hover:bg-blue-500"
+                            )}
+                        >
+                            {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                        </Button>
+
+                        <Button variant="ghost" size="icon" onClick={() => setShowTranscript(!showTranscript)}
+                            className={cn("rounded-full h-10 w-10 hover:bg-neutral-700",
+                                showTranscript ? "text-blue-400" : "text-neutral-500"
+                            )}>
+                            <MessageSquare className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT: Transcript Panel */}
+            {showTranscript && (
+                <div className="w-full lg:w-[360px] border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-900 flex flex-col max-h-[50vh] lg:max-h-none">
+                    <div className="p-4 border-b border-neutral-800 bg-neutral-900/50 backdrop-blur">
+                        <div className="flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4 text-neutral-500" />
+                            <span className="font-semibold text-neutral-200 text-sm">
+                                {language === 'tr' ? 'Transkript' : 'Transcript'}
+                            </span>
+                            <span className="text-xs text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">{transcript.length}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 relative">
+                        <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto p-4 scroll-smooth"
+                            style={{ scrollbarWidth: 'thin', scrollbarColor: '#444 transparent' }}>
+                            <div className="space-y-4">
+                                {transcript.map((entry, i) => (
+                                    <div key={i} className={cn("flex flex-col gap-1", entry.role === 'user' ? "items-end" : "items-start")}>
+                                        <div className={cn(
+                                            "max-w-[90%] p-3 rounded-2xl text-sm leading-relaxed",
+                                            entry.role === 'user'
+                                                ? "bg-blue-600 text-white rounded-tr-sm"
+                                                : "bg-neutral-800 text-neutral-200 rounded-tl-sm border border-neutral-700"
+                                        )}>
+                                            {entry.content}
+                                        </div>
+                                        <span className="text-[10px] text-neutral-600 uppercase px-1">
+                                            {entry.role === 'assistant'
+                                                ? (language === 'tr' ? 'AI Mülakatçı' : 'AI Interviewer')
+                                                : (language === 'tr' ? 'Siz' : 'You')}
+                                        </span>
+                                    </div>
+                                ))}
+
+                                {isProcessing && (
+                                    <div className="flex items-center gap-2 text-neutral-500 text-xs pl-2">
+                                        <div className="flex gap-1">
+                                            {[0, 1, 2].map(i => (
+                                                <span key={i} className="h-1.5 w-1.5 bg-neutral-500 rounded-full animate-bounce"
+                                                    style={{ animationDelay: `${i * 100}ms` }} />
+                                            ))}
+                                        </div>
+                                        <span>{language === 'tr' ? 'Düşünüyor...' : 'Thinking...'}</span>
+                                    </div>
+                                )}
+
+                                <div ref={transcriptEndRef} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

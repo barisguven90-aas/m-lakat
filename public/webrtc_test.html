@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebRTC Test</title>
+</head>
+<body>
+  <button id="start">Start</button>
+  <div id="log"></div>
+  <audio id="audio" autoplay></audio>
+  <script>
+    const logEl = document.getElementById('log');
+    function log(msg) { logEl.innerHTML += msg + '<br>'; console.log(msg); }
+    
+    document.getElementById('start').onclick = async () => {
+      try {
+        log("Getting token...");
+        const res = await fetch('/api/interview/voice/token');
+        const data = await res.json();
+        const key = data.client_secret.value;
+        log("Got token.");
+        
+        const pc = new RTCPeerConnection();
+        const audioEl = document.getElementById('audio');
+        
+        pc.ontrack = e => {
+          log("Got track!");
+          audioEl.srcObject = e.streams[0];
+        };
+        
+        log("Getting mic...");
+        const ms = await navigator.mediaDevices.getUserMedia({ audio: true });
+        pc.addTrack(ms.getTracks()[0]);
+        
+        const dc = pc.createDataChannel('oai-events');
+        dc.onopen = () => {
+          log("Data channel open.");
+          dc.send(JSON.stringify({
+             type: "response.create",
+             response: { modalities: ["audio", "text"], instructions: "Say 'Hello from WebRTC test'." }
+          }));
+        };
+        dc.onmessage = e => {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'error') log("ERROR: " + JSON.stringify(msg.error));
+          else if (msg.type === 'response.audio_transcript.done') log("AI: " + msg.transcript);
+          else if (msg.type === 'conversation.item.input_audio_transcription.completed') log("User: " + msg.transcript);
+        };
+        
+        log("Creating offer...");
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        log("Connecting to OpenAI...");
+        const sdpRes = await fetch("https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17", {
+          method: "POST", body: offer.sdp,
+          headers: { "Authorization": "Bearer " + key, "Content-Type": "application/sdp" }
+        });
+        
+        const answer = { type: 'answer', sdp: await sdpRes.text() };
+        await pc.setRemoteDescription(answer);
+        log("Connected.");
+      } catch (e) {
+        log("Exception: " + e.message);
+      }
+    };
+  </script>
+</body>
+</html>
