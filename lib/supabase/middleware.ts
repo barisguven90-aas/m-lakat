@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require authentication
@@ -24,23 +24,44 @@ export async function updateSession(request: NextRequest) {
         },
     })
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy_anon_key',
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll()
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => {
-                        request.cookies.set(name, value)
-                        response.cookies.set(name, value, options)
-                    })
-                },
-            },
+    // Create an edge-compatible supabase client since @supabase/ssr fails here on Vercel Edge
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321'
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy_anon_key'
+
+    // Attempt to manually fetch the auth token from cookies
+    const cookieHeader = request.headers.get('cookie')
+    const authHeaders = {
+        Authorization: '',
+    }
+
+    if (cookieHeader) {
+        // Typically Supabase stores the token in a cookie named sb-<project-ref>-auth-token
+        const cookies = cookieHeader.split(';').map(c => c.trim())
+        const sbCookie = cookies.find(c => c.startsWith('sb-') && c.endsWith('-auth-token'))
+        if (sbCookie) {
+            try {
+                // The cookie is a stringified JSON array where [0] is the access token
+                const cookieValue = decodeURIComponent(sbCookie.split('=')[1])
+                const tokenData = JSON.parse(cookieValue)
+                if (Array.isArray(tokenData) && tokenData[0]) {
+                    authHeaders.Authorization = `Bearer ${tokenData[0]}`
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
         }
-    )
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+        },
+        global: {
+            headers: authHeaders.Authorization ? authHeaders : {}
+        }
+    })
 
     const { data: { user } } = await supabase.auth.getUser()
 
