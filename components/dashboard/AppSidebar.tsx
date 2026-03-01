@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    Home, FileText, User, Settings, LogOut, BrainCircuit
+    Home, FileText, User, Settings, LogOut, BrainCircuit, CreditCard
 } from "lucide-react"
 import {
     Sidebar,
@@ -25,6 +25,7 @@ const navItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Applications", url: "/dashboard/applications", icon: FileText },
     { title: "Interviews", url: "/dashboard/interviews", icon: User },
+    { title: "Planlar", url: "/pricing", icon: CreditCard },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ]
 

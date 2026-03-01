@@ -1,75 +1,95 @@
-import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { headers } from 'next/headers';
+import { stripe } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Use Admin client for Webhook actions (bypass RLS)
-const getSupabase = () => createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321', // Fallback for build phase
+// Using Supabase Admin Client to bypass RLS for webhook operations
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key'
 );
 
-const getStripe = () => new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_123', {
-    apiVersion: '2025-02-24.acacia' as any,
-});
-
 export async function POST(req: Request) {
-    const supabase = getSupabase();
-    const stripe = getStripe();
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy';
     const body = await req.text();
-    // In Next.js 15+ headers() is async/awaitable, but in 14 it's sync. Assuming sync for now or check version.
-    // Next 16 might require await.
-    const signature = (await headers()).get('stripe-signature');
+    const headersList = await headers();
+    const signature = headersList.get('stripe-signature') as string;
 
     if (!signature) {
-        return NextResponse.json({ error: 'Missing stripe-signature' }, { status: 400 });
+        return new NextResponse('Missing stripe-signature', { status: 400 });
     }
 
-    let event: Stripe.Event;
+    let event;
 
     try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err: any) {
-        console.error(`Webhook Error: ${err.message}`);
-        return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+        event = stripe.webhooks.constructEvent(
+            body,
+            signature,
+            process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy'
+        );
+    } catch (error: any) {
+        console.error('Webhook Error:', error.message);
+        return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
     }
+
+    const session = event.data.object as any;
 
     try {
         switch (event.type) {
             case 'checkout.session.completed': {
-                const session = event.data.object as Stripe.Checkout.Session;
-                // Handle successful subscription creation
-                // Usually 'customer.subscription.created' handles the DB logic, but we can verify here.
+                if (session.mode === 'subscription') {
+                    const subscription = await stripe.subscriptions.retrieve(
+                        session.subscription as string
+                    );
+
+                    let userId = session.metadata?.userId;
+                    if (!userId) {
+                        const customer = await stripe.customers.retrieve(subscription.customer as string) as any;
+                        userId = customer.metadata?.supabaseUUID;
+                    }
+
+                    if (userId) {
+                        await supabaseAdmin
+                            .from('profiles')
+                            .update({
+                                stripe_subscription_id: subscription.id,
+                                stripe_customer_id: subscription.customer as string,
+                                stripe_price_id: subscription.items.data[0].price.id,
+                                stripe_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                                subscription_status: subscription.status,
+                            } as any)
+                            .eq('id', userId);
+                    }
+                }
                 break;
             }
-            case 'customer.subscription.created':
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted': {
                 const subscription = event.data.object as any;
 
-                const userId = subscription.metadata?.supabaseUUID; // Ensure metadata was passed during creation
+                // Find user by customer ID
+                const { data: profile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('id')
+                    .eq('stripe_customer_id', subscription.customer)
+                    .single();
 
-                // If userId is missing from subscription metadata (it often is unless propagated),
-                // retrieve customer and check metadata there.
-                let targetUserId = userId;
-                if (!userId) {
-                    const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
-                    targetUserId = customer.metadata?.supabaseUUID;
-                }
-
-                if (targetUserId) {
-                    await supabase.from('profiles').update({
-                        subscription_status: subscription.status,
-                        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString()
-                    }).eq('id', targetUserId);
+                if (profile) {
+                    await supabaseAdmin
+                        .from('profiles' as any)
+                        .update({
+                            stripe_price_id: subscription.items.data[0].price.id,
+                            stripe_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                            subscription_status: subscription.status,
+                        } as any)
+                        .eq('id', profile.id);
                 }
                 break;
             }
         }
-        return NextResponse.json({ received: true });
-    } catch (error) {
-        console.error('Webhook Handler Error:', error);
-        return NextResponse.json({ error: 'Webhook Handler Failed' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Database Update Error:', error);
+        return new NextResponse('Webhook handler failed. ' + error.message, { status: 500 });
     }
+
+    return new NextResponse('Webhook OK', { status: 200 });
 }
