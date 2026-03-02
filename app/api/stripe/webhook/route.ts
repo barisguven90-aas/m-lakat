@@ -39,7 +39,7 @@ export async function POST(req: Request) {
                 if (session.mode === 'subscription') {
                     const subscription = await stripe.subscriptions.retrieve(
                         session.subscription as string
-                    );
+                    ) as any;
 
                     let userId = session.metadata?.userId;
                     if (!userId) {
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
                     if (userId) {
                         await supabaseAdmin
-                            .from('profiles')
+                            .from('profiles' as any)
                             .update({
                                 stripe_subscription_id: subscription.id,
                                 stripe_customer_id: subscription.customer as string,
