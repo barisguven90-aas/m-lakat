@@ -37,13 +37,13 @@ export async function POST(req: Request) {
         switch (event.type) {
             case 'checkout.session.completed': {
                 if (session.mode === 'subscription') {
-                    const subscription = await stripe.subscriptions.retrieve(
+                    const sub = await stripe.subscriptions.retrieve(
                         session.subscription as string
                     ) as any;
 
                     let userId = session.metadata?.userId;
                     if (!userId) {
-                        const customer = await stripe.customers.retrieve(subscription.customer as string) as any;
+                        const customer = await stripe.customers.retrieve(sub.customer as string) as any;
                         userId = customer.metadata?.supabaseUUID;
                     }
 
@@ -51,11 +51,11 @@ export async function POST(req: Request) {
                         await supabaseAdmin
                             .from('profiles' as any)
                             .update({
-                                stripe_subscription_id: subscription.id,
-                                stripe_customer_id: subscription.customer as string,
-                                stripe_price_id: subscription.items.data[0].price.id,
-                                stripe_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                                subscription_status: subscription.status,
+                                stripe_subscription_id: sub.id,
+                                stripe_customer_id: sub.customer as string,
+                                stripe_price_id: sub.items.data[0].price.id,
+                                stripe_current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+                                subscription_status: sub.status,
                             } as any)
                             .eq('id', userId);
                     }
@@ -64,22 +64,22 @@ export async function POST(req: Request) {
             }
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted': {
-                const subscription = event.data.object as any;
+                const sub = event.data.object as any;
 
                 // Find user by customer ID
                 const { data: profile } = await supabaseAdmin
                     .from('profiles')
                     .select('id')
-                    .eq('stripe_customer_id', subscription.customer)
+                    .eq('stripe_customer_id', sub.customer)
                     .single();
 
                 if (profile) {
                     await supabaseAdmin
                         .from('profiles' as any)
                         .update({
-                            stripe_price_id: subscription.items.data[0].price.id,
-                            stripe_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                            subscription_status: subscription.status,
+                            stripe_price_id: sub.items.data[0].price.id,
+                            stripe_current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+                            subscription_status: sub.status,
                         } as any)
                         .eq('id', profile.id);
                 }
