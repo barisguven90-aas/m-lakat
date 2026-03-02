@@ -13,10 +13,11 @@ export function GoogleAuthButton() {
     const handleGoogleLogin = async () => {
         try {
             setIsLoading(true)
+            const origin = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || "https://intervioai.com";
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+                    redirectTo: `${origin}/auth/callback`,
                 },
             })
 
