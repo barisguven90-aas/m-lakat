@@ -8,24 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/co
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { BrainCircuit, Sparkles, Target, TrendingUp } from "lucide-react"
+import { AnimatedAuthBackground } from "@/components/ui/animated-background"
 
 export default function LoginPage() {
     return (
         <div className="min-h-screen w-full relative flex items-center justify-center p-4 overflow-hidden bg-neutral-950">
-            {/* Animated gradient background — no external image dependency */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0" style={{
-                    background: 'radial-gradient(ellipse 80% 80% at 50% -20%, rgba(59,130,246,0.15), transparent), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(99,102,241,0.10), transparent)'
-                }} />
-                {/* Subtle grid */}
-                <div className="absolute inset-0 opacity-[0.04]" style={{
-                    backgroundImage: 'linear-gradient(rgba(99,179,237,1) 1px, transparent 1px), linear-gradient(90deg, rgba(99,179,237,1) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px'
-                }} />
-                {/* Decorative floating blobs */}
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
-                <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s', animationDelay: '2s' }} />
-            </div>
+            {/* Animated 21st.dev style particle background */}
+            <AnimatedAuthBackground />
 
             {/* Feature pills — top */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-3 z-10">

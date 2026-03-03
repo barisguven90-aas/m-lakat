@@ -8,22 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/co
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { BrainCircuit, CheckCircle } from "lucide-react"
+import { AnimatedAuthBackground } from "@/components/ui/animated-background"
 
 export default function SignUpPage() {
     return (
         <div className="min-h-screen w-full relative flex items-center justify-center p-4 overflow-hidden bg-neutral-950">
-            {/* Animated gradient background — no external image dependency */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0" style={{
-                    background: 'radial-gradient(ellipse 80% 80% at 50% -20%, rgba(16,185,129,0.12), transparent), radial-gradient(ellipse 60% 60% at 20% 100%, rgba(59,130,246,0.08), transparent)'
-                }} />
-                <div className="absolute inset-0 opacity-[0.04]" style={{
-                    backgroundImage: 'linear-gradient(rgba(16,185,129,1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,1) 1px, transparent 1px)',
-                    backgroundSize: '60px 60px'
-                }} />
-                <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-emerald-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
-                <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '9s', animationDelay: '1s' }} />
-            </div>
+            {/* Animated 21st.dev style particle background */}
+            <AnimatedAuthBackground />
 
             <div className="relative z-10 w-full max-w-md">
                 {/* Logo */}

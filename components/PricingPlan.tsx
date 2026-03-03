@@ -26,17 +26,18 @@ export function PricingPlan() {
                 body: JSON.stringify({ priceId }),
             });
 
+            const data = await res.json();
+
             if (!res.ok) {
-                throw new Error('Ödeme başlatılamadı');
+                throw new Error(data?.message || data?.error || 'Ödeme başlatılamadı');
             }
 
-            const data = await res.json();
             if (data.url) {
                 window.location.href = data.url;
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Checkout error:', error);
-            toast.error('Ödeme işlemi başlatılırken hata oluştu.');
+            toast.error(error.message || 'Ödeme işlemi başlatılırken hata oluştu.');
         } finally {
             setIsLoading(null);
         }
