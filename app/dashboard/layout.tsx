@@ -6,18 +6,35 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
 import { PaymentSuccessModal } from "@/components/dashboard/PaymentSuccessModal"
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        redirect('/login');
+    }
+
+    // Check onboarding status
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .single();
+
+    if (profile && !profile.onboarding_completed) {
+        redirect('/onboarding');
+    }
+
     return (
         <SidebarProvider>
             <AppSidebar />

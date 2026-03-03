@@ -287,17 +287,23 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         {recentApplications.length === 0 ? (
-                            <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/10 hover:bg-muted/30 transition-colors">
-                                <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-4">
-                                    <Target className="h-7 w-7 text-blue-500" />
+                            <div className="text-center py-12 px-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 shadow-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/10 transition-colors duration-500" />
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/20 flex items-center justify-center mb-5 shadow-inner border border-white/50 dark:border-white/5">
+                                        <Target className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No applications yet</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-sm text-center leading-relaxed">
+                                        Paste a job posting URL or enter details manually. We'll analyze your fit and prepare custom interview questions.
+                                    </p>
+                                    <Link href="/dashboard/applications/new">
+                                        <Button className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 border-0 rounded-full font-semibold transition-all hover:scale-105 active:scale-95">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Add First Application
+                                        </Button>
+                                    </Link>
                                 </div>
-                                <h3 className="text-lg font-semibold mb-1">No applications yet</h3>
-                                <p className="text-sm text-muted-foreground/80 mb-6 max-w-xs mx-auto">Add a job posting to get AI-powered interview prep tailored to your role.</p>
-                                <Link href="/dashboard/applications/new">
-                                    <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white shadow-md hover:shadow-lg transition-all">
-                                        <Plus className="h-4 w-4 mr-1.5" /> Add First Application
-                                    </Button>
-                                </Link>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -342,17 +348,23 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         {recentSessions.length === 0 ? (
-                            <div className="text-center py-10 border-2 border-dashed rounded-xl bg-muted/10 hover:bg-muted/30 transition-colors h-full flex flex-col justify-center items-center h-[280px]">
-                                <div className="h-14 w-14 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center mx-auto mb-4">
-                                    <MessageSquare className="h-7 w-7 text-purple-500" />
+                            <div className="text-center py-12 px-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 shadow-sm relative overflow-hidden group h-full min-h-[300px] flex flex-col justify-center">
+                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 group-hover:bg-purple-500/10 transition-colors duration-500" />
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-100 to-pink-50 dark:from-purple-900/40 dark:to-pink-900/20 flex items-center justify-center mb-5 shadow-inner border border-white/50 dark:border-white/5">
+                                        <MessageSquare className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No sessions yet</h3>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-[240px] text-center leading-relaxed">
+                                        Complete your first mock interview to view history, feedback, and performance tracking.
+                                    </p>
+                                    <Link href="/dashboard/applications">
+                                        <Button variant="outline" className="h-11 px-6 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-full font-semibold transition-all">
+                                            <Play className="h-4 w-4 mr-2" />
+                                            Start Practicing
+                                        </Button>
+                                    </Link>
                                 </div>
-                                <h3 className="text-lg font-semibold mb-1">No sessions yet</h3>
-                                <p className="text-sm text-muted-foreground/80 mb-6 max-w-[200px]">Complete your first mock interview to view history</p>
-                                <Link href="/dashboard/applications">
-                                    <Button variant="outline" size="sm" className="shadow-sm hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 hover:border-purple-200 transition-all">
-                                        <Play className="h-4 w-4 mr-1.5" /> Start Practicing
-                                    </Button>
-                                </Link>
                             </div>
                         ) : (
                             <div className="space-y-3">
