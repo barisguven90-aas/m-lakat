@@ -8,14 +8,14 @@ export async function POST(req: Request) {
         const priceId = body.priceId;
 
         if (!priceId) {
-            return new NextResponse('Price ID is required', { status: 400 });
+            return NextResponse.json({ error: 'Price ID is required' }, { status: 400 });
         }
 
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            return new NextResponse('Unauthorized', { status: 401 });
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         // Attempt to get user profile to check if they already have a stripe customer id
@@ -62,7 +62,16 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ url: checkoutSession.url });
     } catch (error: any) {
-        console.error('Stripe Checkout Error:', error);
-        return new NextResponse('Internal Error', { status: 500 });
+        console.error('[STRIPE_CHECKOUT_ERROR]', error);
+        return new NextResponse(
+            JSON.stringify({
+                error: 'Internal Error',
+                message: error.message || 'Unknown error occurred during checkout initialization.'
+            }),
+            {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );
     }
 }

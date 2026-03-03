@@ -97,15 +97,7 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter className="p-3 border-t border-sidebar-border space-y-1">
-                {/* User profile row */}
-                {userName && (
-                    <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-sidebar-accent/30 mb-1">
-                        <div className="h-7 w-7 rounded-full bg-blue-600/30 border border-blue-500/30 flex items-center justify-center flex-shrink-0 text-xs font-bold text-blue-300">
-                            {userInitial}
-                        </div>
-                        <span className="text-sm text-sidebar-foreground truncate font-medium">{userName}</span>
-                    </div>
-                )}
+                {/* Note: Profile has been moved to top-right DashboardHeader */}
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
