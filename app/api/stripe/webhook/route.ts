@@ -20,15 +20,34 @@ export async function POST(req: Request) {
 
     let event;
 
-    try {
-        event = stripe.webhooks.constructEvent(
-            body,
-            signature,
-            process.env.STRIPE_WEBHOOK_SECRET_NEW || process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy'
-        );
-    } catch (error: any) {
-        console.error('Webhook Error:', error.message);
-        return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
+    // Stripe generates unique secrets for every webhook endpoint. 
+    // This array attempts all known secrets to support multiple concurrent webhooks.
+    const secrets = [
+        process.env.STRIPE_WEBHOOK_SECRET_NEW,
+        process.env.STRIPE_WEBHOOK_SECRET,
+        'whsec_dummy'
+    ].filter(Boolean) as string[];
+
+    let lastError: any;
+    for (const secret of secrets) {
+        try {
+            event = stripe.webhooks.constructEvent(body, signature, secret);
+            lastError = null; // Signature verified!
+            break;
+        } catch (err: any) {
+            lastError = err;
+        }
+    }
+
+    if (lastError) {
+        console.error('Webhook Signature Error:', lastError.message);
+        return new NextResponse(`Webhook Error: ${lastError.message}`, { status: 400 });
+    }
+
+    // Safely parse event object making sure we skip missing thin events
+    if (!event || !event.data || !event.data.object) {
+        console.warn('Received Webhook without data object (likely a thin event). Ignoring.');
+        return new NextResponse('Ignored thin event', { status: 200 });
     }
 
     const session = event.data.object as any;
@@ -75,6 +94,7 @@ export async function POST(req: Request) {
                         });
                     }
                 }
+                break; // ADDING THE MISSING BREAK DIRECTLY
             }
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted': {
