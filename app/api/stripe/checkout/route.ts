@@ -11,6 +11,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Price ID is required' }, { status: 400 });
         }
 
+        if (!process.env.STRIPE_SECRET_KEY) {
+            return NextResponse.json({
+                error: 'Stripe Config Error',
+                message: 'Stripe Secret Key eksik. Lütfen Vercel paneline STRIPE_SECRET_KEY değerini girdiğinizden emin olun.'
+            }, { status: 500 });
+        }
+
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
