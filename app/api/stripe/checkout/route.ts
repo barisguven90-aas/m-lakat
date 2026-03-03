@@ -40,7 +40,8 @@ export async function POST(req: Request) {
             // Optional: Wait for webhook to update profile, but using customerId directly here for checkout
         }
 
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const origin = req.headers.get('origin');
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin || 'https://intervioai.com';
 
         const checkoutSession = await stripe.checkout.sessions.create({
             customer: customerId,
