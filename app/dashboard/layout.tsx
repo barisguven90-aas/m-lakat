@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/breadcrumb"
 
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader"
+import { PaymentSuccessModal } from "@/components/dashboard/PaymentSuccessModal"
 
 export default function DashboardLayout({
     children,
@@ -40,6 +41,7 @@ export default function DashboardLayout({
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-10">
                     {children}
                 </div>
+                <PaymentSuccessModal />
             </SidebarInset>
         </SidebarProvider>
     )

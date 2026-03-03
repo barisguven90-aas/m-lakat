@@ -54,14 +54,27 @@ export async function POST(req: Request) {
                                 stripe_subscription_id: sub.id,
                                 stripe_customer_id: sub.customer as string,
                                 stripe_price_id: sub.items.data[0].price.id,
-                                // @ts-ignore: bypass strict type checking for current_period_end on stripe subscription
+                                // @ts-ignore
                                 stripe_current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
                                 subscription_status: sub.status,
                             } as any)
                             .eq('id', userId);
+
+                        // Insert into billing_events for Payment Success modal
+                        // @ts-ignore: generic table insert bypass 
+                        await supabaseAdmin.from('billing_events').insert({
+                            user_id: userId,
+                            stripe_event_id: event.id,
+                            type: 'payment_success',
+                            payload_json: {
+                                plan_name: sub.items.data[0].price.id === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ? 'Intervio Pro — Annual' : 'Intervio Pro — Monthly',
+                                status: sub.status,
+                                // @ts-ignore
+                                current_period_end: new Date(sub.current_period_end * 1000).toISOString()
+                            }
+                        });
                     }
                 }
-                break;
             }
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted': {
