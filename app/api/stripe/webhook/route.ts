@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         event = stripe.webhooks.constructEvent(
             body,
             signature,
-            process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy'
+            process.env.STRIPE_WEBHOOK_SECRET_NEW || process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy'
         );
     } catch (error: any) {
         console.error('Webhook Error:', error.message);
