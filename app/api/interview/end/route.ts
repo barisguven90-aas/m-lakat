@@ -21,6 +21,17 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Failed to end session' }, { status: 500 });
         }
 
+        // Create notification for completed interview
+        try {
+            await supabase.from('notifications').insert({
+                user_id: user.id,
+                title: 'Interview Completed! 🎉',
+                message: 'Your interview session has been completed. Check your feedback report for detailed analysis and improvement tips.',
+                type: 'success',
+                link: `/dashboard/interview/${sessionId}/feedback`
+            });
+        } catch { /* silent fail if table doesn't exist yet */ }
+
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('End Interview Error:', error);

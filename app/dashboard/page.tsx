@@ -8,20 +8,25 @@ import {
     Briefcase, MessageSquare, ArrowRight, Loader2, Plus,
     BookOpen, Target, Sparkles, Rocket,
     Upload, Play, BarChart3, Users,
-    CheckCircle, Clock, Mic
+    CheckCircle, Clock, Mic, TrendingUp, Trophy, Zap
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import dynamic from "next/dynamic";
+
+const ActivityChart = dynamic(() => import("@/components/dashboard/ActivityChart").then(m => m.ActivityChart), { ssr: false });
 
 export default function DashboardPage() {
     const [stats, setStats] = useState({
         applications: 0,
         interviews: 0,
         completedInterviews: 0,
-        avgScore: 0
+        avgScore: 0,
+        weeklyInterviews: 0
     });
     const [recentApplications, setRecentApplications] = useState<any[]>([]);
     const [recentSessions, setRecentSessions] = useState<any[]>([]);
+    const [allSessions, setAllSessions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [userName, setUserName] = useState('');
     const supabase = createClient();
@@ -39,6 +44,11 @@ export default function DashboardPage() {
                 const { count: sessionCount } = await supabase.from('interview_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
                 const { data: sessionsWithFeedback } = await supabase.from('interview_sessions').select('*, session_feedback(job_match_score)').eq('user_id', user.id).eq('status', 'completed');
 
+                // Weekly interviews trend
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                const { count: weeklyCount } = await supabase.from('interview_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', weekAgo.toISOString());
+
                 let totalScore = 0;
                 let scoreCount = 0;
                 sessionsWithFeedback?.forEach((s: any) => {
@@ -52,14 +62,26 @@ export default function DashboardPage() {
                     applications: appCount || 0,
                     interviews: sessionCount || 0,
                     completedInterviews: scoreCount,
-                    avgScore: scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0
+                    avgScore: scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0,
+                    weeklyInterviews: weeklyCount || 0
                 });
 
                 const { data: apps } = await supabase.from('applications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3);
                 setRecentApplications(apps || []);
 
-                const { data: sessions } = await supabase.from('interview_sessions').select('*, applications(job_title, job_company)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3);
+                const { data: sessions } = await supabase.from('interview_sessions').select('*, applications(job_title, job_company), session_feedback(job_match_score, star_methodology_score, clarity_score)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3);
                 setRecentSessions(sessions || []);
+
+                // Last 30 days sessions for chart
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const { data: chartSessions } = await supabase
+                    .from('interview_sessions')
+                    .select('created_at, status, session_feedback(job_match_score, star_methodology_score, clarity_score)')
+                    .eq('user_id', user.id)
+                    .gte('created_at', thirtyDaysAgo.toISOString())
+                    .order('created_at', { ascending: true });
+                setAllSessions(chartSessions || []);
 
 
             } catch (error) {
@@ -84,6 +106,15 @@ export default function DashboardPage() {
     }
 
     const isNewUser = stats.applications === 0 && stats.interviews === 0;
+
+    const getLevel = (score: number) => {
+        if (score === 0) return { label: '—', color: 'text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800' };
+        if (score < 41) return { label: 'Beginner', color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' };
+        if (score < 61) return { label: 'Intermediate', color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' };
+        if (score < 81) return { label: 'Advanced', color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' };
+        return { label: 'Expert', color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' };
+    };
+    const level = getLevel(stats.avgScore);
 
     // ─── ONBOARDING VIEW (First-time users) ───
     if (isNewUser) {
@@ -223,59 +254,104 @@ export default function DashboardPage() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="border-muted/60 shadow-sm">
+                {/* Applications */}
+                <Card className="border-muted/60 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-5">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                                 <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div>
-                                <div className="text-2xl font-bold">{stats.applications}</div>
-                                <div className="text-xs text-muted-foreground">Applications</div>
-                            </div>
                         </div>
+                        <div className="text-3xl font-black tracking-tight">{stats.applications}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">Applications</div>
                     </CardContent>
                 </Card>
-                <Card className="border-muted/60 shadow-sm">
+
+                {/* Total Interviews + Weekly Trend */}
+                <Card className="border-muted/60 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-5">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="h-10 w-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                                 <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div>
-                                <div className="text-2xl font-bold">{stats.interviews}</div>
-                                <div className="text-xs text-muted-foreground">Interviews</div>
-                            </div>
+                            {stats.weeklyInterviews > 0 && (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                    <TrendingUp className="h-2.5 w-2.5" /> {stats.weeklyInterviews} this week
+                                </span>
+                            )}
                         </div>
+                        <div className="text-3xl font-black tracking-tight">{stats.interviews}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">Interviews</div>
                     </CardContent>
                 </Card>
-                <Card className="border-muted/60 shadow-sm">
+
+                {/* Completed + Progress Bar */}
+                <Card className="border-muted/60 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-5">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                                 <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div>
-                                <div className="text-2xl font-bold">{stats.completedInterviews}</div>
-                                <div className="text-xs text-muted-foreground">Completed</div>
-                            </div>
                         </div>
+                        <div className="text-3xl font-black tracking-tight">{stats.completedInterviews}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">Completed</div>
+                        {stats.interviews > 0 && (
+                            <div className="mt-3">
+                                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-700"
+                                        style={{ width: `${Math.min(100, Math.round((stats.completedInterviews / stats.interviews) * 100))}%` }}
+                                    />
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-1">{Math.round((stats.completedInterviews / stats.interviews) * 100)}% completion rate</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
-                <Card className="border-muted/60 shadow-sm">
+
+                {/* Avg Score + Level Badge */}
+                <Card className="border-muted/60 shadow-sm hover:shadow-md transition-shadow">
                     <CardContent className="p-5">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                <BarChart3 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <div>
-                                <div className="text-2xl font-bold">{stats.avgScore > 0 ? `${stats.avgScore}%` : '—'}</div>
-                                <div className="text-xs text-muted-foreground">Avg Score</div>
-                            </div>
+                            {level.label !== '—' && (
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${level.color} ${level.bg}`}>
+                                    {level.label}
+                                </span>
+                            )}
                         </div>
+                        <div className="text-3xl font-black tracking-tight">{stats.avgScore > 0 ? `${stats.avgScore}%` : '—'}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">Avg Score</div>
+                        {stats.avgScore > 0 && (
+                            <div className="mt-3">
+                                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-700"
+                                        style={{ width: `${stats.avgScore}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Activity Chart */}
+            {allSessions.length > 0 && (
+                <Card className="border-muted/60 shadow-sm">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4 text-indigo-500" /> 30-Day Activity
+                        </CardTitle>
+                        <CardDescription className="text-xs">Your interview practice and score trends</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                        <ActivityChart sessions={allSessions} />
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Recent Activity Section */}
             <div className="grid gap-6 md:grid-cols-7">
@@ -376,6 +452,8 @@ export default function DashboardPage() {
                                     const href = session.status === 'completed'
                                         ? `/dashboard/interview/${session.id}/feedback`
                                         : activeHref;
+                                    const fb = session.session_feedback?.[0];
+                                    const sessionScore = fb ? Math.round(((fb.job_match_score || 0) + (fb.star_methodology_score || 0) + (fb.clarity_score || 0)) / 3) : null;
                                     return (
                                         <Link
                                             key={session.id}
@@ -391,6 +469,11 @@ export default function DashboardPage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
+                                                    {sessionScore !== null && (
+                                                        <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${sessionScore >= 70 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : sessionScore >= 50 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'}`}>
+                                                            {sessionScore}%
+                                                        </span>
+                                                    )}
                                                     {isVoice && (
                                                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 font-medium flex items-center gap-0.5">
                                                             <Mic className="h-2.5 w-2.5" />

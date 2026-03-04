@@ -4,6 +4,7 @@ import { generateComprehensiveFeedback } from '@/lib/feedback/generate-feedback'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { SendReportButton } from '@/components/interview/SendReportButton';
 import {
     CheckCircle, AlertTriangle, XCircle, ArrowLeft, Target, TrendingUp,
     TrendingDown, Minus, Brain, MessageSquare, Sparkles, Award, Shield,
@@ -219,6 +220,14 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
             (feedback.relevance_score || feedback.job_match_score || 0)) / 5
     );
 
+    const getLevel = (score: number) => {
+        if (score < 41) return { label: 'Beginner', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30', icon: '🌱' };
+        if (score < 61) return { label: 'Intermediate', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: '📈' };
+        if (score < 81) return { label: 'Advanced', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: '🚀' };
+        return { label: 'Expert', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: '👑' };
+    };
+    const level = getLevel(overallAvg);
+
     return (
         <div className="min-h-screen">
             {/* ─── Hero Header ─── */}
@@ -246,13 +255,21 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             <p className="text-slate-400">
                                 {session.applications?.job_company || ''} • {session.interview_type?.replace('_', ' ')} Interview
                             </p>
+                            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold border mt-3 ${level.color}`}>
+                                <span>{level.icon}</span>
+                                <span>{level.label} Level</span>
+                                <span className="text-xs opacity-60">({overallAvg}/100)</span>
+                            </div>
                         </div>
 
-                        <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
-                            <Link href="/dashboard">
-                                Back to Dashboard
-                            </Link>
-                        </Button>
+                        <div className="flex gap-3">
+                            <SendReportButton sessionId={sessionId} />
+                            <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
+                                <Link href="/dashboard">
+                                    Back to Dashboard
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
