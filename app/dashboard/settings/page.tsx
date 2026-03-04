@@ -67,9 +67,14 @@ export default function SettingsPage() {
             }
             const res = await fetch('/api/stripe/portal', { method: 'POST' });
             const data = await res.json();
-            if (data.url) window.location.href = data.url;
-            else toast.error('Could not open billing portal');
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                console.error('Portal error:', data.error);
+                toast.error(data.error || 'Could not open billing portal. Please try again.');
+            }
         } catch (error) {
+            console.error('Subscription error:', error);
             toast.error('Failed to redirect to billing portal');
         } finally {
             setUpdating(false);
@@ -105,7 +110,7 @@ export default function SettingsPage() {
 
                 {/* Profile Container overlapping the cover */}
                 <div className="container mx-auto px-4 sm:px-6 relative -mt-12 md:-mt-14 mb-8">
-                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-end">
+                    <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start sm:items-center">
 
                         {/* Avatar */}
                         <div className="relative shrink-0">
@@ -124,11 +129,11 @@ export default function SettingsPage() {
                         </div>
 
                         {/* User Info */}
-                        <div className="flex-1 min-w-0 pb-1">
-                            <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 justify-between w-full">
+                        <div className="flex-1 min-w-0 pt-2 sm:pt-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 justify-between w-full">
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white truncate">
+                                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-none">
                                             {profile?.full_name || 'User'}
                                         </h1>
                                         {isPro && (

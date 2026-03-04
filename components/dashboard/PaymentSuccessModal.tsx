@@ -97,7 +97,7 @@ export function PaymentSuccessModal() {
                     </div>
 
                     <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
-                        Payment received ✅
+                        Payment received
                     </DialogTitle>
                     <DialogDescription className="text-slate-600 dark:text-slate-400 font-medium mt-1">
                         Welcome to {planName}.
