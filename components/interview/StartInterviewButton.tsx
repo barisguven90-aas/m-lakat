@@ -105,10 +105,6 @@ const COMPANY_STYLES = [
 const LANGUAGES = [
     { id: 'en', label: 'English', flag: '🇬🇧' },
     { id: 'tr', label: 'Türkçe', flag: '🇹🇷' },
-    { id: 'es', label: 'Español', flag: '🇪🇸' },
-    { id: 'fr', label: 'Français', flag: '🇫🇷' },
-    { id: 'de', label: 'Deutsch', flag: '🇩🇪' },
-    { id: 'zh', label: '中文', flag: '🇨🇳' }
 ];
 
 export function StartInterviewButton({ applicationId, variant = "default", className }: StartInterviewButtonProps) {

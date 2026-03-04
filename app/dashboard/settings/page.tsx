@@ -108,9 +108,9 @@ export default function SettingsPage() {
                     <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
 
-                {/* Profile Container overlapping the cover */}
+                {/* Profile Container */}
                 <div className="container mx-auto px-4 sm:px-6 relative -mt-12 md:-mt-14 mb-8">
-                    <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start sm:items-center">
+                    <div className="flex flex-col items-center text-center gap-4">
 
                         {/* Avatar */}
                         <div className="relative shrink-0">
@@ -128,52 +128,48 @@ export default function SettingsPage() {
                             )}
                         </div>
 
-                        {/* User Info */}
-                        <div className="flex-1 min-w-0 pt-2 sm:pt-0">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 justify-between w-full">
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-none">
-                                            {profile?.full_name || 'User'}
-                                        </h1>
-                                        {isPro && (
-                                            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
-                                                <Sparkles className="h-2.5 w-2.5" /> PRO
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1.5 mt-1 truncate">
-                                        <Mail className="h-3.5 w-3.5 shrink-0" /> {profile?.email}
-                                    </p>
-                                </div>
-
-                                {/* Action buttons */}
-                                <div className="flex gap-2 shrink-0">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs h-8"
-                                        onClick={() => {
-                                            setActiveTab('profile');
-                                            document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
-                                        }}
-                                    >
-                                        <Settings className="h-3.5 w-3.5 mr-1.5" />
-                                        Edit Profile
-                                    </Button>
-                                    {isPro && (
-                                        <Button
-                                            size="sm"
-                                            onClick={handleManageSubscription}
-                                            disabled={updating}
-                                            className="rounded-full shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white text-xs h-8"
-                                        >
-                                            {updating ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5 mr-1.5" />}
-                                            Manage Billing
-                                        </Button>
-                                    )}
-                                </div>
+                        {/* User Info — below avatar, solid background */}
+                        <div className="min-w-0">
+                            <div className="flex items-center justify-center gap-2 flex-wrap">
+                                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    {profile?.full_name || 'User'}
+                                </h1>
+                                {isPro && (
+                                    <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
+                                        <Sparkles className="h-2.5 w-2.5" /> PRO
+                                    </span>
+                                )}
                             </div>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center justify-center gap-1.5 mt-1">
+                                <Mail className="h-3.5 w-3.5 shrink-0" /> {profile?.email}
+                            </p>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs h-8"
+                                onClick={() => {
+                                    setActiveTab('profile');
+                                    document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                            >
+                                <Settings className="h-3.5 w-3.5 mr-1.5" />
+                                Edit Profile
+                            </Button>
+                            {isPro && (
+                                <Button
+                                    size="sm"
+                                    onClick={handleManageSubscription}
+                                    disabled={updating}
+                                    className="rounded-full shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white text-xs h-8"
+                                >
+                                    {updating ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5 mr-1.5" />}
+                                    Manage Billing
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>

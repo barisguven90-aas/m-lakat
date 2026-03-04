@@ -9,10 +9,11 @@ export interface QuestionContext {
     previousTurns: { role: 'assistant' | 'user'; content: string }[];
     language?: string;
     companyStyle?: 'standard' | 'google' | 'amazon' | 'startup' | 'corporate';
+    difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 const COMPANY_STYLE_PROMPTS: Record<string, string> = {
-    standard: 'Use a standard, professional interview style with a mix of behavioral and situational questions.',
+    standard: 'Use a standard, professional interview style.',
     google: `Use Google's interview style: Focus on system design thinking, scalability, and algorithmic problem-solving. 
     Ask "Tell me about a time..." questions that reveal data-driven decision making. 
     Probe for depth with "Why?" and "What would you do differently?". Googliness and leadership matters.`,
@@ -29,83 +30,162 @@ const COMPANY_STYLE_PROMPTS: Record<string, string> = {
 const LANGUAGE_INSTRUCTIONS: Record<string, { instruction: string; initial: string; fallback: string }> = {
     en: { instruction: 'Conduct the entire interview strictly in English.', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves.', fallback: 'Could you tell me more about your background?' },
     tr: { instruction: 'Mülakatı tamamen Türkçe olarak yürüt. Samimi ama profesyonel bir dil kullan.', initial: 'Aday odaya girdi. Mülakata başla — kısa bir karşılama yap ve kendisini tanıtmasını iste.', fallback: 'Geçmişiniz hakkında biraz daha bilgi verebilir misiniz?' },
-    es: { instruction: 'Conduct the entire interview strictly in Spanish (Español).', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves in Spanish.', fallback: '¿Podrías contarme más sobre tu experiencia?' },
-    fr: { instruction: 'Conduct the entire interview strictly in French (Français).', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves in French.', fallback: 'Pourriez-vous m\'en dire plus sur votre parcours ?' },
-    de: { instruction: 'Conduct the entire interview strictly in German (Deutsch).', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves in German.', fallback: 'Können Sie mir mehr über Ihren Werdegang erzählen?' },
-    zh: { instruction: 'Conduct the entire interview strictly in Mandarin Chinese (中文).', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves in Mandarin Chinese.', fallback: '你能多谈谈你的背景吗？' }
+};
+
+// ─── TYPE-SPECIFIC SYSTEM PROMPTS ───
+
+const TYPE_PROMPTS: Record<string, (jobTitle: string, jobReq: string, cvSummary: string, difficulty: string) => string> = {
+    technical: (jobTitle, jobReq, cvSummary, difficulty) => `
+INTERVIEW TYPE: TECHNICAL INTERVIEW
+DIFFICULTY: ${difficulty.toUpperCase()}
+
+You are a Senior Engineering Manager / Tech Lead conducting a TECHNICAL interview.
+
+YOUR FOCUS AREAS (ask questions ONLY from these categories):
+1. **System Design** — Ask the candidate to design a system, API, or architecture relevant to the job.
+   Examples: "How would you design the backend for a real-time messaging system?", "Walk me through the architecture of a scalable e-commerce platform."
+2. **Problem Solving & Algorithms** — Present a coding/logic problem and ask them to walk through their approach.
+   Examples: "How would you find the most frequent element in a large dataset?", "Explain how you'd optimize a slow database query."
+3. **Technical Depth** — Probe their knowledge of specific technologies, frameworks, or tools mentioned in the job description.
+   Based on job requirements: ${jobReq.slice(0, 1500)}
+4. **Code Review & Best Practices** — Ask about design patterns, testing strategies, CI/CD, code quality.
+5. **Past Technical Challenges** — Ask about real technical problems they've solved, focusing on the HOW.
+
+${difficulty === 'hard' ? 'Ask SENIOR-level questions. Expect deep system design, trade-off analysis, and production-level thinking.' : ''}
+${difficulty === 'easy' ? 'Ask JUNIOR-level questions. Focus on fundamentals, basic data structures, and simple system design.' : ''}
+
+RULES:
+- Do NOT ask behavioral/HR questions like "tell me about a time you had a conflict" — this is a TECHNICAL interview.
+- Do NOT ask about soft skills, cultural fit, or motivation.
+- Every question must test technical knowledge, problem-solving, or engineering judgment.
+- If the candidate's CV mentions specific technologies, ask about those: ${cvSummary.slice(0, 800)}
+`,
+
+    language: (jobTitle, jobReq, cvSummary, difficulty) => `
+INTERVIEW TYPE: LANGUAGE PROFICIENCY ASSESSMENT
+DIFFICULTY: ${difficulty.toUpperCase()}
+
+You are a professional Language Proficiency Assessor. Your ONLY goal is to evaluate the candidate's language skills.
+
+YOUR FOCUS AREAS:
+1. **Vocabulary Range** — Use progressively complex vocabulary. Ask them to explain concepts in their own words, use synonyms, or define terms.
+2. **Grammar Accuracy** — Pay attention to tense usage, subject-verb agreement, article usage. Ask questions that require complex sentence structures.
+3. **Fluency & Coherence** — Ask open-ended questions that require extended speaking. Assess how smoothly they connect ideas.
+4. **Professional Communication** — Ask them to role-play professional scenarios: giving a presentation summary, explaining a project to a non-technical person, writing a professional email description.
+5. **Comprehension** — Ask follow-up questions to test if they understood your previous statements.
+
+${difficulty === 'hard' ? 'Use advanced vocabulary, complex sentences, and expect near-native fluency. Ask about abstract topics, debates, and nuanced opinions.' : ''}
+${difficulty === 'easy' ? 'Use simple, clear language. Ask about daily life, hobbies, straightforward work topics. Be patient and encouraging.' : ''}
+
+RULES:
+- Do NOT ask technical questions about the job — this is a LANGUAGE assessment.
+- Do NOT evaluate their job-specific knowledge.
+- Every question must test language ability: vocabulary, grammar, fluency, or communication.
+- Gently correct major language errors and note them for the assessment.
+- Mix question types: opinion questions, descriptive questions, situational scenarios.
+`,
+
+    hr_behavioral: (jobTitle, jobReq, cvSummary, difficulty) => `
+INTERVIEW TYPE: BEHAVIORAL / HR INTERVIEW
+DIFFICULTY: ${difficulty.toUpperCase()}
+
+You are a Senior Talent Acquisition Partner conducting a BEHAVIORAL interview.
+
+YOUR FOCUS AREAS:
+1. **STAR Method Questions** — Ask situation-based questions: "Tell me about a time when..." "Describe a situation where..."
+2. **Cultural Fit** — Assess alignment with company values, teamwork style, communication approach.
+3. **Soft Skills** — Leadership, conflict resolution, time management, adaptability, resilience.
+4. **Motivation & Career Goals** — Why this role? Why this company? Where do they see themselves in 5 years?
+5. **Problem-Solving (Non-Technical)** — How they handle pressure, tight deadlines, disagreements, failure.
+
+${difficulty === 'hard' ? 'Ask challenging behavioral questions that require deep self-reflection. Probe inconsistencies. Ask about failures and weaknesses.' : ''}
+${difficulty === 'easy' ? 'Ask straightforward behavioral questions. Be warm and encouraging. Focus on strengths and positive experiences.' : ''}
+
+RULES:
+- Do NOT ask technical/coding questions — this is a BEHAVIORAL interview.
+- Every question must assess behavioral competencies, soft skills, or cultural fit.
+- Press for specific examples (STAR format). If they give generic answers, ask "Can you give me a specific example?"
+- Based on their CV: ${cvSummary.slice(0, 800)}
+`
 };
 
 export async function generateQuestion(context: QuestionContext) {
     const {
         interviewType, jobTitle, companyName, jobRequirements, cvData, previousTurns,
         language = 'en',
-        companyStyle = 'standard'
+        companyStyle = 'standard',
+        difficulty = 'medium'
     } = context;
 
-    const langLabel = language === 'tr' ? 'Türkçe' : language === 'en' ? 'English' : language === 'es' ? 'Spanish' : language === 'fr' ? 'French' : language === 'de' ? 'German' : language === 'zh' ? 'Chinese' : 'Language';
-
-    const roleDescription = interviewType === 'technical'
-        ? 'Senior Engineering Manager or Tech Lead'
-        : interviewType === 'language'
-            ? `${langLabel} Language Proficiency Assessor`
-            : 'Senior Talent Acquisition Partner';
-
+    const langLabel = language === 'tr' ? 'Türkçe' : 'English';
     const companyStyleGuide = COMPANY_STYLE_PROMPTS[companyStyle] || COMPANY_STYLE_PROMPTS.standard;
     const langConfig = LANGUAGE_INSTRUCTIONS[language] || LANGUAGE_INSTRUCTIONS.en;
-    const languageInstruction = langConfig.instruction;
 
-    const systemPrompt = `You are acting as a ${roleDescription} at ${companyName}.
-You are currently interviewing a candidate for the ${jobTitle} position.
+    const jobReqStr = typeof jobRequirements === 'string' ? jobRequirements : JSON.stringify(jobRequirements || {});
+    const cvStr = typeof cvData === 'string' ? cvData : JSON.stringify(cvData || {});
 
-LANGUAGE: ${languageInstruction}
-COMPANY INTERVIEW STYLE: ${companyStyleGuide}
+    // Get the type-specific prompt
+    const typePromptFn = TYPE_PROMPTS[interviewType] || TYPE_PROMPTS.hr_behavioral;
+    const typeSpecificInstructions = typePromptFn(jobTitle, jobReqStr, cvStr, difficulty);
 
-YOUR GOAL: Conduct a realistic, high-quality interview. Your questions should be challenging but fair.
+    const systemPrompt = `You are interviewing a candidate at ${companyName} for the ${jobTitle} position.
+
+LANGUAGE: ${langConfig.instruction}
+COMPANY STYLE: ${companyStyleGuide}
+
+${typeSpecificInstructions}
 
 INTERVIEW STYLE & TONE:
-1. Conversational & Human: Speak like a real human interviewer. Act natural, warm, and professional.
-2. Reactive & Contextual: If the candidate gives a short or uninformative answer (like "let's start" or "I don't know"), react naturally—gently ask them to elaborate or rephrase the question instead of ignoring their statement.
-3. Probing: If an answer is vague, follow up to dig deeper. If they gave a strong answer, sincerely compliment a specific part of it before moving on.
-4. Concise: Ask ONE main question at a time. Do not overwhelm them with multi-part questions.
-${interviewType === 'language' ? `5. Assess their ${langLabel} vocabulary range, grammar accuracy, fluency, and professional communication.` : ''}
+1. Conversational & Human: Speak like a real interviewer. Be natural, warm, and professional.
+2. Reactive: If the candidate gives a vague or short answer, gently ask them to elaborate. If they gave a strong answer, briefly compliment it before moving on.
+3. Probing: Follow up on interesting points. Dig deeper when needed.
+4. Concise: Ask ONE question at a time. No multi-part questions.
 
 CONTEXT:
-- Job Description: ${JSON.stringify(jobRequirements).slice(0, 3000)}
-- Candidate Resume Summary: ${JSON.stringify(cvData).slice(0, 2000)}
+- Job: ${jobTitle} at ${companyName}
+- Job Description: ${jobReqStr.slice(0, 2000)}
+- Candidate CV Summary: ${cvStr.slice(0, 1500)}
 
-INSTRUCTIONS:
-- Generate ONLY the spoken response. No "Interviewer:" prefixes, no meta-text, no inner thoughts.
-- If this is the start, welcome the candidate warmly, mention the company name, and ask them to briefly introduce themselves.
-- Focus on: ${interviewType === 'technical' ? 'Technical depth, system design, problem-solving.' : interviewType === 'language' ? 'Language fluency, vocabulary, grammar.' : 'Behavioral fit, STAR method, cultural alignment, soft skills.'}`;
+OUTPUT RULES:
+- Generate ONLY the spoken response. No "Interviewer:" prefix, no meta-text.
+- If this is the start, welcome them warmly, mention the company, and ask an opening question appropriate to the interview type.`;
 
     const recentHistory = previousTurns.slice(-10);
 
     // Mock Mode
     if (process.env.MOCK_AI === 'true') {
         await new Promise(r => setTimeout(r, 1500));
-        const mockQuestions = language === 'tr' ? [
-            "Harika bir başlangıç! Peki, şimdiye kadar karşılaştığın en zorlu proje ne oldu ve bu zorlukla nasıl başa çıktın?",
-            "Anladım. Bir ekip içinde çalışırken yaşadığın en büyük çatışma neydi ve nasıl çözdün?",
-            "İlginç bir bakış açısı. Sence en büyük güçlü yönün nedir ve bu pozisyona nasıl katkı sağlar?",
-        ] : [
-            "That's interesting. Can you tell me about a specific challenge you faced in that role and how you overcame it?",
-            "Great. How do you handle disagreements with your team lead?",
-            "I see. What would you say is your greatest weakness, and what are you doing to improve it?",
-        ];
-        return mockQuestions[Math.floor(Math.random() * mockQuestions.length)];
+        const mockByType: Record<string, string[]> = {
+            technical: [
+                "Can you walk me through how you'd design a caching layer for a high-traffic API?",
+                "What's your approach to optimizing database queries in a production system?",
+                "Explain the trade-offs between SQL and NoSQL databases for this use case."
+            ],
+            language: [
+                "Can you describe your ideal work environment using as much detail as possible?",
+                "Would you mind explaining the concept of teamwork in your own words?",
+                "If you had to describe your career journey to a stranger, how would you summarize it?"
+            ],
+            hr_behavioral: [
+                "Tell me about a time you had to handle a difficult conflict with a colleague.",
+                "Describe a situation where you had to meet a tight deadline. How did you manage?",
+                "What would you say is your greatest professional weakness, and what are you doing to improve it?"
+            ]
+        };
+        const questions = mockByType[interviewType] || mockByType.hr_behavioral;
+        return questions[Math.floor(Math.random() * questions.length)];
     }
 
     try {
-        // Build conversation history as text
         const historyText = recentHistory.length > 0
             ? recentHistory.map(t => `${t.role === 'assistant' ? 'Interviewer' : 'Candidate'}: ${t.content}`).join('\n\n')
             : '';
 
         const prompt = historyText
-            ? `Previous conversation:\n${historyText}\n\n(Candidate finished speaking. React and ask the next question.)`
+            ? `Previous conversation:\n${historyText}\n\n(Candidate finished speaking. React and ask the next question. Remember: this is a ${interviewType.replace('_', ' ')} interview — stay strictly within that category.)`
             : langConfig.initial;
 
-        const response = await aiChat(prompt, systemPrompt, { maxTokens: 350 });
+        const response = await aiChat(prompt, systemPrompt, { maxTokens: 400 });
         return response || langConfig.fallback;
     } catch (error: any) {
         console.error('Question Generation Error:', error);

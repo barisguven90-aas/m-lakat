@@ -43,8 +43,7 @@ export function SendReportButton({ sessionId }: { sessionId: string }) {
         <Button
             onClick={handleSend}
             disabled={sending}
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+            className="bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-md shadow-blue-900/30"
         >
             {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
             Email Report

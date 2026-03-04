@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { stripe } from '@/lib/stripe';
 
 export async function POST() {
     try {
@@ -17,13 +18,9 @@ export async function POST() {
             return NextResponse.json({ error: 'No Stripe customer found. Please subscribe first.' }, { status: 400 });
         }
 
-        // Check if Stripe is configured
         if (!process.env.STRIPE_SECRET_KEY) {
             return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
         }
-
-        const Stripe = (await import('stripe')).default;
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-01-28.clover' });
 
         const portalSession = await stripe.billingPortal.sessions.create({
             customer: profile.stripe_customer_id,
@@ -33,6 +30,8 @@ export async function POST() {
         return NextResponse.json({ url: portalSession.url });
     } catch (error: any) {
         console.error('Stripe Portal Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({
+            error: error.message || 'Failed to create billing portal session. Please ensure the Billing Portal is activated in your Stripe Dashboard.'
+        }, { status: 500 });
     }
 }

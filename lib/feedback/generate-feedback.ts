@@ -41,6 +41,67 @@ export interface FeedbackReport {
     practice_recommendations: string[];
 }
 
+// ─── TYPE-SPECIFIC FEEDBACK CRITERIA ───
+
+const TYPE_FEEDBACK_PROMPTS: Record<string, string> = {
+    technical: `
+INTERVIEW TYPE: TECHNICAL
+EVALUATION CRITERIA (Score based on THESE, not behavioral skills):
+- **job_match_score** → How well does the candidate's TECHNICAL knowledge match the job requirements? Do they know the right technologies, frameworks, and concepts?
+- **star_methodology_score** → RENAME this mentally to "Problem-Solving Score". Evaluate HOW they approach problems: do they break down complex problems? Think about edge cases? Consider trade-offs?
+- **clarity_score** → How clearly do they explain technical concepts? Can they communicate complex ideas simply?
+- **confidence_score** → How confident are they in their technical knowledge? Do they admit when they don't know something (which is good) vs. bluffing?
+- **relevance_score** → Are their technical answers relevant to the specific job and its tech stack?
+
+WHAT TO EVALUATE IN EACH ANSWER:
+- Depth of technical knowledge
+- Problem-solving approach and methodology
+- Understanding of trade-offs and scalability
+- Code quality awareness, best practices, testing
+- System design thinking
+- Knowledge of specific technologies mentioned in the job description
+
+DO NOT evaluate soft skills, teamwork, or behavioral competencies. This is a TECHNICAL assessment.`,
+
+    language: `
+INTERVIEW TYPE: LANGUAGE PROFICIENCY
+EVALUATION CRITERIA (Score based on LANGUAGE ABILITY, not job knowledge):
+- **job_match_score** → RENAME this mentally to "Overall Language Score". How proficient is the candidate overall in the interview language?
+- **star_methodology_score** → RENAME to "Grammar & Structure Score". Evaluate grammar accuracy, sentence structure, proper tense usage, article usage.
+- **clarity_score** → How clearly and coherently do they express their ideas? Is their speech/writing organized and easy to follow?
+- **confidence_score** → RENAME to "Fluency Score". How smoothly do they communicate? Are there excessive pauses, filler words, or hesitations?
+- **relevance_score** → RENAME to "Vocabulary Score". How rich and varied is their vocabulary? Do they use appropriate professional terms?
+
+WHAT TO EVALUATE IN EACH ANSWER:
+- Grammar accuracy (tenses, articles, prepositions)
+- Vocabulary range and appropriateness
+- Fluency and natural expression
+- Coherence and organization of ideas
+- Professional communication ability
+- Pronunciation descriptions (if relevant from transcript)
+
+DO NOT evaluate their job-specific knowledge or technical skills. This is a LANGUAGE assessment.`,
+
+    hr_behavioral: `
+INTERVIEW TYPE: BEHAVIORAL / HR
+EVALUATION CRITERIA:
+- **job_match_score** → How well does the candidate's experience and background match the role?
+- **star_methodology_score** → Did they use the STAR method effectively? (Situation, Task, Action, Result)
+- **clarity_score** → How clearly did they communicate their experiences and ideas?
+- **confidence_score** → How confident and authentic did they appear? Were they honest about weaknesses?
+- **relevance_score** → Were their examples and stories relevant to the questions asked?
+
+WHAT TO EVALUATE IN EACH ANSWER:
+- Use of STAR method (specific situations, not generic statements)
+- Cultural fit and alignment with company values
+- Soft skills: leadership, teamwork, conflict resolution, adaptability
+- Self-awareness and growth mindset
+- Motivation and genuine interest in the role
+- Professional communication and interpersonal skills
+
+DO NOT evaluate technical knowledge or coding ability. This is a BEHAVIORAL assessment.`
+};
+
 export async function generateComprehensiveFeedback(
     interviewType: string,
     jobData: any,
@@ -81,12 +142,17 @@ export async function generateComprehensiveFeedback(
         };
     }
 
+    const typeLabel = interviewType === 'technical' ? 'Technical' : interviewType === 'language' ? 'Language Proficiency' : 'Behavioral/HR';
+    const typePrompt = TYPE_FEEDBACK_PROMPTS[interviewType] || TYPE_FEEDBACK_PROMPTS.hr_behavioral;
+
     const prompt = `You are a world-class interview coach analyzing a mock interview session.
 
 INTERVIEW CONTEXT:
-Type: ${interviewType}
+Type: ${typeLabel}
 Job: ${jobData?.job_title || 'Unknown'} at ${jobData?.job_company || 'Unknown'}
 Job Description: ${jobData?.job_description?.slice(0, 3000) || 'N/A'}
+
+${typePrompt}
 
 CANDIDATE:
 ${JSON.stringify(cvData?.personal || {}, null, 2)}
@@ -98,9 +164,15 @@ ${turns.map((t: any, i: number) => `Q${i + 1}: "${t.question_text}"\nA${i + 1}: 
 
 TONE & STYLE:
 - Be extremely constructive, empathetic, and professional. 
-- Avoid being overly harsh or robotic. Write like a supportive human mentor.
-- If the candidate gave a short or joke answer, gently and constructively explain why a real interview requires more detail, rather than just stating "failed to provide an answer." Highlight any potential they showed.
-- Keep "what_was_good" genuinely positive (find something good, even if it's just their confidence or brevity), and "what_to_improve" actionable and encouraging.
+- Write like a supportive human mentor, not a robot.
+- If the candidate gave a weak answer, gently explain why and what a better answer looks like.
+- Keep "what_was_good" genuinely positive. Keep "what_to_improve" actionable and encouraging.
+- The "ideal_answer_hint" should be a DETAILED 2-3 sentence model answer that specifically addresses the question.
+
+IMPORTANT: Your evaluation must be SPECIFIC to the interview type (${typeLabel}). 
+${interviewType === 'technical' ? 'Evaluate ONLY technical competency. Ignore soft skills.' : ''}
+${interviewType === 'language' ? 'Evaluate ONLY language proficiency. Ignore job-specific knowledge.' : ''}
+${interviewType === 'hr_behavioral' ? 'Evaluate ONLY behavioral competencies and soft skills.' : ''}
 
 Return JSON with:
 {
@@ -110,12 +182,12 @@ Return JSON with:
   "detailed_strengths": [{"title":"..","description":"..","evidence":".."}],
   "detailed_weaknesses": [{"title":"..","description":"..","suggestion":"..","severity":"critical|moderate|minor"}],
   "strengths": [".."], "weaknesses": [".."], "high_risk_areas": [".."],
-  "improvement_actions": [".."], "ai_coach_commentary": "4-6 sentences, starting with an encouraging human greeting.",
+  "improvement_actions": [".."], "ai_coach_commentary": "4-6 sentences, start with encouraging greeting.",
   "practice_recommendations": [".."], "summary_text": "3-4 sentences, professional and encouraging."
 }
 
 LANGUAGE: Write ALL text in the same language the candidate used in their answers.
-Provide ${turns.length} question_feedbacks, 3-5 strengths/weaknesses. Be specific to THIS candidate.`;
+Provide ${turns.length} question_feedbacks, 3-5 strengths/weaknesses. Be specific to THIS candidate and THIS interview type.`;
 
     try {
         return await aiJSON<FeedbackReport>(

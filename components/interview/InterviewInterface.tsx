@@ -261,6 +261,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
                 const u = new SpeechSynthesisUtterance(text);
                 u.rate = 0.95;
+                u.lang = language === 'tr' ? 'tr-TR' : 'en-US';
                 u.onstart = () => setIsSpeaking(true);
                 u.onend = () => setIsSpeaking(false);
                 window.speechSynthesis.speak(u);
