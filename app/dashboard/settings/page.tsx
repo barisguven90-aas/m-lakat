@@ -54,22 +54,29 @@ export default function SettingsPage() {
     const handleManageSubscription = async () => {
         setUpdating(true);
         try {
-            if (!profile.stripe_customer_id) {
-                const res = await fetch('/api/stripe/create-checkout', { method: 'POST' });
-                const { url } = await res.json();
-                if (url) window.location.href = url;
-                else toast.error("Could not create checkout session");
+            if (!isPro || !profile?.stripe_customer_id) {
+                const res = await fetch('/api/stripe/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID }),
+                });
+                const data = await res.json();
+                if (data.url) window.location.href = data.url;
+                else toast.error('Could not create checkout session');
                 return;
             }
             const res = await fetch('/api/stripe/portal', { method: 'POST' });
-            const { url } = await res.json();
-            if (url) window.location.href = url;
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+            else toast.error('Could not open billing portal');
         } catch (error) {
-            toast.error("Failed to redirect to billing portal");
+            toast.error('Failed to redirect to billing portal');
         } finally {
             setUpdating(false);
         }
     };
+
+    const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
 
     if (loading) {
         return (
@@ -82,7 +89,6 @@ export default function SettingsPage() {
         );
     }
 
-    const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
     const initials = profile?.full_name
         ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
         : 'U';
@@ -98,60 +104,66 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Profile Container overlapping the cover */}
-                <div className="container mx-auto px-4 sm:px-6 relative -mt-20 md:-mt-24 mb-8">
-                    <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-end">
+                <div className="container mx-auto px-4 sm:px-6 relative -mt-12 md:-mt-14 mb-8">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start sm:items-end">
 
                         {/* Avatar */}
-                        <div className="relative group">
-                            <div className="h-32 w-32 md:h-40 md:w-40 rounded-3xl bg-white dark:bg-slate-900 p-1.5 shadow-xl transition-transform duration-300 group-hover:scale-105">
-                                <div className="h-full w-full rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-5xl font-black relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-white/10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 20%, 0 50%)' }} />
+                        <div className="relative shrink-0">
+                            <div className="h-24 w-24 rounded-2xl bg-white dark:bg-slate-900 p-1 shadow-xl">
+                                <div className="h-full w-full rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-black">
                                     {initials}
                                 </div>
                             </div>
                             {isPro && (
-                                <div className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-900 p-1.5 rounded-full shadow-lg">
-                                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                                        <Crown className="h-4 w-4 text-white" />
+                                <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-900 p-1 rounded-full shadow-md">
+                                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                                        <Crown className="h-3 w-3 text-white" />
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* User Info (Name, Email, Badges) */}
-                        <div className="flex-1 pb-2">
-                            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 justify-between w-full">
-                                <div>
-                                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                                        {profile?.full_name || 'User'}
+                        {/* User Info */}
+                        <div className="flex-1 min-w-0 pb-1">
+                            <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 justify-between w-full">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white truncate">
+                                            {profile?.full_name || 'User'}
+                                        </h1>
                                         {isPro && (
-                                            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 mt-1 md:mt-0">
-                                                <Sparkles className="h-3 w-3" /> PRO
+                                            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
+                                                <Sparkles className="h-2.5 w-2.5" /> PRO
                                             </span>
                                         )}
-                                    </h1>
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2 mt-2">
-                                        <Mail className="h-4 w-4" /> {profile?.email}
+                                    </div>
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1.5 mt-1 truncate">
+                                        <Mail className="h-3.5 w-3.5 shrink-0" /> {profile?.email}
                                     </p>
                                 </div>
 
-                                {/* Primary Action directly in header for Pro users */}
-                                <div className="flex gap-3">
+                                {/* Action buttons */}
+                                <div className="flex gap-2 shrink-0">
                                     <Button
                                         variant="outline"
-                                        className="rounded-full shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
-                                        onClick={() => setActiveTab('profile')}
+                                        size="sm"
+                                        className="rounded-full shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs h-8"
+                                        onClick={() => {
+                                            setActiveTab('profile');
+                                            document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
                                     >
-                                        <Settings className="h-4 w-4 mr-2" />
+                                        <Settings className="h-3.5 w-3.5 mr-1.5" />
                                         Edit Profile
                                     </Button>
                                     {isPro && (
                                         <Button
+                                            size="sm"
                                             onClick={handleManageSubscription}
                                             disabled={updating}
-                                            className="rounded-full shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white"
+                                            className="rounded-full shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white text-xs h-8"
                                         >
-                                            <CreditCard className="h-4 w-4 mr-2" />
+                                            {updating ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5 mr-1.5" />}
                                             Manage Billing
                                         </Button>
                                     )}
@@ -193,7 +205,7 @@ export default function SettingsPage() {
                     </button>
                 </div>
 
-                <div className="max-w-4xl">
+                <div className="max-w-4xl" id="profile-section">
                     {activeTab === 'profile' && (
                         <div className="space-y-6">
                             {/* Profile Card */}
