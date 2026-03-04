@@ -5,11 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { SendReportButton } from '@/components/interview/SendReportButton';
+import { FavoriteQuestionButton } from '@/components/interview/FavoriteQuestionButton';
+import { DownloadPDFButton } from '@/components/interview/DownloadPDFButton';
+import { ShareCard } from '@/components/interview/ShareCard';
 import {
     CheckCircle, AlertTriangle, XCircle, ArrowLeft, Target, TrendingUp,
     TrendingDown, Minus, Brain, MessageSquare, Sparkles, Award, Shield,
     Zap, ChevronDown, Star, BarChart3, BookOpen, Lightbulb,
-    Loader2, ArrowRight, GraduationCap
+    Loader2, ArrowRight, GraduationCap, Clock, Heart
 } from 'lucide-react';
 
 function ScoreRing({ score, label, size = 'md' }: { score: number; label: string; size?: 'sm' | 'md' }) {
@@ -67,6 +70,7 @@ function QuestionFeedbackCard({ qf, index }: { qf: any; index: number }) {
                     <ScoreIcon className="h-3.5 w-3.5" />
                     {qf.score}/100
                 </div>
+                <FavoriteQuestionButton question={qf.question} answer={qf.answer} />
             </div>
 
             <div className="p-6 space-y-4">
@@ -260,10 +264,39 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <span>{level.label} Level</span>
                                 <span className="text-xs opacity-60">({overallAvg}/100)</span>
                             </div>
+                            {/* Duration & Question Count (Feature 8) */}
+                            <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
+                                {session.created_at && session.updated_at && (
+                                    <span className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        {Math.max(1, Math.round((new Date(session.updated_at).getTime() - new Date(session.created_at).getTime()) / 60000))} min session
+                                    </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                    <MessageSquare className="h-3 w-3" />
+                                    {questionFeedbacks.length} question{questionFeedbacks.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
                             <SendReportButton sessionId={sessionId} />
+                            <DownloadPDFButton
+                                sessionId={sessionId}
+                                jobTitle={session.applications?.job_title}
+                                company={session.applications?.job_company}
+                                overallScore={overallAvg}
+                                strengths={feedback.strengths || []}
+                                weaknesses={feedback.weaknesses || []}
+                                questionFeedbacks={questionFeedbacks}
+                            />
+                            <ShareCard
+                                overallScore={overallAvg}
+                                jobTitle={session.applications?.job_title}
+                                company={session.applications?.job_company}
+                                level={level.label}
+                                questionsCount={questionFeedbacks.length}
+                            />
                             <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
                                 <Link href="/dashboard">
                                     Back to Dashboard
@@ -276,6 +309,36 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
             {/* ─── Content ─── */}
             <div className="container mx-auto px-6 py-8 max-w-5xl space-y-8">
+
+                {/* ─── Quick Summary Card (Feature 6) ─── */}
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-emerald-200/60 dark:border-emerald-700/30 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
+                        <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                            <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Top Strengths</h3>
+                        </div>
+                        <ul className="space-y-1.5">
+                            {(feedback.strengths || []).slice(0, 3).map((s: string, i: number) => (
+                                <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                                    <span className="text-emerald-500 mt-0.5">✓</span> {s}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="rounded-2xl border border-amber-200/60 dark:border-amber-700/30 bg-amber-50/50 dark:bg-amber-900/10 p-5">
+                        <div className="flex items-center gap-2 mb-3">
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <h3 className="text-sm font-bold text-amber-700 dark:text-amber-400">Key Improvements</h3>
+                        </div>
+                        <ul className="space-y-1.5">
+                            {(feedback.weaknesses || []).slice(0, 3).map((w: string, i: number) => (
+                                <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                                    <span className="text-amber-500 mt-0.5">→</span> {w}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
 
                 {/* ─── Score Overview ─── */}
                 <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-8">

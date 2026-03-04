@@ -15,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import dynamic from "next/dynamic";
 
 const ActivityChart = dynamic(() => import("@/components/dashboard/ActivityChart").then(m => m.ActivityChart), { ssr: false });
+const AchievementsPanel = dynamic(() => import("@/components/dashboard/AchievementsPanel").then(m => m.AchievementsPanel), { ssr: false });
 
 export default function DashboardPage() {
     const [stats, setStats] = useState({
@@ -244,12 +245,63 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <Link href="/dashboard/applications/new">
-                        <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/50 border-0 h-12 px-6 text-lg">
-                            <Plus className="mr-2 h-5 w-5" /> New Application
+                    {/* Weekly Progress (Feature 1) */}
+                    <div className="w-full max-w-sm">
+                        <div className="flex items-center justify-between text-xs mb-1.5">
+                            <span className="text-slate-400 font-medium">Weekly Goal</span>
+                            <span className="text-blue-300 font-bold">{Math.min(stats.weeklyInterviews, 5)}/5 interviews</span>
+                        </div>
+                        <div className="h-2 w-full bg-slate-700/60 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full transition-all duration-700"
+                                style={{ width: `${Math.min((stats.weeklyInterviews / 5) * 100, 100)}%` }}
+                            />
+                        </div>
+                        {stats.weeklyInterviews >= 5 && (
+                            <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1"><Trophy className="h-3 w-3" /> Weekly goal reached! 🎉</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Actions (Feature 2) */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Link href="/dashboard/applications/new">
+                    <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all">
+                        <Plus className="h-4 w-4 text-blue-500" /> New Application
+                    </Button>
+                </Link>
+                {recentSessions[0]?.status === 'completed' ? (
+                    <Link href={`/dashboard/interview/${recentSessions[0].id}/feedback`}>
+                        <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-all">
+                            <BarChart3 className="h-4 w-4 text-emerald-500" /> Last Feedback
                         </Button>
                     </Link>
-                </div>
+                ) : (
+                    <Link href="/dashboard/interviews">
+                        <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-all">
+                            <BarChart3 className="h-4 w-4 text-emerald-500" /> View Interviews
+                        </Button>
+                    </Link>
+                )}
+                {recentSessions[0]?.application_id ? (
+                    <Link href={`/dashboard/applications/${recentSessions[0].application_id}`}>
+                        <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-purple-500/50 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-all">
+                            <Play className="h-4 w-4 text-purple-500" /> Practice Again
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href="/dashboard/applications">
+                        <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-purple-500/50 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-all">
+                            <Briefcase className="h-4 w-4 text-purple-500" /> Applications
+                        </Button>
+                    </Link>
+                )}
+                <Link href="/dashboard/settings">
+                    <Button variant="outline" className="w-full h-11 text-xs font-semibold justify-start gap-2 border-slate-200 dark:border-slate-800 hover:border-slate-500/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all">
+                        <Target className="h-4 w-4 text-slate-500" /> Settings
+                    </Button>
+                </Link>
             </div>
 
             {/* Stats Cards */}
@@ -352,6 +404,19 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
             )}
+
+            {/* Achievements & Streak (Features 9-10) */}
+            <Card className="border-muted/60 shadow-sm">
+                <CardContent className="p-5">
+                    <AchievementsPanel
+                        totalInterviews={stats.interviews}
+                        completedInterviews={stats.completedInterviews}
+                        avgScore={stats.avgScore}
+                        weeklyInterviews={stats.weeklyInterviews}
+                        allSessions={allSessions}
+                    />
+                </CardContent>
+            </Card>
 
             {/* Recent Activity Section */}
             <div className="grid gap-6 md:grid-cols-7">
