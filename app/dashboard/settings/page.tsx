@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge"; // Added Badge import
 import { toast } from "sonner";
 import {
     Loader2, CreditCard, User, Shield, Check, Crown, Settings,
@@ -87,282 +88,284 @@ export default function SettingsPage() {
         : 'U';
 
     return (
-        <div className="min-h-screen">
-            {/* ─── Hero Header ─── */}
-            <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.2),transparent)]" />
-                <div className="absolute top-10 left-[10%] w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-                <div className="absolute top-20 right-[15%] w-64 h-64 bg-blue-500/8 rounded-full blur-3xl" />
+        <div className="min-h-screen bg-slate-50/50 dark:bg-[#0a0f1e] pb-20">
+            {/* ─── Profile Cover & Header ─── */}
+            <div className="w-full relative">
+                {/* Cover Image (Gradient/Mesh) */}
+                <div className="h-48 md:h-64 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+                    <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
 
-                <div className="relative container mx-auto px-6 py-10">
-                    <div className="flex items-center gap-6">
+                {/* Profile Container overlapping the cover */}
+                <div className="container mx-auto px-4 sm:px-6 relative -mt-20 md:-mt-24 mb-8">
+                    <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-end">
+
                         {/* Avatar */}
-                        <div className="relative">
-                            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-xl shadow-blue-900/40">
-                                {initials}
+                        <div className="relative group">
+                            <div className="h-32 w-32 md:h-40 md:w-40 rounded-3xl bg-white dark:bg-slate-900 p-1.5 shadow-xl transition-transform duration-300 group-hover:scale-105">
+                                <div className="h-full w-full rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-5xl font-black relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-white/10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 20%, 0 50%)' }} />
+                                    {initials}
+                                </div>
                             </div>
                             {isPro && (
-                                <div className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-                                    <Crown className="h-3.5 w-3.5 text-white" />
+                                <div className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-900 p-1.5 rounded-full shadow-lg">
+                                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                                        <Crown className="h-4 w-4 text-white" />
+                                    </div>
                                 </div>
                             )}
                         </div>
-                        <div>
-                            <h1 className="text-2xl font-black text-white">{profile?.full_name || 'User'}</h1>
-                            <p className="text-slate-400 flex items-center gap-2 mt-1">
-                                <Mail className="h-3.5 w-3.5" /> {profile?.email}
-                            </p>
-                            {isPro && (
-                                <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
-                                    <Crown className="h-3 w-3" /> PRO Member
-                                </span>
-                            )}
+
+                        {/* User Info (Name, Email, Badges) */}
+                        <div className="flex-1 pb-2">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 justify-between w-full">
+                                <div>
+                                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                                        {profile?.full_name || 'User'}
+                                        {isPro && (
+                                            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1 mt-1 md:mt-0">
+                                                <Sparkles className="h-3 w-3" /> PRO
+                                            </span>
+                                        )}
+                                    </h1>
+                                    <p className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2 mt-2">
+                                        <Mail className="h-4 w-4" /> {profile?.email}
+                                    </p>
+                                </div>
+
+                                {/* Primary Action directly in header for Pro users */}
+                                <div className="flex gap-3">
+                                    <Button
+                                        variant="outline"
+                                        className="rounded-full shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+                                        onClick={() => setActiveTab('profile')}
+                                    >
+                                        <Settings className="h-4 w-4 mr-2" />
+                                        Edit Profile
+                                    </Button>
+                                    {isPro && (
+                                        <Button
+                                            onClick={handleManageSubscription}
+                                            disabled={updating}
+                                            className="rounded-full shadow-md shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white"
+                                        >
+                                            <CreditCard className="h-4 w-4 mr-2" />
+                                            Manage Billing
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ─── Content ─── */}
-            <div className="container mx-auto px-6 -mt-4">
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Sidebar Navigation */}
-                    <div className="lg:w-64 shrink-0">
-                        <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-lg overflow-hidden sticky top-6">
-                            <nav className="p-2 space-y-1">
-                                <button
-                                    onClick={() => setActiveTab('profile')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'profile'
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'
-                                        }`}
-                                >
-                                    <User className="h-4 w-4" />
-                                    Profile Settings
-                                    <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('billing')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === 'billing'
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'
-                                        }`}
-                                >
-                                    <CreditCard className="h-4 w-4" />
-                                    Plan & Billing
-                                    <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
+            {/* ─── Main Content Area ─── */}
+            <div className="container mx-auto px-4 sm:px-6">
 
-                    {/* Main Content */}
-                    <div className="flex-1 space-y-6 pb-10">
+                {/* Horizontal Navigation Tabs */}
+                <div className="flex items-center gap-2 mb-8 border-b border-slate-200 dark:border-slate-800 pb-px overflow-x-auto no-scrollbar">
+                    <button
+                        onClick={() => setActiveTab('profile')}
+                        className={`px-5 py-3 text-sm font-semibold transition-all relative whitespace-nowrap ${activeTab === 'profile'
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                            }`}
+                    >
+                        Personal Information
                         {activeTab === 'profile' && (
-                            <>
-                                {/* Profile Card */}
-                                <Card className="border-slate-200/60 dark:border-slate-700/50 shadow-lg overflow-hidden">
-                                    <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-800/30">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-                                                <User className="h-4 w-4 text-white" />
-                                            </div>
-                                            <div>
-                                                <CardTitle className="text-base">Personal Information</CardTitle>
-                                                <CardDescription>Update your personal details here.</CardDescription>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <form onSubmit={handleUpdate}>
-                                        <CardContent className="p-6 space-y-5">
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</Label>
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 rounded-t-full" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('billing')}
+                        className={`px-5 py-3 text-sm font-semibold transition-all relative whitespace-nowrap ${activeTab === 'billing'
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                            }`}
+                    >
+                        Plan & Billing
+                        {activeTab === 'billing' && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 rounded-t-full" />
+                        )}
+                    </button>
+                </div>
+
+                <div className="max-w-4xl">
+                    {activeTab === 'profile' && (
+                        <div className="space-y-6">
+                            {/* Profile Card */}
+                            <Card className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800/60 overflow-hidden rounded-2xl">
+                                <CardHeader className="bg-white dark:bg-slate-900/50 pb-4">
+                                    <CardTitle className="text-lg">Basic Details</CardTitle>
+                                    <CardDescription>Your personal information used across the platform.</CardDescription>
+                                </CardHeader>
+                                <div className="h-px bg-slate-100 dark:bg-slate-800/50 w-full" />
+                                <form onSubmit={handleUpdate}>
+                                    <CardContent className="p-6 md:p-8 space-y-6 bg-white dark:bg-[#0d1425]">
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="fullname" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</Label>
                                                 <div className="relative">
-                                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                    <Input id="email" value={profile?.email} disabled className="bg-slate-50 dark:bg-slate-800/50 pl-10 h-11" />
-                                                </div>
-                                                <p className="text-xs text-slate-400">Email cannot be changed.</p>
-                                            </div>
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="fullname" className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</Label>
-                                                <div className="relative">
-                                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                                     <Input
                                                         id="fullname"
                                                         value={profile?.full_name || ''}
                                                         onChange={e => setProfile({ ...profile, full_name: e.target.value })}
-                                                        className="pl-10 h-11"
+                                                        className="pl-10 h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus-visible:ring-blue-500 rounded-xl"
                                                         placeholder="Enter your full name"
                                                     />
                                                 </div>
                                             </div>
-                                        </CardContent>
-                                        <CardFooter className="border-t bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4 flex justify-end">
-                                            <Button type="submit" disabled={updating} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-600/20 h-10 px-6">
-                                                {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                Save Changes
-                                            </Button>
-                                        </CardFooter>
-                                    </form>
-                                </Card>
-
-                                {/* Security Card */}
-                                <Card className="border-slate-200/60 dark:border-slate-700/50 shadow-lg overflow-hidden">
-                                    <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-800/30">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600">
-                                                <KeyRound className="h-4 w-4 text-white" />
-                                            </div>
-                                            <div>
-                                                <CardTitle className="text-base">Security</CardTitle>
-                                                <CardDescription>Manage your account security settings.</CardDescription>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/50">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                                                    <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                            <div className="space-y-2">
+                                                <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</Label>
+                                                <div className="relative">
+                                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        id="email"
+                                                        value={profile?.email}
+                                                        disabled
+                                                        className="pl-10 h-12 bg-slate-100 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-500 rounded-xl cursor-not-allowed"
+                                                    />
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-medium">Password</p>
-                                                    <p className="text-xs text-slate-400">Last changed: Never</p>
-                                                </div>
+                                                <p className="text-[11px] text-slate-400 mt-1">Contact support to change email.</p>
                                             </div>
-                                            <Button variant="outline" size="sm" className="text-xs">
-                                                Change Password
-                                            </Button>
                                         </div>
                                     </CardContent>
-                                </Card>
-                            </>
-                        )}
+                                    <CardFooter className="bg-slate-50/80 dark:bg-slate-900/80 px-6 py-4 border-t border-slate-100 dark:border-slate-800/60 flex justify-end">
+                                        <Button
+                                            type="submit"
+                                            disabled={updating}
+                                            className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-full px-6 transition-all"
+                                        >
+                                            {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            Save Changes
+                                        </Button>
+                                    </CardFooter>
+                                </form>
+                            </Card>
 
-                        {activeTab === 'billing' && (
-                            <>
-                                {/* Current Plan */}
-                                <Card className="border-slate-200/60 dark:border-slate-700/50 shadow-lg overflow-hidden">
-                                    <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-800/30">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600">
-                                                <CreditCard className="h-4 w-4 text-white" />
+                            {/* Security Card */}
+                            <Card className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800/60 overflow-hidden rounded-2xl">
+                                <CardHeader className="bg-white dark:bg-slate-900/50 pb-4">
+                                    <CardTitle className="text-lg">Security & Privacy</CardTitle>
+                                    <CardDescription>Keep your account secure.</CardDescription>
+                                </CardHeader>
+                                <div className="h-px bg-slate-100 dark:bg-slate-800/50 w-full" />
+                                <CardContent className="p-4 md:p-6 bg-white dark:bg-[#0d1425]">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 transition-colors gap-4">
+                                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                                            <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                                                <Shield className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                             </div>
                                             <div>
-                                                <CardTitle className="text-base">Subscription Plan</CardTitle>
-                                                <CardDescription>Manage your plan and billing details.</CardDescription>
+                                                <p className="font-semibold text-sm">Account Password</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Use a secure password to protect your account.</p>
                                             </div>
                                         </div>
-                                    </CardHeader>
-                                    <CardContent className="p-6 space-y-6">
-                                        {/* Status Banner */}
-                                        <div className={`flex items-center justify-between p-5 rounded-2xl border ${isPro
-                                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/15 dark:to-indigo-900/10 border-blue-200 dark:border-blue-800/30'
-                                            : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700/50'
-                                            }`}>
+                                        <Button variant="outline" className="rounded-full w-full sm:w-auto shrink-0 shadow-sm border-slate-200 dark:border-slate-800">
+                                            Update Password
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
+
+                    {activeTab === 'billing' && (
+                        <div className="space-y-6">
+                            <Card className="border-0 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800/60 overflow-hidden rounded-2xl">
+                                <CardHeader className="bg-white dark:bg-slate-900/50 pb-4 flex flex-row items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-lg">Current Plan</CardTitle>
+                                        <CardDescription>Manage your subscription and billing cycle.</CardDescription>
+                                    </div>
+                                    <div className="hidden sm:block">
+                                        {isPro ? (
+                                            <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-0 flex gap-1 items-center px-3 py-1">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active Match
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="bg-slate-50 text-slate-600 hover:bg-slate-50 border border-slate-200 px-3 py-1">
+                                                Free Tier
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <div className="h-px bg-slate-100 dark:bg-slate-800/50 w-full" />
+                                <CardContent className="p-6 md:p-8 bg-white dark:bg-[#0d1425]">
+
+                                    {/* Status Box */}
+                                    <div className={`p-6 rounded-2xl border ${isPro
+                                        ? 'bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30 relative overflow-hidden'
+                                        : 'bg-slate-50 border-slate-100 dark:bg-slate-900/50 dark:border-slate-800'
+                                        }`}>
+                                        {isPro && (
+                                            <div className="absolute right-0 top-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                                        )}
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                                             <div className="flex items-center gap-4">
-                                                <div className={`p-3 rounded-xl ${isPro
-                                                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20'
-                                                    : 'bg-slate-200 dark:bg-slate-700'}`}>
-                                                    {isPro
-                                                        ? <Crown className="h-6 w-6 text-white" />
-                                                        : <Shield className="h-6 w-6 text-slate-500 dark:text-slate-400" />}
+                                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${isPro ? 'bg-blue-600 shadow-md shadow-blue-600/20' : 'bg-slate-200 dark:bg-slate-800'}`}>
+                                                    {isPro ? <Zap className="h-6 w-6 text-white" /> : <CreditCard className="h-6 w-6 text-slate-500" />}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-lg">{isPro ? 'Pro Plan' : 'Free Plan'}</p>
-                                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                    <h3 className="font-bold text-xl">{isPro ? 'Pro Subscription' : 'Hobby Plan'}</h3>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                                         {isPro
-                                                            ? `Renews on ${profile?.subscription_ends_at ? new Date(profile.subscription_ends_at).toLocaleDateString() : 'N/A'}`
-                                                            : 'Limited access to features'}
+                                                            ? `Your subscription is active and will renew on ${profile?.subscription_ends_at ? new Date(profile.subscription_ends_at).toLocaleDateString() : 'N/A'}`
+                                                            : 'Limited practice questions and basic feedback.'
+                                                        }
                                                     </p>
                                                 </div>
                                             </div>
+
                                             <Button
                                                 onClick={handleManageSubscription}
                                                 disabled={updating}
-                                                className={isPro
-                                                    ? "border-slate-300 dark:border-slate-600"
-                                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-blue-600/25 h-11 px-6"}
-                                                variant={isPro ? "outline" : "default"}
+                                                className={`rounded-full shadow-sm shrink-0 w-full md:w-auto ${isPro
+                                                    ? 'bg-white text-slate-900 hover:bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:text-white dark:border-slate-700 dark:hover:bg-slate-800'
+                                                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/25'
+                                                    }`}
                                             >
                                                 {updating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                {isPro ? 'Manage Subscription' : 'Upgrade to Pro'}
+                                                {isPro ? 'Manage Billing' : 'Upgrade to Pro'}
+                                                {!isPro && <ArrowRight className="h-4 w-4 ml-1.5" />}
                                             </Button>
                                         </div>
+                                    </div>
 
-                                        {/* Plans Comparison */}
-                                        {!isPro && (
-                                            <div className="grid md:grid-cols-2 gap-5">
-                                                {/* Free Plan */}
-                                                <div className="rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6 space-y-5 bg-white dark:bg-slate-800/30">
-                                                    <div>
-                                                        <h3 className="font-bold text-lg">Free</h3>
-                                                        <div className="flex items-baseline gap-1 mt-1">
-                                                            <span className="text-3xl font-black">$0</span>
-                                                            <span className="text-slate-400 text-sm">/month</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="h-px bg-slate-200 dark:bg-slate-700" />
-                                                    <ul className="space-y-3">
-                                                        {['2 Interviews per month', 'Basic Feedback', 'Standard Questions'].map((f, i) => (
-                                                            <li key={i} className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-400">
-                                                                <div className="h-5 w-5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                                                                    <Check className="h-3 w-3 text-emerald-500" />
-                                                                </div>
-                                                                {f}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                    <Button variant="outline" className="w-full" disabled>
-                                                        Current Plan
-                                                    </Button>
-                                                </div>
-
-                                                {/* Pro Plan */}
-                                                <div className="relative rounded-2xl border-2 border-blue-500/30 p-6 space-y-5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white shadow-2xl shadow-blue-900/20 overflow-hidden">
-                                                    <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl" />
-                                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest z-10">
-                                                        Most Popular
-                                                    </div>
-                                                    <div className="pt-3 relative z-10">
-                                                        <h3 className="font-bold text-lg text-blue-200">Pro</h3>
-                                                        <div className="flex items-baseline gap-1 mt-1">
-                                                            <span className="text-3xl font-black">$79</span>
-                                                            <span className="text-blue-300/60 text-sm">/year</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="h-px bg-white/10" />
-                                                    <ul className="space-y-3 relative z-10">
-                                                        {[
-                                                            'Unlimited Interviews',
-                                                            'Detailed AI Analysis',
-                                                            'Voice Mode Support',
-                                                            'Priority Support',
-                                                            'Advanced Feedback Reports'
-                                                        ].map((f, i) => (
-                                                            <li key={i} className="flex items-center gap-2.5 text-sm text-blue-100">
-                                                                <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                                                    <Check className="h-3 w-3 text-blue-400" />
-                                                                </div>
-                                                                {f}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                    <Button
-                                                        onClick={handleManageSubscription}
-                                                        className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white border-0 shadow-lg shadow-blue-900/40 h-11 font-semibold relative z-10"
-                                                    >
-                                                        <Sparkles className="h-4 w-4 mr-2" />
-                                                        Start 7-Day Free Trial
-                                                    </Button>
-                                                </div>
+                                    {/* Upgrade CTA for Free users */}
+                                    {!isPro && (
+                                        <div className="mt-8 grid md:grid-cols-2 gap-6 items-center bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl p-6 md:p-8 text-white relative overflow-hidden shadow-xl">
+                                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+                                            <div className="relative z-10 space-y-4">
+                                                <Badge className="bg-blue-600 hover:bg-blue-600 text-white border-0">Unlock Potential</Badge>
+                                                <h4 className="text-2xl font-bold tracking-tight">Ready to ace that interview?</h4>
+                                                <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
+                                                    Get unlimited voice interviews, hyper-detailed AI feedback, and custom job-tailored paths.
+                                                </p>
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </>
-                        )}
-                    </div>
+                                            <div className="relative z-10 flex flex-col items-start md:items-end justify-center space-y-3">
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-4xl font-black">$79</span>
+                                                    <span className="text-blue-300/80 font-medium">/year</span>
+                                                </div>
+                                                <Button
+                                                    onClick={handleManageSubscription}
+                                                    className="w-full md:w-auto rounded-full bg-white text-slate-900 hover:bg-slate-100 font-bold px-8 h-12 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"
+                                                >
+                                                    <Sparkles className="h-4 w-4 mr-2 text-blue-600" />
+                                                    Get Pro Access
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

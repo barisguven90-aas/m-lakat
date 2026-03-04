@@ -1,14 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { createClient } from '@/lib/supabase/client';
 
 export function PricingPlan() {
     const [isLoading, setIsLoading] = useState<string | null>(null);
+    const [isPro, setIsPro] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const fetchStatus = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase.from('profiles').select('subscription_status').eq('id', user.id).single();
+                if (data?.subscription_status === 'active' || data?.subscription_status === 'trialing') {
+                    setIsPro(true);
+                }
+            }
+        };
+        fetchStatus();
+    }, []);
+
+    const handleManageSubscription = async () => {
+        try {
+            setIsLoading('manage');
+            const res = await fetch('/api/stripe/portal', { method: 'POST' });
+            const { url } = await res.json();
+            if (url) {
+                window.location.href = url;
+            } else {
+                toast.error("Billing portal error.");
+            }
+        } catch (error) {
+            toast.error("Failed to redirect to billing portal.");
+        } finally {
+            setIsLoading(null);
+        }
+    };
 
     const handleSubscribe = async (priceId: string | undefined, plan: string) => {
         if (!priceId) {
@@ -49,7 +84,7 @@ export function PricingPlan() {
     return (
         <div className="flex flex-col md:flex-row gap-8 justify-center items-center py-12">
             {/* Monthly Plan */}
-            <Card className="w-full max-w-sm flex flex-col items-center p-6 border-zinc-200 shadow-sm hover:shadow-md transition-shadow">
+            <Card className={`w-full max-w-sm flex flex-col items-center p-6 border-zinc-200 shadow-sm transition-shadow ${isPro ? 'opacity-60' : 'hover:shadow-md'}`}>
                 <CardHeader className="text-center w-full">
                     <CardTitle className="text-2xl font-bold">Aylık Plan</CardTitle>
                     <CardDescription>Esnek kullanım için ideal</CardDescription>
@@ -66,14 +101,20 @@ export function PricingPlan() {
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
-                    <Button
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleSubscribe(monthlyPriceId, 'monthly')}
-                        disabled={isLoading !== null}
-                    >
-                        {isLoading === 'monthly' ? 'Yönlendiriliyor...' : 'Aylık Başla'}
-                    </Button>
+                    {isPro ? (
+                        <Button className="w-full bg-slate-100 text-slate-400 cursor-not-allowed border-0" disabled>
+                            Mevcut Planı Kapsıyor
+                        </Button>
+                    ) : (
+                        <Button
+                            className="w-full"
+                            variant="outline"
+                            onClick={() => handleSubscribe(monthlyPriceId, 'monthly')}
+                            disabled={isLoading !== null}
+                        >
+                            {isLoading === 'monthly' ? 'Yönlendiriliyor...' : 'Aylık Başla'}
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
 
@@ -97,13 +138,23 @@ export function PricingPlan() {
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
-                    <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={() => handleSubscribe(yearlyPriceId, 'yearly')}
-                        disabled={isLoading !== null}
-                    >
-                        {isLoading === 'yearly' ? 'Yönlendiriliyor...' : 'Yıllık Başla'}
-                    </Button>
+                    {isPro ? (
+                        <Button
+                            className="w-full bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 shadow-sm"
+                            onClick={handleManageSubscription}
+                            disabled={isLoading !== null}
+                        >
+                            {isLoading === 'manage' ? 'Yönlendiriliyor...' : 'Mevcut Planınız (Yönet)'}
+                        </Button>
+                    ) : (
+                        <Button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => handleSubscribe(yearlyPriceId, 'yearly')}
+                            disabled={isLoading !== null}
+                        >
+                            {isLoading === 'yearly' ? 'Yönlendiriliyor...' : 'Yıllık Başla'}
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
         </div>
