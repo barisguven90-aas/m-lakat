@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
     try {
-        const { text, voice_id, language } = await req.json();
+        const { text, voice_id, language, companyStyle } = await req.json();
 
         if (!text) {
             return NextResponse.json({ error: 'No text provided' }, { status: 400 });
@@ -14,11 +14,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
         }
 
-        // Use a professional, natural-sounding voice
-        // "Josh" = TxGEqnHWrfWFTfGW9XjX (young professional male — good for EN)
-        // "Adam" = pNInz6obpgDQGcFmaJgB (deep, authoritative male)
-        // "Rachel" = 21m00Tcm4TlvDq8ikWAM (calm, professional female)
-        const selectedVoice = voice_id || 'TxGEqnHWrfWFTfGW9XjX';
+        // Map company style to different voices for variety
+        const STYLE_VOICES: Record<string, string> = {
+            standard: '21m00Tcm4TlvDq8ikWAM',   // Rachel — calm, professional female
+            corporate: '21m00Tcm4TlvDq8ikWAM',   // Rachel — formal, composed
+            google: 'TxGEqnHWrfWFTfGW9XjX',       // Josh — young professional male
+            amazon: 'pNInz6obpgDQGcFmaJgB',        // Adam — deep, authoritative male
+            startup: 'TxGEqnHWrfWFTfGW9XjX',       // Josh — energetic, casual
+        };
+        const selectedVoice = voice_id || STYLE_VOICES[companyStyle || 'standard'] || '21m00Tcm4TlvDq8ikWAM';
 
         // Limit text to prevent excessive API usage
         const trimmedText = text.slice(0, 1000);

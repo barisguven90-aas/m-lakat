@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Send, Loader2, User, Bot, Mic, Volume2, Square, Video, VideoOff,
-    BrainCircuit, PhoneOff, Clock, MessageSquare, TrendingUp, TrendingDown,
+    UserCircle, PhoneOff, Clock, MessageSquare, TrendingUp, TrendingDown,
     Minus, CheckCircle, AlertCircle, Bell, ArrowDown, ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -88,25 +88,26 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
     // UI copy based on language
     const t = {
-        waitingForAnswer: language === 'tr' ? 'Cevabınız bekleniyor...' : 'Waiting for your answer',
-        aiSpeaking: language === 'tr' ? 'AI Mülakat Koçu konuşuyor' : 'AI Interviewer is speaking',
-        aiThinking: language === 'tr' ? 'Düşünüyor...' : 'Thinking...',
+        waitingForAnswer: language === 'tr' ? 'Sıra sizde' : 'Your turn',
+        aiSpeaking: language === 'tr' ? 'Mülakatçı konuşuyor' : 'Interviewer speaking',
+        aiThinking: '•••',
         typeAnswer: language === 'tr' ? 'Cevabınızı yazın veya mikrofonu kullanın...' : 'Type your answer or use the mic...',
         listening: language === 'tr' ? 'Dinliyor...' : 'Listening...',
         transcript: language === 'tr' ? 'Transkript' : 'Transcript',
         endInterview: language === 'tr' ? 'Mülakatı Bitir' : 'End Interview',
-        endEarlyTitle: language === 'tr' ? 'Erken Bitirmek İstediğinize Emin Misiniz?' : 'End Interview Early?',
+        endEarlyTitle: language === 'tr' ? 'Mülakatı sonlandırmak istiyor musunuz?' : 'Would you like to wrap up?',
         endEarlyDesc: language === 'tr'
-            ? `${turnNumber - 1}/${MAX_QUESTIONS} soruyu yanıtladınız. Şimdiye kadarki verilerle geri bildirim raporu hazırlanacak.`
-            : `You've answered ${turnNumber - 1} of ${MAX_QUESTIONS} questions. Your report will be based on what you've completed.`,
+            ? `Şimdiye kadarki yanıtlarınız ile detaylı bir performans raporu hazırlayacağız.`
+            : `We'll prepare a detailed performance report based on your answers so far.`,
         keepGoing: language === 'tr' ? 'Devam Et' : 'Keep Going',
-        yesEnd: language === 'tr' ? 'Evet, Bitir & Raporu Al' : 'Yes, End & Get Feedback',
+        yesEnd: language === 'tr' ? 'Bitir ve Raporu Al' : 'End & Get Report',
         question: language === 'tr' ? 'Soru' : 'Question',
-        aiInterviewer: language === 'tr' ? 'AI Mülakatçı' : 'AI Interviewer',
+        aiInterviewer: language === 'tr' ? 'Mülakatçı' : 'Interviewer',
         you: language === 'tr' ? 'Siz' : 'You',
         recording: language === 'tr' ? 'Kaydediliyor...' : 'Recording...',
         approxTime: language === 'tr' ? 'Yaklaşık 10-15 dk • 5 soru' : 'Approx. 10-15 min • 5 questions'
     };
+
 
     // 1. Initialize (NO auto-speak — wait for user gesture)
     useEffect(() => {
@@ -243,7 +244,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 const res = await fetch('/api/tts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: text.slice(0, 1000), language })
+                    body: JSON.stringify({ text: text.slice(0, 1000), language, companyStyle })
                 });
 
                 if (!res.ok) {
@@ -402,12 +403,6 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                             <Clock className="h-3.5 w-3.5 text-blue-400" />
                             <span className="text-blue-400 font-semibold tracking-widest">{formatTime(elapsedSeconds)}</span>
                         </div>
-                        {avgScore > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-neutral-400 border border-neutral-700 px-2 py-1 rounded-full">
-                                <TrendingUp className="h-3 w-3 text-green-400" />
-                                <span>Avg: <span className="text-white font-medium">{Math.round(avgScore)}</span></span>
-                            </div>
-                        )}
                         {language === 'tr' && (
                             <span className="text-[11px] text-amber-400/80 border border-amber-500/20 bg-amber-500/5 px-2 py-0.5 rounded-full">🇹🇷 Türkçe</span>
                         )}
@@ -416,18 +411,16 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                         )}
                     </div>
 
-                    {/* Question Progress */}
-                    <div className="flex items-center gap-3">
-                        <span className="text-neutral-500 text-xs uppercase tracking-widest">{t.question}</span>
-                        <div className="flex gap-1.5">
+                    {/* Question Progress — subtle dots only */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
                             {Array.from({ length: MAX_QUESTIONS }).map((_, i) => (
                                 <div key={i} className={cn(
-                                    "h-1.5 w-6 rounded-full transition-all duration-500",
+                                    "h-1.5 w-1.5 rounded-full transition-all duration-500",
                                     i < turnNumber ? "bg-blue-500" : "bg-neutral-700"
                                 )} />
                             ))}
                         </div>
-                        <span className="text-neutral-300 text-sm font-semibold">{turnNumber}/{MAX_QUESTIONS}</span>
                     </div>
 
                     {/* End Interview */}
@@ -494,12 +487,12 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                         </div>
                     )}
 
-                    {/* Brain Icon */}
+                    {/* Interviewer Avatar */}
                     <div className={cn(
                         "relative z-10 rounded-full p-8 transition-all duration-700",
                         isSpeaking ? "bg-blue-500/10 scale-110 shadow-[0_0_80px_rgba(59,130,246,0.12)]" : "bg-neutral-800/30"
                     )}>
-                        <BrainCircuit className={cn("h-20 w-20 transition-colors duration-500", isSpeaking ? "text-blue-400" : "text-neutral-500")} />
+                        <UserCircle className={cn("h-20 w-20 transition-colors duration-500", isSpeaking ? "text-blue-400" : "text-neutral-500")} />
                         {isSpeaking && <span className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-[0.07]" />}
                     </div>
 
@@ -507,17 +500,17 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                         <AudioVisualizer isSpeaking={isSpeaking} />
                     </div>
 
-                    {/* Re-read button */}
+                    {/* Re-read button — made more visible */}
                     {!isLoading && hasUserInteracted && messages.some(m => m.role === 'assistant') && (
                         <button
                             onClick={() => {
                                 const lastAI = [...messages].reverse().find(m => m.role === 'assistant');
                                 if (lastAI) speakText(lastAI.content);
                             }}
-                            className="mt-4 text-neutral-600 hover:text-neutral-400 text-xs flex items-center gap-1.5 transition-colors"
+                            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800/60 border border-neutral-700 hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200 text-xs transition-all"
                         >
-                            <Volume2 className="h-3.5 w-3.5" />
-                            {language === 'tr' ? 'Soruyu Tekrar Duy' : 'Replay question'}
+                            <Volume2 className="h-4 w-4" />
+                            {language === 'tr' ? 'Soruyu Tekrar Dinle' : 'Replay Question'}
                         </button>
                     )}
                 </div>

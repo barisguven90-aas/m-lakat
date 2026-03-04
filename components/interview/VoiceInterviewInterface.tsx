@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, PhoneOff, Clock, Loader2, BrainCircuit, Volume2, MessageSquare, ChevronDown } from 'lucide-react';
+import { Mic, MicOff, PhoneOff, Clock, Loader2, UserCircle, Volume2, MessageSquare, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { AudioVisualizer } from './AudioVisualizer';
@@ -64,10 +64,10 @@ export default function VoiceInterviewInterface({
     const transcriptRef = useRef<TranscriptEntry[]>([]); // Keep transcript in sync with ref
 
     const t = {
-        aiSpeaking: language === 'tr' ? 'AI Mülakatçı konuşuyor...' : 'AI Interviewer speaking...',
-        listening: language === 'tr' ? 'Sizi dinliyorum...' : 'Listening to you...',
-        processing: language === 'tr' ? 'Düşünüyorum...' : 'Thinking...',
-        waiting: language === 'tr' ? 'Mikrofona basarak konuşun' : 'Press mic to speak',
+        aiSpeaking: language === 'tr' ? 'Mülakatçı konuşuyor' : 'Interviewer speaking',
+        listening: language === 'tr' ? 'Sizi dinliyorum...' : 'Listening...',
+        processing: '•••',
+        waiting: language === 'tr' ? 'Sıra sizde' : 'Your turn',
         endInterview: language === 'tr' ? 'Mülakatı Bitir' : 'End Interview',
         question: language === 'tr' ? 'Soru' : 'Question',
     };
@@ -135,7 +135,7 @@ export default function VoiceInterviewInterface({
                     const res = await fetch('/api/tts', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: text.slice(0, 1000), language })
+                        body: JSON.stringify({ text: text.slice(0, 1000), language, companyStyle })
                     });
 
                     if (!res.ok) {
@@ -162,6 +162,12 @@ export default function VoiceInterviewInterface({
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
                         ttsAudioRef.current = null;
+                        // Natural pause then auto-listen
+                        setTimeout(() => {
+                            if (!isGeneratingRef.current) {
+                                startListening();
+                            }
+                        }, 1200);
                         resolve(true);
                     };
                     audio.onerror = () => {
@@ -450,16 +456,14 @@ export default function VoiceInterviewInterface({
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-neutral-500 text-xs uppercase tracking-widest">{t.question}</span>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1">
                             {Array.from({ length: MAX_QUESTIONS }).map((_, i) => (
                                 <div key={i} className={cn(
-                                    "h-1.5 w-6 rounded-full transition-all duration-500",
+                                    "h-1.5 w-1.5 rounded-full transition-all duration-500",
                                     i < turnNumber ? "bg-blue-500" : "bg-neutral-700"
                                 )} />
                             ))}
                         </div>
-                        <span className="text-neutral-300 text-sm font-semibold">{turnNumber}/{MAX_QUESTIONS}</span>
                     </div>
 
                     <AlertDialog>
@@ -472,9 +476,9 @@ export default function VoiceInterviewInterface({
                         </AlertDialogTrigger>
                         <AlertDialogContent className="bg-neutral-900 border-neutral-700 text-white">
                             <AlertDialogHeader>
-                                <AlertDialogTitle>{language === 'tr' ? 'Mülakatı bitir?' : 'End Interview?'}</AlertDialogTitle>
+                                <AlertDialogTitle>{language === 'tr' ? 'Mülakatı sonlandırmak istiyor musunuz?' : 'Would you like to wrap up?'}</AlertDialogTitle>
                                 <AlertDialogDescription className="text-neutral-400">
-                                    {language === 'tr' ? 'Şimdiye kadarki cevaplarınız ile rapor hazırlanacak.' : 'Your report will be based on answers given so far.'}
+                                    {language === 'tr' ? 'Şimdiye kadarki cevaplarınız ile detaylı rapor hazırlanacak.' : 'We\'ll prepare a detailed report based on your answers so far.'}
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -509,14 +513,14 @@ export default function VoiceInterviewInterface({
                         </div>
                     </div>
 
-                    {/* Brain Icon */}
+                    {/* Interviewer Avatar */}
                     <div className={cn(
                         "relative z-10 rounded-full p-8 transition-all duration-700",
                         isSpeaking ? "bg-blue-500/10 scale-110 shadow-[0_0_80px_rgba(59,130,246,0.12)]"
                             : isListening ? "bg-red-500/10 scale-105 shadow-[0_0_60px_rgba(239,68,68,0.08)]"
                                 : "bg-neutral-800/30"
                     )}>
-                        <BrainCircuit className={cn("h-20 w-20 transition-colors duration-500",
+                        <UserCircle className={cn("h-20 w-20 transition-colors duration-500",
                             isSpeaking ? "text-blue-400" : isListening ? "text-red-400" : "text-neutral-500"
                         )} />
                         {(isSpeaking || isListening) && <span className={cn(
@@ -606,7 +610,7 @@ export default function VoiceInterviewInterface({
                                         </div>
                                         <span className="text-[10px] text-neutral-600 uppercase px-1">
                                             {entry.role === 'assistant'
-                                                ? (language === 'tr' ? 'AI Mülakatçı' : 'AI Interviewer')
+                                                ? (language === 'tr' ? 'Mülakatçı' : 'Interviewer')
                                                 : (language === 'tr' ? 'Siz' : 'You')}
                                         </span>
                                     </div>

@@ -217,10 +217,10 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                 <div className="p-6 border-b border-neutral-800 bg-gradient-to-r from-blue-950/50 to-neutral-950">
                     <DialogTitle className="text-xl flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-blue-400" />
-                        Configure Your Interview
+                        Prepare for Your Interview
                     </DialogTitle>
                     <DialogDescription className="text-neutral-400 mt-1">
-                        Customize your AI practice session for maximum impact.
+                        Set up your practice session for maximum impact.
                     </DialogDescription>
                 </div>
 
@@ -375,7 +375,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                         </Button>
                     </div>
                     <p className="text-center text-neutral-600 text-xs">
-                        {language === 'tr' ? 'Sesli mod gerçek zamanlı AI konuşması sunar • Yaklaşık 10-15 dk' : 'Voice mode offers real-time AI conversation • Approx. 10-15 min'}
+                        {language === 'tr' ? 'Sesli mod gerçek zamanlı konuşma sunar • Yaklaşık 10-15 dk' : 'Voice mode offers real-time conversation • Approx. 10-15 min'}
                     </p>
                 </div>
             </DialogContent>
