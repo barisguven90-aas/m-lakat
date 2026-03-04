@@ -74,6 +74,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     // Voice States
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const isSpeakingRef = useRef(false);
     const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
 
     // Camera State
@@ -231,16 +232,24 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
     // TTS — ElevenLabs only (natural voice, no browser fallback)
     const speakText = async (text: string) => {
-        // Stop any currently playing audio
+        console.log('[TTS] speakText called, text length:', text.length, 'isSpeakingRef:', isSpeakingRef.current);
+
+        // Stop any currently playing audio first
         if (ttsAudioRef.current) {
             ttsAudioRef.current.pause();
             ttsAudioRef.current = null;
         }
-        if (isSpeaking) { setIsSpeaking(false); return; }
+        // If already speaking, stop and re-speak with new text
+        if (isSpeakingRef.current) {
+            isSpeakingRef.current = false;
+            setIsSpeaking(false);
+        }
 
         const attemptTTS = async (attempt: number): Promise<boolean> => {
             try {
+                isSpeakingRef.current = true;
                 setIsSpeaking(true);
+                console.log(`[TTS] Attempt ${attempt}: calling /api/tts`);
                 const res = await fetch('/api/tts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -249,13 +258,14 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
-                    console.error(`TTS attempt ${attempt} failed [${res.status}]:`, errData);
+                    console.error(`[TTS] Attempt ${attempt} failed [${res.status}]:`, errData);
                     return false;
                 }
 
                 const audioBlob = await res.blob();
+                console.log(`[TTS] Attempt ${attempt}: got audio blob, size:`, audioBlob.size);
                 if (audioBlob.size < 100) {
-                    console.error(`TTS attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
+                    console.error(`[TTS] Attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
                     return false;
                 }
 
@@ -265,24 +275,30 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
                 return new Promise<boolean>((resolve) => {
                     audio.onended = () => {
+                        isSpeakingRef.current = false;
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
                         ttsAudioRef.current = null;
+                        console.log('[TTS] Audio playback ended successfully');
                         resolve(true);
                     };
-                    audio.onerror = () => {
+                    audio.onerror = (e) => {
+                        isSpeakingRef.current = false;
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
                         ttsAudioRef.current = null;
+                        console.error('[TTS] Audio playback error:', e);
                         resolve(false);
                     };
-                    audio.play().catch(() => {
+                    audio.play().catch((err) => {
+                        isSpeakingRef.current = false;
                         setIsSpeaking(false);
+                        console.error('[TTS] audio.play() rejected:', err);
                         resolve(false);
                     });
                 });
             } catch (error) {
-                console.error(`TTS attempt ${attempt} error:`, error);
+                console.error(`[TTS] Attempt ${attempt} error:`, error);
                 return false;
             }
         };
@@ -294,8 +310,9 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             await new Promise(r => setTimeout(r, 500));
             const retrySuccess = await attemptTTS(2);
             if (!retrySuccess) {
+                isSpeakingRef.current = false;
                 setIsSpeaking(false);
-                console.error('TTS: Both attempts failed. Check ELEVENLABS_API_KEY in environment variables.');
+                console.error('[TTS] Both attempts failed. Check ELEVENLABS_API_KEY.');
             }
         }
     };
@@ -334,6 +351,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         setInputText('');
         setIsLoading(true);
         if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+        isSpeakingRef.current = false;
         setIsSpeaking(false);
 
         try {
