@@ -218,7 +218,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
     const stopListening = () => recognitionRef.current?.stop();
 
-    // TTS — ElevenLabs (natural voice)
+    // TTS — ElevenLabs only (natural voice, no browser fallback)
     const speakText = async (text: string) => {
         // Stop any currently playing audio
         if (ttsAudioRef.current) {
@@ -227,44 +227,64 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         }
         if (isSpeaking) { setIsSpeaking(false); return; }
 
-        try {
-            setIsSpeaking(true);
-            const res = await fetch('/api/tts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: text.slice(0, 1000) }) // Limit text length
-            });
+        const attemptTTS = async (attempt: number): Promise<boolean> => {
+            try {
+                setIsSpeaking(true);
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text.slice(0, 1000), language })
+                });
 
-            if (!res.ok) throw new Error('TTS failed');
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    console.error(`TTS attempt ${attempt} failed [${res.status}]:`, errData);
+                    return false;
+                }
 
-            const audioBlob = await res.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            ttsAudioRef.current = audio;
+                const audioBlob = await res.blob();
+                if (audioBlob.size < 100) {
+                    console.error(`TTS attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
+                    return false;
+                }
 
-            audio.onended = () => {
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                ttsAudioRef.current = audio;
+
+                return new Promise<boolean>((resolve) => {
+                    audio.onended = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                        ttsAudioRef.current = null;
+                        resolve(true);
+                    };
+                    audio.onerror = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                        ttsAudioRef.current = null;
+                        resolve(false);
+                    };
+                    audio.play().catch(() => {
+                        setIsSpeaking(false);
+                        resolve(false);
+                    });
+                });
+            } catch (error) {
+                console.error(`TTS attempt ${attempt} error:`, error);
+                return false;
+            }
+        };
+
+        // Try ElevenLabs with one retry
+        const success = await attemptTTS(1);
+        if (!success) {
+            // Wait a moment and retry once
+            await new Promise(r => setTimeout(r, 500));
+            const retrySuccess = await attemptTTS(2);
+            if (!retrySuccess) {
                 setIsSpeaking(false);
-                URL.revokeObjectURL(audioUrl);
-                ttsAudioRef.current = null;
-            };
-            audio.onerror = () => {
-                setIsSpeaking(false);
-                URL.revokeObjectURL(audioUrl);
-                ttsAudioRef.current = null;
-            };
-
-            await audio.play();
-        } catch (error) {
-            console.error('ElevenLabs TTS error:', error);
-            setIsSpeaking(false);
-            // Fallback to browser TTS if ElevenLabs fails
-            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance(text);
-                u.rate = 0.95;
-                u.lang = language === 'tr' ? 'tr-TR' : 'en-US';
-                u.onstart = () => setIsSpeaking(true);
-                u.onend = () => setIsSpeaking(false);
-                window.speechSynthesis.speak(u);
+                console.error('TTS: Both attempts failed. Check ELEVENLABS_API_KEY in environment variables.');
             }
         }
     };

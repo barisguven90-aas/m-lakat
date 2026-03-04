@@ -109,48 +109,75 @@ export default function VoiceInterviewInterface({
         return `${m}:${sec}`;
     };
 
-    // ===== ElevenLabs TTS =====
+    // ===== ElevenLabs TTS with retry =====
     const speakText = async (text: string): Promise<void> => {
         if (ttsAudioRef.current) {
             ttsAudioRef.current.pause();
             ttsAudioRef.current = null;
         }
 
-        return new Promise(async (resolve) => {
-            try {
-                setIsSpeaking(true);
-                const res = await fetch('/api/tts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: text.slice(0, 1000) })
-                });
+        const attemptTTS = (attempt: number): Promise<boolean> => {
+            return new Promise(async (resolve) => {
+                try {
+                    setIsSpeaking(true);
+                    const res = await fetch('/api/tts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: text.slice(0, 1000), language })
+                    });
 
-                if (!res.ok) throw new Error('TTS failed');
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        console.error(`Voice TTS attempt ${attempt} failed [${res.status}]:`, errData);
+                        setIsSpeaking(false);
+                        resolve(false);
+                        return;
+                    }
 
-                const audioBlob = await res.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                ttsAudioRef.current = audio;
+                    const audioBlob = await res.blob();
+                    if (audioBlob.size < 100) {
+                        console.error(`Voice TTS attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
+                        setIsSpeaking(false);
+                        resolve(false);
+                        return;
+                    }
 
-                audio.onended = () => {
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    ttsAudioRef.current = audio;
+
+                    audio.onended = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                        ttsAudioRef.current = null;
+                        resolve(true);
+                    };
+                    audio.onerror = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                        ttsAudioRef.current = null;
+                        resolve(false);
+                    };
+
+                    await audio.play();
+                } catch (error) {
+                    console.error(`Voice TTS attempt ${attempt} error:`, error);
                     setIsSpeaking(false);
-                    URL.revokeObjectURL(audioUrl);
-                    ttsAudioRef.current = null;
-                    resolve();
-                };
-                audio.onerror = () => {
-                    setIsSpeaking(false);
-                    URL.revokeObjectURL(audioUrl);
-                    ttsAudioRef.current = null;
-                    resolve();
-                };
+                    resolve(false);
+                }
+            });
+        };
 
-                await audio.play();
-            } catch {
+        // Try with one retry
+        const success = await attemptTTS(1);
+        if (!success) {
+            await new Promise(r => setTimeout(r, 500));
+            const retrySuccess = await attemptTTS(2);
+            if (!retrySuccess) {
                 setIsSpeaking(false);
-                resolve();
+                console.error('Voice TTS: Both attempts failed. Check ELEVENLABS_API_KEY.');
             }
-        });
+        }
     };
 
     // ===== Speech Recognition (STT) =====
