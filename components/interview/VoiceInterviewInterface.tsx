@@ -41,7 +41,7 @@ export default function VoiceInterviewInterface({
     const router = useRouter();
 
     // State
-    const [phase, setPhase] = useState<'countdown' | 'interview' | 'ending'>('countdown');
+    const [phase, setPhase] = useState<'waiting' | 'countdown' | 'interview' | 'ending'>('waiting');
     const [countdown, setCountdown] = useState(3);
     const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -52,6 +52,7 @@ export default function VoiceInterviewInterface({
     const [isProcessing, setIsProcessing] = useState(false);
     const [showTranscript, setShowTranscript] = useState(true);
     const [currentUserText, setCurrentUserText] = useState('');
+    const userInteractedRef = useRef(false);
 
     // Refs
     const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -77,6 +78,17 @@ export default function VoiceInterviewInterface({
             chatContainerRef.current.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [transcript]);
+
+    // User clicks "Start" → begin countdown
+    const handleStartInterview = () => {
+        userInteractedRef.current = true;
+        // Unlock audio context with a silent play (Chrome autoplay policy)
+        try {
+            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            ctx.resume().then(() => ctx.close());
+        } catch { }
+        setPhase('countdown');
+    };
 
     // Countdown → Start interview
     useEffect(() => {
@@ -345,6 +357,37 @@ export default function VoiceInterviewInterface({
             toast.error("Could not end interview.");
         }
     };
+
+    // ===== Waiting Screen (click to start) =====
+    if (phase === 'waiting') {
+        return (
+            <div className="flex items-center justify-center min-h-[calc(100vh-80px)] bg-neutral-950">
+                <div className="text-center space-y-6">
+                    <div className="h-28 w-28 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border-2 border-blue-500/30 flex items-center justify-center mx-auto">
+                        <Mic className="h-12 w-12 text-blue-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                            {language === 'tr' ? 'Sesli Mülakat' : 'Voice Interview'}
+                        </h2>
+                        <p className="text-neutral-400 text-sm max-w-sm mx-auto">
+                            {applicationContext.jobTitle} — {applicationContext.jobCompany}
+                        </p>
+                        <p className="text-neutral-500 text-xs mt-3">
+                            {language === 'tr' ? 'Mikrofon ve ses izni gerekli' : 'Microphone & audio permission required'}
+                        </p>
+                    </div>
+                    <Button
+                        onClick={handleStartInterview}
+                        size="lg"
+                        className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-6 text-lg rounded-2xl shadow-lg shadow-blue-600/30 transition-all hover:scale-105"
+                    >
+                        {language === 'tr' ? 'Mülakatı Başlat' : 'Start Interview'}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     // ===== Countdown Screen =====
     if (phase === 'countdown') {
