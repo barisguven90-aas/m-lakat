@@ -64,6 +64,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isEndingEarly, setIsEndingEarly] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+    const [hasUserInteracted, setHasUserInteracted] = useState(false);
+    const [isInterviewEnded, setIsInterviewEnded] = useState(false);
 
     // Language & Style (from server props > sessionStorage fallback)
     const [language, setLanguage] = useState<'en' | 'tr'>((initialLanguage as 'en' | 'tr') || 'en');
@@ -106,7 +108,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         approxTime: language === 'tr' ? 'Yaklaşık 10-15 dk • 5 soru' : 'Approx. 10-15 min • 5 questions'
     };
 
-    // 1. Initialize
+    // 1. Initialize (NO auto-speak — wait for user gesture)
     useEffect(() => {
         // Fallback: Load session config from sessionStorage only if no server props
         if (!initialLanguage || !initialCompanyStyle) {
@@ -119,9 +121,6 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 }
             } catch { }
         }
-
-        // Auto-speak initial question with ElevenLabs
-        setTimeout(() => speakText(initialQuestion), 1000);
 
         // Timer
         timerRef.current = setInterval(() => setElapsedSeconds(s => s + 1), 1000);
@@ -138,6 +137,17 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
         };
     }, []);
+
+    // User clicks "Play" to hear first question — unlocks Chrome audio
+    const handleFirstPlay = () => {
+        setHasUserInteracted(true);
+        // Unlock AudioContext for Chrome autoplay policy
+        try {
+            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            ctx.resume().then(() => ctx.close());
+        } catch { }
+        speakText(initialQuestion);
+    };
 
     // Auto-scroll to bottom when new messages arrive
     const scrollToBottom = useCallback((smooth = true) => {
@@ -353,6 +363,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             }
 
             if (data.isCompleted) {
+                setIsInterviewEnded(true);
                 if (ttsAudioRef.current) { (ttsAudioRef.current as any).pause(); ttsAudioRef.current = null; }
                 if (timerRef.current) clearInterval(timerRef.current);
                 toast.success(language === 'tr' ? "Mülakat tamamlandı! Raporunuz hazırlanıyor..." : "Interview Complete! Generating your report...");
@@ -466,6 +477,23 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                         </div>
                     </div>
 
+                    {/* First-play overlay — unlocks Chrome audio */}
+                    {!hasUserInteracted && (
+                        <div className="absolute inset-0 z-30 flex items-center justify-center bg-neutral-950/80 backdrop-blur-sm">
+                            <button
+                                onClick={handleFirstPlay}
+                                className="flex flex-col items-center gap-4 group"
+                            >
+                                <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30 group-hover:bg-blue-500 group-hover:scale-110 transition-all duration-300">
+                                    <Volume2 className="h-10 w-10 text-white" />
+                                </div>
+                                <span className="text-blue-300 text-sm font-medium">
+                                    {language === 'tr' ? '▶ Soruyu Dinle' : '▶ Play Question'}
+                                </span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* Brain Icon */}
                     <div className={cn(
                         "relative z-10 rounded-full p-8 transition-all duration-700",
@@ -480,7 +508,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                     </div>
 
                     {/* Re-read button */}
-                    {!isLoading && messages.some(m => m.role === 'assistant') && (
+                    {!isLoading && hasUserInteracted && messages.some(m => m.role === 'assistant') && (
                         <button
                             onClick={() => {
                                 const lastAI = [...messages].reverse().find(m => m.role === 'assistant');
@@ -580,8 +608,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                                             {m.content}
                                         </div>
 
-                                        {/* Instant score badge for user messages */}
-                                        {m.role === 'user' && m.score !== undefined && (
+                                        {/* Score badge — only show after interview is ended */}
+                                        {isInterviewEnded && m.role === 'user' && m.score !== undefined && (
                                             <div className="w-[90%]">
                                                 <ScoreBadge score={m.score} feedback={m.feedback || ''} isStrong={m.isStrong || false} />
                                             </div>
