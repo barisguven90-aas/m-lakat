@@ -144,10 +144,12 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     const handleFirstPlay = () => {
         setHasUserInteracted(true);
 
-        // Chrome autoplay unlock: play a tiny silent audio synchronously in the click
-        // This permanently unlocks audio.play() for the entire page lifetime
+        // Chrome/Safari autoplay unlock: play a tiny silent audio synchronously in the click
+        // Safari strictly requires we reuse the EXACT SAME audio element that was unlocked by the user gesture.
         try {
-            const silentAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+            if (!ttsAudioRef.current) ttsAudioRef.current = new Audio();
+            const silentAudio = ttsAudioRef.current;
+            silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
             silentAudio.volume = 0;
             silentAudio.play().catch(() => { });
         } catch { }
@@ -248,7 +250,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         // Stop any currently playing audio first
         if (ttsAudioRef.current) {
             ttsAudioRef.current.pause();
-            ttsAudioRef.current = null;
+        } else {
+            ttsAudioRef.current = new Audio();
         }
         // If already speaking, stop and re-speak with new text
         if (isSpeakingRef.current) {
@@ -281,15 +284,15 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 }
 
                 const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                ttsAudioRef.current = audio;
+                const audio = ttsAudioRef.current!;
+                audio.src = audioUrl;
+                audio.volume = 1;
 
                 return new Promise<boolean>((resolve) => {
                     audio.onended = () => {
                         isSpeakingRef.current = false;
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
-                        ttsAudioRef.current = null;
                         console.log('[TTS] Audio playback ended successfully');
                         resolve(true);
                     };
@@ -297,7 +300,6 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                         isSpeakingRef.current = false;
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
-                        ttsAudioRef.current = null;
                         console.error('[TTS] Audio playback error:', e);
                         resolve(false);
                     };
@@ -370,7 +372,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId })
             });
-            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
             if (timerRef.current) clearInterval(timerRef.current);
             toast.success(language === 'tr' ? "Mülakat bitti. Raporunuz hazırlanıyor..." : "Interview ended. Generating your feedback...");
             sendNotification("Interview Ended", "Your feedback report is being generated.");
@@ -387,7 +389,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
         setInputText('');
         setIsLoading(true);
-        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
         isSpeakingRef.current = false;
         setIsSpeaking(false);
 
@@ -420,7 +422,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
             if (data.isCompleted) {
                 setIsInterviewEnded(true);
-                if (ttsAudioRef.current) { (ttsAudioRef.current as any).pause(); ttsAudioRef.current = null; }
+                if (ttsAudioRef.current) { (ttsAudioRef.current as any).pause(); }
                 if (timerRef.current) clearInterval(timerRef.current);
                 toast.success(language === 'tr' ? "Mülakat tamamlandı! Raporunuz hazırlanıyor..." : "Interview Complete! Generating your report...");
                 sendNotification("🎉 Interview Complete!", "Your personalized feedback report is ready. Click to view.");

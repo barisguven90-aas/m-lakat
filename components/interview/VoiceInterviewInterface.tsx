@@ -83,10 +83,12 @@ export default function VoiceInterviewInterface({
     const handleStartInterview = () => {
         userInteractedRef.current = true;
 
-        // Chrome autoplay unlock: play a tiny silent audio synchronously in the click
-        // This permanently unlocks audio.play() for the entire page lifetime
+        // Chrome/Safari autoplay unlock: play a tiny silent audio synchronously in the click
+        // Safari strictly requires we reuse the EXACT SAME audio element that was unlocked by the user gesture.
         try {
-            const silentAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+            if (!ttsAudioRef.current) ttsAudioRef.current = new Audio();
+            const silentAudio = ttsAudioRef.current;
+            silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
             silentAudio.volume = 0;
             silentAudio.play().catch(() => { });
         } catch { }
@@ -120,7 +122,7 @@ export default function VoiceInterviewInterface({
     useEffect(() => {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
-            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
             recognitionRef.current?.stop();
         };
     }, []);
@@ -135,7 +137,8 @@ export default function VoiceInterviewInterface({
     const speakText = async (text: string): Promise<void> => {
         if (ttsAudioRef.current) {
             ttsAudioRef.current.pause();
-            ttsAudioRef.current = null;
+        } else {
+            ttsAudioRef.current = new Audio();
         }
 
         const attemptTTS = (attempt: number): Promise<boolean> => {
@@ -165,13 +168,13 @@ export default function VoiceInterviewInterface({
                     }
 
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = new Audio(audioUrl);
-                    ttsAudioRef.current = audio;
+                    const audio = ttsAudioRef.current!;
+                    audio.src = audioUrl;
+                    audio.volume = 1;
 
                     audio.onended = () => {
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
-                        ttsAudioRef.current = null;
                         // Natural pause then auto-listen
                         setTimeout(() => {
                             if (!isGeneratingRef.current) {
@@ -183,7 +186,6 @@ export default function VoiceInterviewInterface({
                     audio.onerror = () => {
                         setIsSpeaking(false);
                         URL.revokeObjectURL(audioUrl);
-                        ttsAudioRef.current = null;
                         resolve(false);
                     };
 
