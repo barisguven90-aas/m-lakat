@@ -129,7 +129,7 @@ export default function VoiceInterviewInterface({
         return `${m}:${sec}`;
     };
 
-    // ===== OpenAI TTS with retry =====
+    // ===== Edge TTS with retry =====
     const speakText = async (text: string): Promise<void> => {
         if (activeSourceRef.current) {
             try { activeSourceRef.current.stop(); } catch { }
@@ -214,9 +214,9 @@ export default function VoiceInterviewInterface({
             await new Promise(r => setTimeout(r, 500));
             const retrySuccess = await attemptTTS(2);
             if (!retrySuccess) {
-                console.error('Voice TTS: Both Web Audio API/OpenAI attempts failed.');
+                console.error('Voice TTS: Both Web Audio API/EdgeTTS attempts failed.');
                 setIsSpeaking(false);
-                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. OpenAI kotanızı kontrol edin." : "Could not generate AI voice. Please check OpenAI API key/quota.");
+                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. Sunucu bağlantı hatası." : "Could not generate AI voice. Server connection error.");
                 // Immediately allow user to speak instead of hanging
                 setTimeout(() => {
                     if (!isGeneratingRef.current) startListening();

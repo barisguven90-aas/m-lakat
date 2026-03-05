@@ -1,67 +1,50 @@
 import { NextResponse } from 'next/server';
+import { EdgeTTS } from 'node-edge-tts';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 export async function POST(req: Request) {
     try {
-        const { text, voice_id, language, companyStyle } = await req.json();
+        const { text, language, companyStyle } = await req.json();
 
         if (!text) {
             return NextResponse.json({ error: 'No text provided' }, { status: 400 });
         }
 
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) {
-            console.error('OPENAI_API_KEY is not set in environment variables');
-            return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 });
+        // Map language/style to Edge TTS Neural voices
+        // tr-TR options: tr-TR-AhmetNeural (male), tr-TR-EmelNeural (female)
+        // en-US options: en-US-AriaNeural (female), en-US-ChristopherNeural (male), en-US-GuyNeural (male)
+        let selectedVoice = language === 'tr' ? 'tr-TR-AhmetNeural' : 'en-US-AriaNeural';
+
+        if (language === 'tr') {
+            if (companyStyle === 'startup') selectedVoice = 'tr-TR-EmelNeural';
+            else if (companyStyle === 'corporate') selectedVoice = 'tr-TR-AhmetNeural';
+            else selectedVoice = 'tr-TR-AhmetNeural';
+        } else {
+            if (companyStyle === 'startup') selectedVoice = 'en-US-GuyNeural';
+            else if (companyStyle === 'corporate') selectedVoice = 'en-US-ChristopherNeural';
+            else selectedVoice = 'en-US-AriaNeural';
         }
 
-        // Map company style to different OpenAI voices for variety
-        // Voices available: alloy, echo, fable, onyx, nova, and shimmer
-        const STYLE_VOICES: Record<string, string> = {
-            standard: 'alloy',   // Neutral, standard
-            corporate: 'onyx',   // Deep, formal, authoritative 
-            google: 'echo',      // Clear, friendly
-            amazon: 'shimmer',   // Confident
-            startup: 'nova',     // Energetic, casual
-        };
-        const selectedVoice = voice_id || STYLE_VOICES[companyStyle || 'standard'] || 'alloy';
+        // Add character limit to avoid exceptionally long edge streams
+        const trimmedText = text.slice(0, 1500);
 
-        // Limit text to prevent excessive API usage
-        const trimmedText = text.slice(0, 1000);
+        const tts = new EdgeTTS({ voice: selectedVoice, lang: language === 'tr' ? 'tr-TR' : 'en-US' });
 
-        const response = await fetch(
-            `https://api.openai.com/v1/audio/speech`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: 'tts-1',
-                    input: trimmedText,
-                    voice: selectedVoice,
-                    response_format: 'mp3',
-                }),
-            }
-        );
+        // Generate a random unique file path in Vercel's temporary directory
+        const tmpFile = path.join(os.tmpdir(), `tts-${Date.now()}-${Math.random().toString(36).substring(7)}.mp3`);
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`OpenAI TTS Error [${response.status}]:`, errorText);
+        await tts.ttsPromise(trimmedText, tmpFile);
 
-            // Return specific error info for debugging
-            return NextResponse.json({
-                error: 'TTS generation failed',
-                status: response.status,
-                detail: errorText.slice(0, 200)
-            }, { status: response.status });
-        }
+        // Read the file buffer
+        const audioBuffer = fs.readFileSync(tmpFile);
 
-        // Stream the audio back
-        const audioBuffer = await response.arrayBuffer();
+        // Clean up synchronously
+        try { fs.unlinkSync(tmpFile); } catch (e) { console.error('Failed to unlink tmp audio file', e); }
 
         if (audioBuffer.byteLength === 0) {
-            console.error('OpenAI returned empty audio buffer');
+            console.error('Edge TTS returned empty audio buffer');
             return NextResponse.json({ error: 'Empty audio response' }, { status: 500 });
         }
 
@@ -72,7 +55,7 @@ export async function POST(req: Request) {
             },
         });
     } catch (error: any) {
-        console.error('TTS Error:', error);
+        console.error('Edge TTS Error:', error);
         return NextResponse.json({ error: error.message || 'Internal TTS error' }, { status: 500 });
     }
 }
