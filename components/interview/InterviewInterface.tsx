@@ -75,7 +75,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const isSpeakingRef = useRef(false);
-    const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+    const audioCtxRef = useRef<AudioContext | null>(null);
+    const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
     // Camera State
     const [isCameraOn, setIsCameraOn] = useState(false);
@@ -136,7 +137,12 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
-            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+            if (activeSourceRef.current) {
+                try { activeSourceRef.current.stop(); } catch { }
+            }
+            if (audioCtxRef.current) {
+                audioCtxRef.current.close().catch(() => { });
+            }
         };
     }, []);
 
@@ -144,20 +150,14 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     const handleFirstPlay = () => {
         setHasUserInteracted(true);
 
-        // Chrome/Safari autoplay unlock: play a tiny silent audio synchronously in the click
-        // Safari strictly requires we reuse the EXACT SAME audio element that was unlocked by the user gesture.
+        // Web Audio API unlock: permanently unlocks audio for the page
         try {
-            if (!ttsAudioRef.current) ttsAudioRef.current = new Audio();
-            const silentAudio = ttsAudioRef.current;
-            silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-            silentAudio.volume = 0;
-            silentAudio.play().catch(() => { });
-        } catch { }
-
-        // Also unlock AudioContext (for Web Audio API)
-        try {
-            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            ctx.resume().then(() => ctx.close());
+            if (!audioCtxRef.current) {
+                audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            }
+            if (audioCtxRef.current.state === 'suspended') {
+                audioCtxRef.current.resume();
+            }
         } catch { }
 
         // Now call speakText — audio.play() will work even from async code
@@ -248,11 +248,16 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         console.log('[TTS] speakText called, text length:', text.length, 'isSpeakingRef:', isSpeakingRef.current);
 
         // Stop any currently playing audio first
-        if (ttsAudioRef.current) {
-            ttsAudioRef.current.pause();
-        } else {
-            ttsAudioRef.current = new Audio();
+        if (activeSourceRef.current) {
+            try { activeSourceRef.current.stop(); } catch { }
+            activeSourceRef.current = null;
         }
+
+        // Ensure AudioContext exists (fallback if they didn't click first somehow)
+        if (!audioCtxRef.current) {
+            audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+
         // If already speaking, stop and re-speak with new text
         if (isSpeakingRef.current) {
             isSpeakingRef.current = false;
@@ -276,39 +281,43 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                     return false;
                 }
 
-                const audioBlob = await res.blob();
-                console.log(`[TTS] Attempt ${attempt}: got audio blob, size:`, audioBlob.size);
-                if (audioBlob.size < 100) {
-                    console.error(`[TTS] Attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
+                const arrayBuffer = await res.arrayBuffer();
+                console.log(`[TTS] Attempt ${attempt}: got audio buffer, size:`, arrayBuffer.byteLength);
+                if (arrayBuffer.byteLength < 100) {
+                    console.error(`[TTS] Attempt ${attempt}: audio too small (${arrayBuffer.byteLength} bytes)`);
                     return false;
                 }
 
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = ttsAudioRef.current!;
-                audio.src = audioUrl;
-                audio.volume = 1;
+                // Make sure context is running
+                if (audioCtxRef.current?.state === 'suspended') {
+                    await audioCtxRef.current.resume();
+                }
+
+                // Decode and play via Web Audio API
+                const audioBuffer = await audioCtxRef.current!.decodeAudioData(arrayBuffer);
+                const source = audioCtxRef.current!.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioCtxRef.current!.destination);
+                activeSourceRef.current = source;
 
                 return new Promise<boolean>((resolve) => {
-                    audio.onended = () => {
+                    source.onended = () => {
                         isSpeakingRef.current = false;
                         setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
+                        activeSourceRef.current = null;
                         console.log('[TTS] Audio playback ended successfully');
                         resolve(true);
                     };
-                    audio.onerror = (e) => {
+
+                    try {
+                        source.start(0);
+                    } catch (err) {
                         isSpeakingRef.current = false;
                         setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
-                        console.error('[TTS] Audio playback error:', e);
+                        activeSourceRef.current = null;
+                        console.error('[TTS] source.start() failed:', err);
                         resolve(false);
-                    };
-                    audio.play().catch((err) => {
-                        isSpeakingRef.current = false;
-                        setIsSpeaking(false);
-                        console.error('[TTS] audio.play() rejected:', err);
-                        resolve(false);
-                    });
+                    }
                 });
             } catch (error) {
                 console.error(`[TTS] Attempt ${attempt} error:`, error);
@@ -372,7 +381,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId })
             });
-            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
+            if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
             if (timerRef.current) clearInterval(timerRef.current);
             toast.success(language === 'tr' ? "Mülakat bitti. Raporunuz hazırlanıyor..." : "Interview ended. Generating your feedback...");
             sendNotification("Interview Ended", "Your feedback report is being generated.");
@@ -389,7 +398,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
         setInputText('');
         setIsLoading(true);
-        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
+        if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
         isSpeakingRef.current = false;
         setIsSpeaking(false);
 
@@ -422,7 +431,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
             if (data.isCompleted) {
                 setIsInterviewEnded(true);
-                if (ttsAudioRef.current) { (ttsAudioRef.current as any).pause(); }
+                if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
                 if (timerRef.current) clearInterval(timerRef.current);
                 toast.success(language === 'tr' ? "Mülakat tamamlandı! Raporunuz hazırlanıyor..." : "Interview Complete! Generating your report...");
                 sendNotification("🎉 Interview Complete!", "Your personalized feedback report is ready. Click to view.");

@@ -55,7 +55,8 @@ export default function VoiceInterviewInterface({
     const userInteractedRef = useRef(false);
 
     // Refs
-    const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+    const audioCtxRef = useRef<AudioContext | null>(null);
+    const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
     const recognitionRef = useRef<any>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const transcriptEndRef = useRef<HTMLDivElement>(null);
@@ -83,20 +84,14 @@ export default function VoiceInterviewInterface({
     const handleStartInterview = () => {
         userInteractedRef.current = true;
 
-        // Chrome/Safari autoplay unlock: play a tiny silent audio synchronously in the click
-        // Safari strictly requires we reuse the EXACT SAME audio element that was unlocked by the user gesture.
+        // Web Audio API unlock: permanently unlocks audio for the page
         try {
-            if (!ttsAudioRef.current) ttsAudioRef.current = new Audio();
-            const silentAudio = ttsAudioRef.current;
-            silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-            silentAudio.volume = 0;
-            silentAudio.play().catch(() => { });
-        } catch { }
-
-        // Also unlock AudioContext (for Web Audio API)
-        try {
-            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            ctx.resume().then(() => ctx.close());
+            if (!audioCtxRef.current) {
+                audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            }
+            if (audioCtxRef.current.state === 'suspended') {
+                audioCtxRef.current.resume();
+            }
         } catch { }
 
         setPhase('countdown');
@@ -122,7 +117,8 @@ export default function VoiceInterviewInterface({
     useEffect(() => {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
-            if (ttsAudioRef.current) { ttsAudioRef.current.pause(); }
+            if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
+            if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => { }); }
             recognitionRef.current?.stop();
         };
     }, []);
@@ -135,10 +131,12 @@ export default function VoiceInterviewInterface({
 
     // ===== ElevenLabs TTS with retry =====
     const speakText = async (text: string): Promise<void> => {
-        if (ttsAudioRef.current) {
-            ttsAudioRef.current.pause();
-        } else {
-            ttsAudioRef.current = new Audio();
+        if (activeSourceRef.current) {
+            try { activeSourceRef.current.stop(); } catch { }
+            activeSourceRef.current = null;
+        }
+        if (!audioCtxRef.current) {
+            audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
 
         const attemptTTS = (attempt: number): Promise<boolean> => {
@@ -159,22 +157,27 @@ export default function VoiceInterviewInterface({
                         return;
                     }
 
-                    const audioBlob = await res.blob();
-                    if (audioBlob.size < 100) {
-                        console.error(`Voice TTS attempt ${attempt}: audio too small (${audioBlob.size} bytes)`);
+                    const arrayBuffer = await res.arrayBuffer();
+                    if (arrayBuffer.byteLength < 100) {
+                        console.error(`Voice TTS attempt ${attempt}: audio too small (${arrayBuffer.byteLength} bytes)`);
                         setIsSpeaking(false);
                         resolve(false);
                         return;
                     }
 
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    const audio = ttsAudioRef.current!;
-                    audio.src = audioUrl;
-                    audio.volume = 1;
+                    if (audioCtxRef.current?.state === 'suspended') {
+                        await audioCtxRef.current.resume();
+                    }
 
-                    audio.onended = () => {
+                    const audioBuffer = await audioCtxRef.current!.decodeAudioData(arrayBuffer);
+                    const source = audioCtxRef.current!.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(audioCtxRef.current!.destination);
+                    activeSourceRef.current = source;
+
+                    source.onended = () => {
                         setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
+                        activeSourceRef.current = null;
                         // Natural pause then auto-listen
                         setTimeout(() => {
                             if (!isGeneratingRef.current) {
@@ -183,13 +186,14 @@ export default function VoiceInterviewInterface({
                         }, 1200);
                         resolve(true);
                     };
-                    audio.onerror = () => {
-                        setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
-                        resolve(false);
-                    };
 
-                    await audio.play();
+                    try {
+                        source.start(0);
+                    } catch (err) {
+                        setIsSpeaking(false);
+                        activeSourceRef.current = null;
+                        resolve(false);
+                    }
                 } catch (error) {
                     console.error(`Voice TTS attempt ${attempt} error:`, error);
                     setIsSpeaking(false);
@@ -215,7 +219,7 @@ export default function VoiceInterviewInterface({
         if (isSpeaking || isProcessing) return; // Don't listen while AI is talking
 
         // Stop any playing audio
-        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; setIsSpeaking(false); }
+        if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } activeSourceRef.current = null; } setIsSpeaking(false);
 
         const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SR) { toast.error("Speech recognition not supported."); return; }
@@ -359,7 +363,7 @@ export default function VoiceInterviewInterface({
     // ===== End Interview =====
     const handleEndInterview = async () => {
         setPhase('ending');
-        if (ttsAudioRef.current) { ttsAudioRef.current.pause(); ttsAudioRef.current = null; }
+        if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } activeSourceRef.current = null; }
         recognitionRef.current?.stop();
         if (timerRef.current) clearInterval(timerRef.current);
 
