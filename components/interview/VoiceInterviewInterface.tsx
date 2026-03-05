@@ -169,7 +169,13 @@ export default function VoiceInterviewInterface({
                         await audioCtxRef.current.resume();
                     }
 
-                    const audioBuffer = await audioCtxRef.current!.decodeAudioData(arrayBuffer);
+                    // Safari compatibility for decodeAudioData (older iOS doesn't return a Promise)
+                    const audioBuffer = await new Promise<AudioBuffer>((res, rej) => {
+                        try {
+                            const p = audioCtxRef.current!.decodeAudioData(arrayBuffer, res, rej);
+                            if (p && typeof p.catch === 'function') p.catch(rej);
+                        } catch (err) { rej(err); }
+                    });
                     const source = audioCtxRef.current!.createBufferSource();
                     source.buffer = audioBuffer;
                     source.connect(audioCtxRef.current!.destination);
@@ -208,8 +214,41 @@ export default function VoiceInterviewInterface({
             await new Promise(r => setTimeout(r, 500));
             const retrySuccess = await attemptTTS(2);
             if (!retrySuccess) {
-                setIsSpeaking(false);
-                console.error('Voice TTS: Both attempts failed. Check ELEVENLABS_API_KEY.');
+                console.warn('Voice TTS: Both Web Audio API/ElevenLabs attempts failed. Using SpeechSynthesis fallback.');
+                // Native Browser SpeechSynthesis Fallback
+                return new Promise<void>((resolve) => {
+                    if (!('speechSynthesis' in window)) {
+                        setIsSpeaking(false);
+                        resolve();
+                        return;
+                    }
+                    window.speechSynthesis.cancel();
+                    setIsSpeaking(true);
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
+
+                    let hasEnded = false;
+                    const complete = () => {
+                        if (!hasEnded) {
+                            hasEnded = true;
+                            setIsSpeaking(false);
+                            // Natural pause then auto-listen
+                            setTimeout(() => {
+                                if (!isGeneratingRef.current) startListening();
+                            }, 1200);
+                            resolve();
+                        }
+                    };
+
+                    utterance.onend = complete;
+                    utterance.onerror = complete;
+
+                    window.speechSynthesis.speak(utterance);
+
+                    // Failsafe timer if Safari's SpeechSynthesis hangs
+                    setTimeout(complete, Math.max(3000, text.length * 75));
+                });
             }
         }
     };

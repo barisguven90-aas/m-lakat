@@ -293,8 +293,13 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                     await audioCtxRef.current.resume();
                 }
 
-                // Decode and play via Web Audio API
-                const audioBuffer = await audioCtxRef.current!.decodeAudioData(arrayBuffer);
+                // Decode and play via Web Audio API (with Safari Promise fallback)
+                const audioBuffer = await new Promise<AudioBuffer>((res, rej) => {
+                    try {
+                        const p = audioCtxRef.current!.decodeAudioData(arrayBuffer, res, rej);
+                        if (p && typeof p.catch === 'function') p.catch(rej);
+                    } catch (err) { rej(err); }
+                });
                 const source = audioCtxRef.current!.createBufferSource();
                 source.buffer = audioBuffer;
                 source.connect(audioCtxRef.current!.destination);
