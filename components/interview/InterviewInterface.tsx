@@ -243,7 +243,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
     const stopListening = () => recognitionRef.current?.stop();
 
-    // TTS — ElevenLabs only (natural voice, no browser fallback)
+    // TTS — OpenAI only (natural voice, no browser fallback)
     const speakText = async (text: string) => {
         console.log('[TTS] speakText called, text length:', text.length, 'isSpeakingRef:', isSpeakingRef.current);
 
@@ -330,7 +330,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             }
         };
 
-        // Try ElevenLabs with one retry
+        // Try OpenAI with one retry
         const success = await attemptTTS(1);
         if (!success) {
             // Wait a moment and retry once
@@ -339,33 +339,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             if (!retrySuccess) {
                 isSpeakingRef.current = false;
                 setIsSpeaking(false);
-                console.error('[TTS] Both ElevenLabs attempts failed. Falling back to browser speech.');
-
-                // Browser speech fallback — so user ALWAYS hears something
-                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                    try {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
-                        utterance.rate = 0.95;
-                        utterance.pitch = 1.0;
-                        isSpeakingRef.current = true;
-                        setIsSpeaking(true);
-                        utterance.onend = () => {
-                            isSpeakingRef.current = false;
-                            setIsSpeaking(false);
-                        };
-                        utterance.onerror = () => {
-                            isSpeakingRef.current = false;
-                            setIsSpeaking(false);
-                        };
-                        window.speechSynthesis.speak(utterance);
-                        console.log('[TTS] Browser fallback speaking');
-                    } catch (e) {
-                        console.error('[TTS] Browser fallback also failed:', e);
-                        isSpeakingRef.current = false;
-                        setIsSpeaking(false);
-                    }
-                }
+                console.error('[TTS] Both OpenAI attempts failed.');
+                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. Lütfen OpenAI API anahtarınızı kontrol edin." : "Could not generate AI voice. Please check your OpenAI API key.");
             }
         }
     };
