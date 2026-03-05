@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const MAX_QUESTIONS = 5;
+        const MAX_QUESTIONS = 12;
 
         const roleDescription = 'Senior Talent Acquisition Partner';
 

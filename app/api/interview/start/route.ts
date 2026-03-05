@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateQuestion } from '@/lib/interview/question-generator';
 
-const MONTHLY_INTERVIEW_LIMIT = 10;
-
 export async function POST(request: Request) {
     try {
         const { applicationId, interviewType, language = 'en', companyStyle = 'standard', difficulty = 'medium' } = await request.json();
@@ -20,10 +18,19 @@ export async function POST(request: Request) {
             .single();
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
-        const isMonthlyPlan = isPro && profile?.stripe_price_id === monthlyPriceId;
+        const MONTHLY_PLAN_LIMIT = 10;
+        const YEARLY_PLAN_LIMIT = 20; // 2x of Monthly
 
-        if (isMonthlyPlan) {
+        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+        const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+
+        let limit = 0;
+        if (isPro) {
+            if (profile?.stripe_price_id === yearlyPriceId) limit = YEARLY_PLAN_LIMIT;
+            else limit = MONTHLY_PLAN_LIMIT; // Default to monthly if pro but no specific match or trial
+        }
+
+        if (isPro && limit > 0) {
             // Count interviews this calendar month
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -33,11 +40,11 @@ export async function POST(request: Request) {
                 .eq('user_id', user.id)
                 .gte('created_at', monthStart);
 
-            if ((count || 0) >= MONTHLY_INTERVIEW_LIMIT) {
+            if ((count || 0) >= limit) {
                 return NextResponse.json({
-                    error: `Monthly interview limit reached (${MONTHLY_INTERVIEW_LIMIT}). Upgrade to the annual plan for unlimited interviews.`,
-                    code: 'MONTHLY_LIMIT_REACHED',
-                    limit: MONTHLY_INTERVIEW_LIMIT,
+                    error: `Aylık mülakat limitinize ulaştınız (${limit}). Daha fazla mülakat için bizimle iletişime geçin.`,
+                    code: 'LIMIT_REACHED',
+                    limit: limit,
                     used: count
                 }, { status: 403 });
             }

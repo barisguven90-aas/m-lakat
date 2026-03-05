@@ -38,8 +38,8 @@ export async function POST(request: Request) {
             language
         );
 
-        // 4. Check if we should end (Limit to 5 questions for MVP demo)
-        const isLastTurn = turnNumber >= 5;
+        // 4. Check if we should end (Limit to 12 questions for fuller interviews)
+        const isLastTurn = turnNumber >= 12;
 
         // 5. Update Current Turn with response
         const analysis = await analysisPromise;

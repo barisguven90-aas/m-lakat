@@ -29,6 +29,18 @@ export function PaymentSuccessModal() {
                 const data = await res.json();
 
                 if (data.event) {
+                    const eventId = data.event.id;
+                    // Check local storage to prevent infinite loops if backend RLS fails
+                    if (localStorage.getItem(`payment_shown_${eventId}`)) {
+                        // Attempt to sync backend if it failed earlier
+                        fetch('/api/billing/events/mark-shown', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ eventId })
+                        }).catch(() => { });
+                        return;
+                    }
+
                     setEvent(data.event);
                     setIsOpen(true);
                 }
@@ -44,6 +56,9 @@ export function PaymentSuccessModal() {
         if (!event) return;
 
         try {
+            // Optimistic UI fallback
+            localStorage.setItem(`payment_shown_${event.id}`, 'true');
+
             await fetch('/api/billing/events/mark-shown', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

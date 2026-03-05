@@ -10,6 +10,46 @@ export async function POST(request: Request) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+        // ─── Check subscription & monthly limits ───
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('subscription_status, stripe_price_id')
+            .eq('id', user.id)
+            .single();
+
+        const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
+        const MONTHLY_PLAN_LIMIT = 10;
+        const YEARLY_PLAN_LIMIT = 20; // 2x of Monthly
+
+        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+        const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+
+        let limit = 0;
+        if (isPro) {
+            if (profile?.stripe_price_id === yearlyPriceId) limit = YEARLY_PLAN_LIMIT;
+            else limit = MONTHLY_PLAN_LIMIT; // Default to monthly if pro but no specific match or trial
+        }
+
+        if (isPro && limit > 0) {
+            // Count interviews this calendar month
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            const { count } = await supabase
+                .from('interview_sessions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .gte('created_at', monthStart);
+
+            if ((count || 0) >= limit) {
+                return NextResponse.json({
+                    error: `Aylık mülakat limitinize ulaştınız (${limit}). Daha fazla mülakat için bizimle iletişime geçin.`,
+                    code: 'LIMIT_REACHED',
+                    limit: limit,
+                    used: count
+                }, { status: 403 });
+            }
+        }
+
         // Create Interview Session with voice mode config
         const sessionConfig = { language, companyStyle, mode: 'voice' as const };
 
