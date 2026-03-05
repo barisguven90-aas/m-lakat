@@ -214,41 +214,13 @@ export default function VoiceInterviewInterface({
             await new Promise(r => setTimeout(r, 500));
             const retrySuccess = await attemptTTS(2);
             if (!retrySuccess) {
-                console.warn('Voice TTS: Both Web Audio API/ElevenLabs attempts failed. Using SpeechSynthesis fallback.');
-                // Native Browser SpeechSynthesis Fallback
-                return new Promise<void>((resolve) => {
-                    if (!('speechSynthesis' in window)) {
-                        setIsSpeaking(false);
-                        resolve();
-                        return;
-                    }
-                    window.speechSynthesis.cancel();
-                    setIsSpeaking(true);
-
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
-
-                    let hasEnded = false;
-                    const complete = () => {
-                        if (!hasEnded) {
-                            hasEnded = true;
-                            setIsSpeaking(false);
-                            // Natural pause then auto-listen
-                            setTimeout(() => {
-                                if (!isGeneratingRef.current) startListening();
-                            }, 1200);
-                            resolve();
-                        }
-                    };
-
-                    utterance.onend = complete;
-                    utterance.onerror = complete;
-
-                    window.speechSynthesis.speak(utterance);
-
-                    // Failsafe timer if Safari's SpeechSynthesis hangs
-                    setTimeout(complete, Math.max(3000, text.length * 75));
-                });
+                console.error('Voice TTS: Both Web Audio API/ElevenLabs attempts failed.');
+                setIsSpeaking(false);
+                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. ElevenLabs kotanızı kontrol edin." : "Could not generate AI voice. Please check ElevenLabs quota.");
+                // Immediately allow user to speak instead of hanging
+                setTimeout(() => {
+                    if (!isGeneratingRef.current) startListening();
+                }, 1200);
             }
         }
     };
