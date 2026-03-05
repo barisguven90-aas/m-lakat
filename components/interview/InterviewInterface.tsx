@@ -243,7 +243,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
     const stopListening = () => recognitionRef.current?.stop();
 
-    // TTS — Edge TTS only (natural voice, no browser fallback)
+    // TTS — Google Cloud only (natural voice, no browser fallback)
     const speakText = async (text: string) => {
         console.log('[TTS] speakText called, text length:', text.length, 'isSpeakingRef:', isSpeakingRef.current);
 
@@ -330,7 +330,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             }
         };
 
-        // Try EdgeTTS with one retry
+        // Try Google Cloud with one retry
         const success = await attemptTTS(1);
         if (!success) {
             // Wait a moment and retry once
@@ -339,8 +339,8 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             if (!retrySuccess) {
                 isSpeakingRef.current = false;
                 setIsSpeaking(false);
-                console.error('[TTS] Both EdgeTTS attempts failed.');
-                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. Sunucu bağlantı hatası." : "Could not generate AI voice. Server connection error.");
+                console.error('[TTS] Both Google Cloud attempts failed.');
+                toast.error(language === 'tr' ? "Yapay zeka sesi oluşturulamadı. Google Cloud API anahtarınızı kontrol edin." : "Could not generate AI voice. Please check your Google Cloud API Key.");
             }
         }
     };
