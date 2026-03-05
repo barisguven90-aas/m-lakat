@@ -104,8 +104,8 @@ export function PricingPlan() {
                     </div>
                     <ul className="space-y-3 text-left mt-8 w-full mx-auto">
                         <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Ayda 10 mülakat pratiği</li>
+                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Google Cloud Premium Sesler</li>
                         <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Detaylı geri bildirim</li>
-                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Profilden analiz</li>
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
@@ -148,9 +148,9 @@ export function PricingPlan() {
                     </div>
                     <ul className="space-y-3 text-left mt-8 w-full mx-auto">
                         <li className="flex items-center gap-2 font-medium"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Aylık plana göre ~%45 tasarruf</li>
-                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Sınırsız mülakat pratiği</li>
-                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Detaylı geri bildirim</li>
-                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Premium destek</li>
+                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Ayda 20 mülakat pratiği</li>
+                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Öncelikli Google Cloud Sunucusu</li>
+                        <li className="flex items-center gap-2"><Check className="h-5 w-5 text-green-500 flex-shrink-0" /> Mülakat Geçmişi ve Karne Analizi</li>
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
