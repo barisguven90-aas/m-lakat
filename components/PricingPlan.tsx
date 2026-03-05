@@ -12,21 +12,32 @@ import { createClient } from '@/lib/supabase/client';
 export function PricingPlan() {
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const [isPro, setIsPro] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState<'monthly' | 'yearly' | null>(null);
     const router = useRouter();
+
+    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+    const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
 
     useEffect(() => {
         const fetchStatus = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data } = await supabase.from('profiles').select('subscription_status').eq('id', user.id).single();
+                const { data } = await supabase.from('profiles').select('subscription_status, stripe_price_id').eq('id', user.id).single();
                 if (data?.subscription_status === 'active' || data?.subscription_status === 'trialing') {
                     setIsPro(true);
+                    if (data.stripe_price_id === monthlyPriceId) {
+                        setCurrentPlan('monthly');
+                    } else if (data.stripe_price_id === yearlyPriceId) {
+                        setCurrentPlan('yearly');
+                    } else {
+                        setCurrentPlan('monthly');
+                    }
                 }
             }
         };
         fetchStatus();
-    }, []);
+    }, [monthlyPriceId, yearlyPriceId]);
 
     const handleManageSubscription = async () => {
         try {
@@ -55,18 +66,14 @@ export function PricingPlan() {
             setIsLoading(plan);
             const res = await fetch('/api/stripe/checkout', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ priceId }),
             });
 
             const data = await res.json();
-
             if (!res.ok) {
                 throw new Error(data?.message || data?.error || 'Ödeme başlatılamadı');
             }
-
             if (data.url) {
                 window.location.href = data.url;
             }
@@ -78,13 +85,14 @@ export function PricingPlan() {
         }
     };
 
-    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
-    const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+    const isMonthly = isPro && currentPlan === 'monthly';
+    const isYearly = isPro && currentPlan === 'yearly';
 
     return (
         <div className="flex flex-col md:flex-row gap-8 justify-center items-center py-12">
             {/* Monthly Plan */}
-            <Card className={`w-full max-w-sm flex flex-col items-center p-6 border-zinc-200 shadow-sm transition-shadow ${isPro ? 'opacity-60' : 'hover:shadow-md'}`}>
+            <Card className={`w-full max-w-sm flex flex-col items-center p-6 border-zinc-200 shadow-sm transition-shadow relative ${isYearly ? 'opacity-60' : 'hover:shadow-md'} ${isMonthly ? 'border-blue-500 shadow-xl' : ''}`}>
+                {isMonthly && <Badge className="absolute -top-3 right-8 bg-blue-600 hover:bg-blue-700 text-white">Mevcut Plan</Badge>}
                 <CardHeader className="text-center w-full">
                     <CardTitle className="text-2xl font-bold">Aylık Plan</CardTitle>
                     <CardDescription>Esnek kullanım için ideal</CardDescription>
@@ -101,9 +109,17 @@ export function PricingPlan() {
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
-                    {isPro ? (
+                    {isMonthly ? (
+                        <Button
+                            className="w-full bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 shadow-sm"
+                            onClick={handleManageSubscription}
+                            disabled={isLoading !== null}
+                        >
+                            {isLoading === 'manage' ? 'Yönlendiriliyor...' : 'Mevcut Planınız (Yönet)'}
+                        </Button>
+                    ) : isYearly ? (
                         <Button className="w-full bg-slate-100 text-slate-400 cursor-not-allowed border-0" disabled>
-                            Mevcut Planı Kapsıyor
+                            Yıllık Plan Kapsıyor
                         </Button>
                     ) : (
                         <Button
@@ -119,8 +135,8 @@ export function PricingPlan() {
             </Card>
 
             {/* Yearly Plan */}
-            <Card className="w-full max-w-sm flex flex-col items-center p-6 border-blue-500 shadow-xl relative scale-100 md:scale-105">
-                <Badge className="absolute -top-3 right-8 bg-blue-600 hover:bg-blue-700 text-white">En Popüler</Badge>
+            <Card className={`w-full max-w-sm flex flex-col items-center p-6 shadow-xl relative scale-100 md:scale-105 ${isYearly ? 'border-blue-500' : isMonthly ? 'border-zinc-200 opacity-80' : 'border-blue-500'}`}>
+                {!isMonthly && <Badge className="absolute -top-3 right-8 bg-blue-600 hover:bg-blue-700 text-white">{isYearly ? 'Mevcut Plan' : 'En Popüler'}</Badge>}
                 <CardHeader className="text-center w-full">
                     <CardTitle className="text-2xl font-bold text-blue-600">Yıllık Plan</CardTitle>
                     <CardDescription>Uzun vadeli gelişim için</CardDescription>
@@ -138,13 +154,21 @@ export function PricingPlan() {
                     </ul>
                 </CardContent>
                 <CardFooter className="w-full mt-auto">
-                    {isPro ? (
+                    {isYearly ? (
                         <Button
                             className="w-full bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 shadow-sm"
                             onClick={handleManageSubscription}
                             disabled={isLoading !== null}
                         >
                             {isLoading === 'manage' ? 'Yönlendiriliyor...' : 'Mevcut Planınız (Yönet)'}
+                        </Button>
+                    ) : isMonthly ? (
+                        <Button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => handleSubscribe(yearlyPriceId, 'yearly')}
+                            disabled={isLoading !== null}
+                        >
+                            {isLoading === 'yearly' ? 'Yönlendiriliyor...' : 'Yıllık Plana Yükselt'}
                         </Button>
                     ) : (
                         <Button

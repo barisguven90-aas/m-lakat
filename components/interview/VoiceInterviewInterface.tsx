@@ -82,11 +82,21 @@ export default function VoiceInterviewInterface({
     // User clicks "Start" → begin countdown
     const handleStartInterview = () => {
         userInteractedRef.current = true;
-        // Unlock audio context with a silent play (Chrome autoplay policy)
+
+        // Chrome autoplay unlock: play a tiny silent audio synchronously in the click
+        // This permanently unlocks audio.play() for the entire page lifetime
+        try {
+            const silentAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+            silentAudio.volume = 0;
+            silentAudio.play().catch(() => { });
+        } catch { }
+
+        // Also unlock AudioContext (for Web Audio API)
         try {
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
             ctx.resume().then(() => ctx.close());
         } catch { }
+
         setPhase('countdown');
     };
 

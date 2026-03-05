@@ -143,11 +143,22 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     // User clicks "Play" to hear first question — unlocks Chrome audio
     const handleFirstPlay = () => {
         setHasUserInteracted(true);
-        // Unlock AudioContext for Chrome autoplay policy
+
+        // Chrome autoplay unlock: play a tiny silent audio synchronously in the click
+        // This permanently unlocks audio.play() for the entire page lifetime
+        try {
+            const silentAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+            silentAudio.volume = 0;
+            silentAudio.play().catch(() => { });
+        } catch { }
+
+        // Also unlock AudioContext (for Web Audio API)
         try {
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
             ctx.resume().then(() => ctx.close());
         } catch { }
+
+        // Now call speakText — audio.play() will work even from async code
         speakText(initialQuestion);
     };
 
@@ -312,7 +323,33 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             if (!retrySuccess) {
                 isSpeakingRef.current = false;
                 setIsSpeaking(false);
-                console.error('[TTS] Both attempts failed. Check ELEVENLABS_API_KEY.');
+                console.error('[TTS] Both ElevenLabs attempts failed. Falling back to browser speech.');
+
+                // Browser speech fallback — so user ALWAYS hears something
+                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                    try {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = language === 'tr' ? 'tr-TR' : 'en-US';
+                        utterance.rate = 0.95;
+                        utterance.pitch = 1.0;
+                        isSpeakingRef.current = true;
+                        setIsSpeaking(true);
+                        utterance.onend = () => {
+                            isSpeakingRef.current = false;
+                            setIsSpeaking(false);
+                        };
+                        utterance.onerror = () => {
+                            isSpeakingRef.current = false;
+                            setIsSpeaking(false);
+                        };
+                        window.speechSynthesis.speak(utterance);
+                        console.log('[TTS] Browser fallback speaking');
+                    } catch (e) {
+                        console.error('[TTS] Browser fallback also failed:', e);
+                        isSpeakingRef.current = false;
+                        setIsSpeaking(false);
+                    }
+                }
             }
         }
     };
