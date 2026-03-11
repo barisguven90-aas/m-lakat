@@ -31,7 +31,7 @@ interface VoiceInterviewInterfaceProps {
     companyStyle: string;
 }
 
-const MAX_QUESTIONS = 10;
+const MAX_QUESTIONS = 7;
 
 export default function VoiceInterviewInterface({
     sessionId,
@@ -275,11 +275,11 @@ export default function VoiceInterviewInterface({
             if (newFinal) finalText += (finalText ? ' ' : '') + newFinal;
             setCurrentUserText(finalText + (interim ? ' ' + interim : ''));
 
-            // Reset silence timer — auto-stop after 2s of silence
+            // Reset silence timer — increased to 6s so user can pause and think
             if (silenceTimer) clearTimeout(silenceTimer);
             silenceTimer = setTimeout(() => {
                 recognition.stop();
-            }, 2500);
+            }, 6000);
         };
 
         recognition.onend = () => {

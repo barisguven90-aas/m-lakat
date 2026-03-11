@@ -22,8 +22,8 @@ export async function POST(request: Request) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        // Intervio spec: 8–10 questions (we use 10 for max value)
-        const MAX_QUESTIONS = 10;
+        // Intervio spec: 7 questions max
+        const MAX_QUESTIONS = 7;
 
         const interviewPlan = applicationContext?.interviewPlan || null;
         const currentStage = getTurnStage(turnNumber);
@@ -62,22 +62,19 @@ JOB DESCRIPTION (Reference this): ${applicationContext?.jobDescription?.slice(0,
 CANDIDATE CV: ${JSON.stringify(applicationContext?.cvData || {}).slice(0, 800)}
 
 INTERVIEW CONDUCT RULES:
-1. Use the candidate's first name naturally (extract from CV if available).
-2. ALWAYS react to their previous answer with 1 sentence before asking the next question.
-   - Strong answer: "That's a great perspective." / "Çok güzel bir bakış açısı."
-   - Weak/vague: "Could you give a specific example?" / "Somut bir örnek verir misiniz?"
-3. Follow the interview stage — ask stage-appropriate questions:
-   - greeting: Warm welcome + self-introduction ask
-   - background: Career journey, motivation, why this role
-   - technical: Specific technical/skills questions from the job
-   - follow_up: Probe missing skills, challenge vague answers
-   - behavioral: "Tell me about a time..." STAR-format questions
-   - closing: Thank them, ask if they have questions, wrap up professionally
-4. Ask ONE question at a time. Keep responses to 2-3 sentences for natural speech.
-5. Challenge vague answers — do not accept "I would do my best" without pushing for specifics.
-6. Reference BOTH the job description AND the candidate's CV in your questions.
-
-Generate ONLY what you will literally speak. No meta-text, no "Interviewer:" prefix.`;
+1. Use the candidate's first name naturally.
+2. ALWAYS restrict your reaction to the candidate's previous answer to exactly 1 short sentence. NEVER give long feedback during the interview. Then ask ONE specific question.
+3. This is a ${MAX_QUESTIONS}-question interview. Follow this structure based on the turn number:
+   - Turn 1: Warm welcome + ask them to introduce themselves.
+   - Turn 2: Ask why they chose ${applicationContext?.jobCompany || 'this company'} and this specific department.
+   - Turn 3: Ask about their greatest strengths and weaknesses.
+   - Turn 4: Ask a technical or role-specific question based on the job description.
+   - Turn 5: Behavioral question ("Tell me about a time...") or probe a missing skill.
+   - Turn 6: Another technical/CV-based question.
+   - Turn 7: Ask if they have any questions and wrap up the interview professionally.
+4. IMPORTANT: Keep your questions and responses extremely short and concise (max 2-3 sentences total per response).
+5. If the language is Turkish, ensure you pronounce technical terms and acronyms (like KPI, Power BI, SQL, AI) properly without trying to literally translate them.
+6. Generate ONLY what you will literally speak out loud. No meta-text, no "Interviewer:" prefix.`;
 
         // ─── FIRST TURN: Opening ───
         if (isFirst) {
@@ -169,14 +166,15 @@ Generate ONLY what you will literally speak. No meta-text, no "Interviewer:" pre
         const plannedQuestion = interviewPlan ? getNextQuestionFromPlan(interviewPlan, nextTurnNumber) : null;
 
         const historyText = previousTurns.map((t: any) =>
-            `${t.role === 'assistant' ? 'Interviewer' : 'Candidate'}: ${t.content}`
+            `${t.role === 'assistant' ? 'Interviewer' : 'Candidate'
+            }: ${t.content} `
         ).join('\n\n');
 
         let prompt: string;
         if (plannedQuestion) {
-            prompt = `Previous conversation:\n${historyText}\n\nCandidate just said: "${responseText}"\n\n(React briefly to their answer, then ask this planned question: "${plannedQuestion}")`;
+            prompt = `Previous conversation: \n${historyText} \n\nCandidate just said: "${responseText}"\n\n(React briefly to their answer, then ask this planned question: "${plannedQuestion}")`;
         } else {
-            prompt = `Previous conversation:\n${historyText}\n\nCandidate just said: "${responseText}"\n\nCurrent stage: ${nextStage}. React briefly then ask the next appropriate ${nextStage} question.`;
+            prompt = `Previous conversation: \n${historyText} \n\nCandidate just said: "${responseText}"\n\nCurrent stage: ${nextStage}. React briefly then ask the next appropriate ${nextStage} question.`;
         }
 
         const nextQuestion = await aiChat(prompt, systemPrompt, { maxTokens: 200 });
