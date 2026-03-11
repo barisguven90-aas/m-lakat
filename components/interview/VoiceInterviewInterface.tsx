@@ -7,6 +7,7 @@ import { Mic, MicOff, PhoneOff, Clock, Loader2, UserCircle, Volume2, MessageSqua
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { AudioVisualizer } from './AudioVisualizer';
+import { InterviewResultModal } from './InterviewResultModal';
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -30,7 +31,7 @@ interface VoiceInterviewInterfaceProps {
     companyStyle: string;
 }
 
-const MAX_QUESTIONS = 5;
+const MAX_QUESTIONS = 10;
 
 export default function VoiceInterviewInterface({
     sessionId,
@@ -52,6 +53,14 @@ export default function VoiceInterviewInterface({
     const [isProcessing, setIsProcessing] = useState(false);
     const [showTranscript, setShowTranscript] = useState(true);
     const [currentUserText, setCurrentUserText] = useState('');
+    // Result Modal State
+    const [resultModal, setResultModal] = useState<{
+        isOpen: boolean;
+        finalScore: number;
+        hireProbability: number;
+        breakdown: any;
+        feedbackSummary: string;
+    } | null>(null);
     const userInteractedRef = useRef(false);
 
     // Refs
@@ -336,8 +345,19 @@ export default function VoiceInterviewInterface({
 
             if (data.isCompleted) {
                 setPhase('ending');
-                toast.success(language === 'tr' ? "Mülakat tamamlandı!" : "Interview complete!");
-                router.push(`/dashboard/interview/${sessionId}/feedback`);
+                // Show result modal if finalScore is available (Intervio Spec)
+                if (data.finalScore) {
+                    setResultModal({
+                        isOpen: true,
+                        finalScore: data.finalScore.final_score || 0,
+                        hireProbability: data.finalScore.hire_probability || 0,
+                        breakdown: data.finalScore.breakdown || { cv_match: 0, technical: 0, communication: 0, confidence: 0, behavioral: 0 },
+                        feedbackSummary: data.finalScore.feedback_summary || '',
+                    });
+                } else {
+                    toast.success(language === 'tr' ? "Mülakat tamamlandı!" : "Interview complete!");
+                    router.push(`/dashboard/interview/${sessionId}/feedback`);
+                }
                 return;
             }
 
@@ -660,6 +680,25 @@ export default function VoiceInterviewInterface({
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Intervio Result Modal */}
+            {resultModal && (
+                <InterviewResultModal
+                    isOpen={resultModal.isOpen}
+                    onClose={() => {
+                        setResultModal(null);
+                        router.push(`/dashboard/interview/${sessionId}/feedback`);
+                    }}
+                    sessionId={sessionId}
+                    finalScore={resultModal.finalScore}
+                    hireProbability={resultModal.hireProbability}
+                    breakdown={resultModal.breakdown}
+                    feedbackSummary={resultModal.feedbackSummary}
+                    jobTitle={applicationContext.jobTitle}
+                    companyName={applicationContext.jobCompany}
+                    language={language}
+                />
             )}
         </div>
     );
