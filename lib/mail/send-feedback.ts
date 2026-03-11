@@ -10,7 +10,7 @@ export async function sendFeedbackEmail(
 ) {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Interview Coach <onboarding@resend.dev>',
+            from: 'Intervio <onboarding@resend.dev>',
             to: [toEmail],
             subject: `Your Interview Feedback: ${jobTitle} at ${companyName}`,
             html: `
@@ -46,7 +46,7 @@ export async function sendFeedbackEmail(
           </ul>
           
           <p style="margin-top: 30px; font-size: 12px; color: #888;">
-            Sent by LinkedIn Interview Coach via Resend.
+            Sent by LinkedIn Intervio via Resend.
           </p>
         </div>
       `

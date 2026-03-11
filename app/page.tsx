@@ -18,7 +18,7 @@ export default function LandingPage() {
             <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
               <BrainCircuit className="h-5 w-5 text-blue-400" />
             </div>
-            <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">InterviewCoach</span>
+            <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-5">
             <Link href="/login" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
@@ -35,23 +35,23 @@ export default function LandingPage() {
         {/* === Hero Section === */}
         <div className="container mx-auto max-w-5xl text-center px-6 mb-24 lg:mb-32">
           {/* Badge */}
-          <div className="animate-fade-in-up animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm mb-8 font-medium shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-            <Sparkles className="h-4 w-4" />
-            <span>Now supporting 6 global languages including English & Turkish</span>
+          <div className="animate-fade-in-up animation-delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm mb-6 font-medium shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Free: 2 interviews/month — No credit card needed</span>
           </div>
 
           {/* Headline */}
-          <h1 className="animate-fade-in-up animation-delay-200 text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight mb-8 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400">
-            Ace your next interview <br />
-            with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI-powered</span> coaching.
+          <h1 className="animate-fade-in-up animation-delay-200 text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400">
+            Practice Real Job Interviews <br />
+            with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI</span>
           </h1>
 
           {/* Subtext */}
-          <p className="animate-fade-in-up animation-delay-300 text-lg md:text-xl text-neutral-400 mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-            Practice with hyper-realistic AI interviewers tailored to your dream job. Get instant feedback on your answers, soft skills, and technical knowledge.
+          <p className="animate-fade-in-up animation-delay-300 text-lg md:text-xl text-neutral-400 mb-10 max-w-2xl mx-auto leading-relaxed font-light">
+            Paste a job link, upload your CV, and start your AI-powered mock interview in seconds.
+            Get your <span className="text-white font-medium">hire probability score</span> instantly.
           </p>
 
-          {/* CTA Buttons */}
           <div className="animate-fade-in-up animation-delay-400 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild size="lg" className="h-14 px-8 text-base bg-blue-600 hover:bg-blue-500 text-white rounded-full w-full sm:w-auto shadow-[0_0_30px_rgba(37,99,235,0.3)] transition-all hover:scale-105 active:scale-95">
               <Link href="/signup">
@@ -59,13 +59,19 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            {/* FIXED Contrast Button */}
             <Button asChild size="lg" variant="outline" className="h-14 px-8 text-base bg-neutral-900 border-neutral-700 text-white hover:bg-neutral-800 hover:text-white rounded-full w-full sm:w-auto transition-all hover:scale-105 active:scale-95">
-              <Link href="/login">
-                <PlayCircle className="mr-2 h-5 w-5 text-neutral-400" />
-                View Demo
+              <Link href="/pricing">
+                <Star className="mr-2 h-5 w-5 text-yellow-400" />
+                View Pricing
               </Link>
             </Button>
+          </div>
+
+          {/* Trust signals */}
+          <div className="animate-fade-in-up animation-delay-500 flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-neutral-500">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> No credit card</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> 2 free interviews/month</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Instant hire probability</span>
           </div>
         </div>
 
@@ -234,7 +240,7 @@ export default function LandingPage() {
           <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
             <div className="flex items-center gap-2">
               <BrainCircuit className="h-5 w-5 text-neutral-600" />
-              <span>© {new Date().getFullYear()} InterviewCoach AI. All rights reserved.</span>
+              <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
             </div>
             <div className="flex gap-6">
               <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>

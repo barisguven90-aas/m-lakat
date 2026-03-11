@@ -18,37 +18,46 @@ export async function POST(request: Request) {
             .single();
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-        const MONTHLY_PLAN_LIMIT = 10;
-        const YEARLY_PLAN_LIMIT = 20; // 2x of Monthly
 
-        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+        // Limit matrix: free=2, monthly pro=10, yearly pro=20
+        const FREE_LIMIT = 2;
+        const MONTHLY_PLAN_LIMIT = 10;
+        const YEARLY_PLAN_LIMIT = 20;
+
         const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
 
-        let limit = 0;
+        let limit = FREE_LIMIT; // default: free tier
         if (isPro) {
             if (profile?.stripe_price_id === yearlyPriceId) limit = YEARLY_PLAN_LIMIT;
-            else limit = MONTHLY_PLAN_LIMIT; // Default to monthly if pro but no specific match or trial
+            else limit = MONTHLY_PLAN_LIMIT;
         }
 
-        if (isPro && limit > 0) {
-            // Count interviews this calendar month
-            const now = new Date();
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            const { count } = await supabase
-                .from('interview_sessions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id)
-                .gte('created_at', monthStart);
+        // Count sessions this calendar month
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const { count } = await supabase
+            .from('interview_sessions')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .gte('created_at', monthStart);
 
-            if ((count || 0) >= limit) {
+        if ((count || 0) >= limit) {
+            if (!isPro) {
                 return NextResponse.json({
-                    error: `Aylık mülakat limitinize ulaştınız (${limit}). Daha fazla mülakat için bizimle iletişime geçin.`,
-                    code: 'LIMIT_REACHED',
-                    limit: limit,
+                    error: "You've used your 2 free interviews this month. Upgrade to Intervio Pro for unlimited practice.",
+                    code: 'FREE_LIMIT_REACHED',
+                    limit: FREE_LIMIT,
                     used: count
                 }, { status: 403 });
             }
+            return NextResponse.json({
+                error: `Monthly interview limit reached (${limit}). Please wait until next month or contact support.`,
+                code: 'LIMIT_REACHED',
+                limit,
+                used: count
+            }, { status: 403 });
         }
+
 
         // 1. Create Interview Session
         const sessionConfig = { language, companyStyle, difficulty };

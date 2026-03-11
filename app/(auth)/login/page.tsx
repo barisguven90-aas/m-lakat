@@ -37,7 +37,7 @@ export default function LoginPage() {
                         <BrainCircuit className="h-7 w-7 text-blue-400" />
                     </div>
                     <FadeText
-                        text="Interview Coach"
+                        text="Intervio"
                         className="text-2xl font-bold tracking-tight text-white"
                         direction="down"
                     />

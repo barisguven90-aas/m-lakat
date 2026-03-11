@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Interview Coach — AI-Powered Mock Interviews",
-    template: "%s | Interview Coach"
+    default: "Intervio — Practice Real Job Interviews with AI",
+    template: "%s | Intervio"
   },
-  description: "Practice job interviews with an AI coach tailored to your CV and target role. Get instant feedback, company-style questions, and detailed performance reports.",
-  keywords: ["interview prep", "mock interview", "AI coach", "job interview", "career", "mülakat koçu"],
+  description: "Paste a job link, upload your CV, and start your AI-powered mock interview in seconds. Get your hire probability score instantly.",
+  keywords: ["interview prep", "mock interview", "AI interview", "job interview", "hire probability", "intervio", "mülakat"],
   openGraph: {
-    title: "Interview Coach — AI-Powered Mock Interviews",
-    description: "Practice job interviews with an AI coach tailored to your CV and target role.",
+    title: "Intervio — Practice Real Job Interviews with AI",
+    description: "Paste a job link, upload your CV, and get your hire probability score instantly.",
     type: "website",
   },
 };

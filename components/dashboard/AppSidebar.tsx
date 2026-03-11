@@ -68,7 +68,7 @@ export function AppSidebar() {
                     <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
                         <BrainCircuit className="h-4 w-4 text-blue-400" />
                     </div>
-                    <span className="truncate text-sidebar-foreground">Interview Coach</span>
+                    <span className="truncate text-sidebar-foreground">Intervio</span>
                 </div>
             </SidebarHeader>
 

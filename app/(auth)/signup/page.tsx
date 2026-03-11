@@ -27,7 +27,7 @@ export default function SignUpPage() {
                         className="text-2xl font-bold tracking-tight text-white"
                         direction="down"
                     />
-                    <p className="text-neutral-500 text-sm mt-1">Free to start · AI-Powered Interview Coach</p>
+                    <p className="text-neutral-500 text-sm mt-1">Free to start · AI-Powered Intervio</p>
                 </div>
 
                 {/* Benefits */}

@@ -94,7 +94,7 @@ export function DownloadPDFButton({ sessionId, jobTitle, company, overallScore, 
                     <h2>📝 Question-by-Question Analysis</h2>
                     ${questionsHtml}
                     <div class="footer">
-                        <p>Intervio AI — Your Personal Interview Coach | intervioai.com</p>
+                        <p>Intervio AI — Your Personal Intervio | intervioai.com</p>
                     </div>
                 </body>
                 </html>

@@ -128,7 +128,7 @@ export default function DashboardPage() {
 
                     <div className="relative z-10 p-8 md:p-12">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 font-medium mb-4">
-                            <Sparkles className="h-3 w-3" /> Welcome to Interview Coach
+                            <Sparkles className="h-3 w-3" /> Welcome to Intervio
                         </div>
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3">
                             Hey {userName}! 👋
