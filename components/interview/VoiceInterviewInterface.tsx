@@ -7,7 +7,7 @@ import { Mic, MicOff, PhoneOff, Clock, Loader2, UserCircle, Volume2, MessageSqua
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { AudioVisualizer } from './AudioVisualizer';
-import { InterviewResultModal } from './InterviewResultModal';
+import { ResultsEmailGate } from './ResultsEmailGate';
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -682,23 +682,19 @@ export default function VoiceInterviewInterface({
                 </div>
             )}
 
-            {/* Intervio Result Modal */}
-            {resultModal && (
-                <InterviewResultModal
-                    isOpen={resultModal.isOpen}
-                    onClose={() => {
-                        setResultModal(null);
-                        router.push(`/dashboard/interview/${sessionId}/feedback`);
-                    }}
-                    sessionId={sessionId}
-                    finalScore={resultModal.finalScore}
-                    hireProbability={resultModal.hireProbability}
-                    breakdown={resultModal.breakdown}
-                    feedbackSummary={resultModal.feedbackSummary}
-                    jobTitle={applicationContext.jobTitle}
-                    companyName={applicationContext.jobCompany}
-                    language={language}
-                />
+            {/* Intervio Email Gate Result Modal */}
+            {resultModal?.isOpen && (
+                <div className="fixed inset-0 z-[100] bg-[#0a0f1e]">
+                    <ResultsEmailGate
+                        sessionId={sessionId}
+                        finalScore={resultModal.finalScore}
+                        hireProbability={resultModal.hireProbability}
+                        breakdown={resultModal.breakdown}
+                        feedbackSummary={resultModal.feedbackSummary}
+                        jobTitle={applicationContext.jobTitle}
+                        language={language}
+                    />
+                </div>
             )}
         </div>
     );

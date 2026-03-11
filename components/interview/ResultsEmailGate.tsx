@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Lock, Eye, TrendingUp, Brain, MessageSquare, Shield, Heart, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, Lock, Eye, TrendingUp, Brain, MessageSquare, Shield, Heart, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 interface ScoreBreakdown {
     cv_match: number;
@@ -46,6 +47,7 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
 export function ResultsEmailGate({
     sessionId, finalScore, hireProbability, breakdown, feedbackSummary, jobTitle, language = 'en'
 }: ResultsEmailGateProps) {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [unlocked, setUnlocked] = useState(false);
@@ -155,10 +157,17 @@ export function ResultsEmailGate({
                             </div>
                         )}
                         <div className="mt-4 text-center">
-                            <p className="text-emerald-400 text-sm font-medium flex items-center justify-center gap-1.5">
+                            <p className="text-emerald-400 text-sm font-medium flex items-center justify-center gap-1.5 mb-4">
                                 <CheckCircle2 className="w-4 h-4" />
-                                {isTr ? 'Sonuçlarınız e-postanıza gönderildi!' : 'Full results sent to your email!'}
+                                {isTr ? 'Sonuçlarınız açıldı!' : 'Full results unlocked!'}
                             </p>
+                            <Button
+                                onClick={() => router.push(`/dashboard/interview/${sessionId}/feedback`)}
+                                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium h-11 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:scale-[1.02]"
+                            >
+                                {isTr ? 'Detaylı Rapora Git' : 'View Full Report'}
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
                         </div>
                     </div>
                 ) : (
