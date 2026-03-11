@@ -359,7 +359,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                         </div>
                         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/8 p-5 text-center">
                             <div className={`text-4xl font-black mb-1 ${(session.hire_probability ?? 0) >= 60 ? 'text-emerald-400' :
-                                    (session.hire_probability ?? 0) >= 40 ? 'text-amber-400' : 'text-red-400'
+                                (session.hire_probability ?? 0) >= 40 ? 'text-amber-400' : 'text-red-400'
                                 }`}>{session.hire_probability ?? '—'}%</div>
                             <div className="text-xs text-emerald-300 font-medium">Hire Probability</div>
                             {session.feedback_summary && (
@@ -399,19 +399,6 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     </div>
                 )}
 
-                {/* ─── Executive Summary ─── */}
-                <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-6">
-                    <div className="flex items-start gap-3 mb-4">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-                            <BarChart3 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Executive Summary</h3>
-                            <p className="text-sm text-slate-500">How a hiring manager would summarize your performance</p>
-                        </div>
-                    </div>
-                    <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed">{feedback.summary_text}</p>
-                </div>
 
                 {/* ─── Per-Question Analysis ─── */}
                 {questionFeedbacks.length > 0 && (

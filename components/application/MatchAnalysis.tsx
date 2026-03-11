@@ -151,14 +151,62 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                 </div>
             </GlassCard>
 
+            {/* ─── Interview Preparation Tips (Moved UP) ─── */}
+            {tips.length > 0 && (
+                <GlassCard className="border-orange-200/40 dark:border-orange-700/30">
+                    <SectionHeader icon={Shield} title="Interview Preparation Guide" subtitle="Key areas to focus on before your interview" gradient="bg-gradient-to-br from-orange-500 to-red-500" />
+
+                    <div className="space-y-3">
+                        {tips.map((tip, i) => {
+                            const t = typeof tip === 'string' ? { title: tip, description: '', priority: 'should' as const } : tip;
+                            const isExpanded = expandedTip === i;
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => setExpandedTip(isExpanded ? null : i)}
+                                    className="w-full text-left"
+                                >
+                                    <div className={cn(
+                                        "p-4 rounded-xl border transition-all duration-200",
+                                        isExpanded
+                                            ? "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-md"
+                                            : "bg-slate-50/50 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-600"
+                                    )}>
+                                        <div className="flex items-center gap-3">
+                                            <span className={cn(
+                                                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                                                priorityColors[t.priority || 'should']
+                                            )}>
+                                                {t.priority === 'must' ? '🔴 Must' : t.priority === 'nice' ? '🔵 Nice' : '🟠 Should'}
+                                            </span>
+                                            <p className="flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{t.title}</p>
+                                            {t.description && (
+                                                isExpanded
+                                                    ? <ChevronUp className="h-4 w-4 text-slate-400" />
+                                                    : <ChevronDown className="h-4 w-4 text-slate-400" />
+                                            )}
+                                        </div>
+                                        {isExpanded && t.description && (
+                                            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed pl-16">
+                                                {t.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </GlassCard>
+            )}
+
             {/* ─── Candidate Key Skills ─── */}
             {profile && profile.key_skills && profile.key_skills.length > 0 && (
                 <GlassCard>
-                    <SectionHeader icon={Zap} title="Key Skills for This Role" subtitle="Extracted from your profile and matched against the job requirements" gradient="bg-gradient-to-br from-violet-500 to-purple-600" />
+                    <SectionHeader icon={Zap} title="Your Matching Skills" subtitle="Skills you have that the company is looking for" gradient="bg-gradient-to-br from-violet-500 to-purple-600" />
                     <div className="flex flex-wrap gap-2 mb-4">
                         {profile.key_skills.map((skill, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 text-violet-700 dark:text-violet-300 border border-violet-200/60 dark:border-violet-700/40">
-                                <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                <CheckCircle2 className="w-4 h-4 text-violet-500" />
                                 {skill}
                             </span>
                         ))}
@@ -218,7 +266,7 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
 
                 {/* Gaps */}
                 <GlassCard>
-                    <SectionHeader icon={AlertTriangle} title="Gaps & Weaknesses" subtitle={`${gaps.length} areas to improve`} gradient="bg-gradient-to-br from-amber-500 to-orange-600" />
+                    <SectionHeader icon={AlertTriangle} title={`${gaps.length} Areas to Improve`} subtitle="We recommend focusing on these points" gradient="bg-gradient-to-br from-amber-500 to-orange-600" />
 
                     <div className="space-y-3">
                         {gaps.length > 0 ? gaps.map((g, i) => {
@@ -304,68 +352,6 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                 </GlassCard>
             )}
 
-            {/* ─── Interview Preparation Tips ─── */}
-            {tips.length > 0 && (
-                <GlassCard className="border-orange-200/40 dark:border-orange-700/30">
-                    <SectionHeader icon={Shield} title="Interview Preparation Guide" subtitle="Key areas to focus on before your interview" gradient="bg-gradient-to-br from-orange-500 to-red-500" />
-
-                    <div className="space-y-3">
-                        {tips.map((tip, i) => {
-                            const t = typeof tip === 'string' ? { title: tip, description: '', priority: 'should' as const } : tip;
-                            const isExpanded = expandedTip === i;
-                            return (
-                                <button
-                                    key={i}
-                                    onClick={() => setExpandedTip(isExpanded ? null : i)}
-                                    className="w-full text-left"
-                                >
-                                    <div className={cn(
-                                        "p-4 rounded-xl border transition-all duration-200",
-                                        isExpanded
-                                            ? "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-md"
-                                            : "bg-slate-50/50 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-600"
-                                    )}>
-                                        <div className="flex items-center gap-3">
-                                            <span className={cn(
-                                                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                                                priorityColors[t.priority || 'should']
-                                            )}>
-                                                {t.priority === 'must' ? '🔴 Must' : t.priority === 'nice' ? '🔵 Nice' : '🟠 Should'}
-                                            </span>
-                                            <p className="flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{t.title}</p>
-                                            {t.description && (
-                                                isExpanded
-                                                    ? <ChevronUp className="h-4 w-4 text-slate-400" />
-                                                    : <ChevronDown className="h-4 w-4 text-slate-400" />
-                                            )}
-                                        </div>
-                                        {isExpanded && t.description && (
-                                            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed pl-16">
-                                                {t.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </GlassCard>
-            )}
-
-            {/* ─── Risks ─── */}
-            {risks.length > 0 && (
-                <GlassCard className="border-red-200/40 dark:border-red-700/30">
-                    <SectionHeader icon={AlertTriangle} title="Potential Risks" subtitle="Red flags that the recruiter may focus on" gradient="bg-gradient-to-br from-red-500 to-rose-600" />
-                    <div className="space-y-2">
-                        {risks.map((r, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20">
-                                <XCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
-                                <span className="text-sm text-slate-700 dark:text-slate-300">{r}</span>
-                            </div>
-                        ))}
-                    </div>
-                </GlassCard>
-            )}
         </div>
     );
 }
