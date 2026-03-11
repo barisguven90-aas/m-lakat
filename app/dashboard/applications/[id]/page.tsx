@@ -220,35 +220,43 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             </CardContent>
                         </Card>
 
-                        {/* Quick Stats */}
+                        {/* Application Summary Stats */}
                         {app.match_score && (
                             <Card className="border-slate-200/60 dark:border-slate-700/50 shadow-lg">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-base">Quick Stats</CardTitle>
+                                <CardHeader className="pb-3 border-b bg-slate-50/50 dark:bg-slate-800/30">
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <BarChart3 className="h-4 w-4 text-blue-500" /> Application Summary
+                                    </CardTitle>
+                                    <CardDescription className="text-xs">At a glance view of your compatibility and progress.</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-500">Match Score</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-24 h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                                <div
-                                                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                                                    style={{ width: `${app.match_score}%` }}
-                                                />
+                                <CardContent className="space-y-5 pt-4">
+                                    {/* Match Score */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">CV &harr; Job Match</span>
+                                            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{app.match_score}%</span>
+                                        </div>
+                                        <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                                                style={{ width: `${app.match_score}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-[11px] text-slate-500 mt-1.5">How well your resume fits the job requirements.</p>
+                                    </div>
+
+                                    <div className="pt-3 border-t grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-xs text-slate-500">Practice Interviews</p>
+                                            <p className="text-lg font-bold text-slate-800 dark:text-slate-200">{sessions?.length || 0}</p>
+                                        </div>
+                                        {avgScore && (
+                                            <div>
+                                                <p className="text-xs text-slate-500">Average Score</p>
+                                                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{avgScore}%</p>
                                             </div>
-                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{app.match_score}%</span>
-                                        </div>
+                                        )}
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-500">Total Sessions</span>
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{sessions?.length || 0}</span>
-                                    </div>
-                                    {avgScore && (
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-slate-500">Avg. Score</span>
-                                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{avgScore}%</span>
-                                        </div>
-                                    )}
                                 </CardContent>
                             </Card>
                         )}

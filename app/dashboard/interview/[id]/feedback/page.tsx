@@ -48,89 +48,81 @@ function ScoreRing({ score, label, size = 'md' }: { score: number; label: string
     );
 }
 
-function QuestionFeedbackCard({ qf, index }: { qf: any; index: number }) {
+function QuestionFeedbackCard({ qf, index, language = 'en' }: { qf: any; index: number, language?: string }) {
+    const isTr = language === 'tr';
     const scoreColor = qf.score >= 75 ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/15 border-emerald-200 dark:border-emerald-800/30'
         : qf.score >= 55 ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/15 border-amber-200 dark:border-amber-800/30'
             : 'text-red-500 bg-red-50 dark:bg-red-900/15 border-red-200 dark:border-red-800/30';
-    const ScoreIcon = qf.score >= 75 ? TrendingUp : qf.score >= 55 ? Minus : TrendingDown;
 
     return (
-        <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg overflow-hidden">
-            {/* Question Header */}
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+        <div className="rounded-xl border border-slate-200/60 dark:border-slate-700/50 bg-white dark:bg-slate-800/40 shadow-sm overflow-hidden mb-4">
+            {/* Header */}
+            <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-md bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">
                         {index + 1}
                     </div>
-                    <div>
-                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Question {index + 1}</p>
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                        {isTr ? 'Soru' : 'Question'} {index + 1}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className={`px-2 py-0.5 rounded text-xs font-bold border ${scoreColor}`}>
+                        {qf.score}/100
                     </div>
+                    <FavoriteQuestionButton question={qf.question} answer={qf.answer} />
                 </div>
-                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold border ${scoreColor}`}>
-                    <ScoreIcon className="h-3.5 w-3.5" />
-                    {qf.score}/100
-                </div>
-                <FavoriteQuestionButton question={qf.question} answer={qf.answer} />
             </div>
 
-            <div className="p-6 space-y-4">
-                {/* Question */}
-                <div className="flex items-start gap-3">
-                    <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 mt-0.5">
-                        <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
-                    </div>
+            <div className="p-4 space-y-4">
+                {/* Q & A */}
+                <div className="space-y-3">
                     <div>
-                        <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wider mb-1">Question</p>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 italic">&quot;{qf.question}&quot;</p>
+                        <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                            <MessageSquare className="h-3 w-3" /> {isTr ? 'Soru' : 'Question'}
+                        </p>
+                        <p className="text-sm text-slate-800 dark:text-slate-200 italic font-medium leading-relaxed">&quot;{qf.question}&quot;</p>
                     </div>
-                </div>
-
-                {/* Answer */}
-                <div className="flex items-start gap-3">
-                    <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 mt-0.5">
-                        <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider mb-1">Your Answer</p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">&quot;{qf.answer}&quot;</p>
+                    <div className="pl-4 border-l-2 border-blue-200 dark:border-blue-800/50">
+                        <p className="text-[11px] font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                            <BookOpen className="h-3 w-3" /> {isTr ? 'Senin Cevabın' : 'Your Answer'}
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">&quot;{qf.answer}&quot;</p>
                     </div>
                 </div>
 
                 {/* AI Commentary */}
-                <div className="bg-gradient-to-r from-violet-50/80 to-indigo-50/50 dark:from-violet-900/10 dark:to-indigo-900/5 rounded-xl p-4 border border-violet-200/50 dark:border-violet-800/20">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Brain className="h-4 w-4 text-violet-500" />
-                        <span className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider">AI Coach Analysis</span>
-                    </div>
+                <div className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg p-3 border border-indigo-100/50 dark:border-indigo-800/20">
+                    <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                        <Brain className="h-3 w-3" /> {isTr ? 'Yapay Zeka Analizi' : 'AI Coach Analysis'}
+                    </p>
                     <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{qf.ai_commentary}</p>
                 </div>
 
                 {/* Good / Improve Grid */}
-                <div className="grid md:grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                            <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">What Was Good</span>
-                        </div>
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="p-2.5 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
+                        <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mb-1">
+                            <CheckCircle className="h-3 w-3" /> {isTr ? 'İyi Olan Nedir' : 'What Was Good'}
+                        </p>
                         <p className="text-xs text-slate-600 dark:text-slate-400">{qf.what_was_good}</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">What To Improve</span>
-                        </div>
+                    <div className="p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+                        <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mb-1">
+                            <AlertTriangle className="h-3 w-3" /> {isTr ? 'Nasıl Geliştirilir' : 'What To Improve'}
+                        </p>
                         <p className="text-xs text-slate-600 dark:text-slate-400">{qf.what_to_improve}</p>
                     </div>
                 </div>
 
-                {/* Ideal Answer Hint */}
+                {/* Tip */}
                 {qf.ideal_answer_hint && (
-                    <div className="flex items-start gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/30">
-                        <Lightbulb className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
-                        <div>
-                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">💡 Pro Tip: </span>
-                            <span className="text-xs text-slate-600 dark:text-slate-400">{qf.ideal_answer_hint}</span>
-                        </div>
+                    <div className="flex gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50">
+                        <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                            <span className="font-bold text-slate-700 dark:text-slate-300 mr-1">{isTr ? 'Örnek Cevap:' : 'Pro Tip:'}</span>
+                            {qf.ideal_answer_hint}
+                        </p>
                     </div>
                 )}
             </div>
@@ -232,6 +224,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     };
     const level = getLevel(overallAvg);
 
+    const isTr = session.language === 'tr';
+
     return (
         <div className="min-h-screen">
             {/* ─── Hero Header ─── */}
@@ -244,7 +238,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 <div className="relative container mx-auto px-6 pt-6 pb-10">
                     <Button variant="ghost" size="sm" asChild className="text-slate-300 hover:text-white hover:bg-white/10 mb-6 -ml-2">
                         <Link href="/dashboard/interviews">
-                            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Interviews
+                            <ArrowLeft className="h-4 w-4 mr-2" /> {isTr ? 'Mülakatlara Dön' : 'Back to Interviews'}
                         </Link>
                     </Button>
 
@@ -315,7 +309,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <div className="rounded-2xl border border-emerald-200/60 dark:border-emerald-700/30 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
                         <div className="flex items-center gap-2 mb-3">
                             <CheckCircle className="h-4 w-4 text-emerald-500" />
-                            <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Top Strengths</h3>
+                            <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{isTr ? 'Öne Çıkan Güçlü Yönler' : 'Top Strengths'}</h3>
                         </div>
                         <ul className="space-y-1.5">
                             {(feedback.strengths || []).slice(0, 3).map((s: string, i: number) => (
@@ -328,7 +322,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <div className="rounded-2xl border border-amber-200/60 dark:border-amber-700/30 bg-amber-50/50 dark:bg-amber-900/10 p-5">
                         <div className="flex items-center gap-2 mb-3">
                             <AlertTriangle className="h-4 w-4 text-amber-500" />
-                            <h3 className="text-sm font-bold text-amber-700 dark:text-amber-400">Key Improvements</h3>
+                            <h3 className="text-sm font-bold text-amber-700 dark:text-amber-400">{isTr ? 'Gelişim Alanları' : 'Key Improvements'}</h3>
                         </div>
                         <ul className="space-y-1.5">
                             {(feedback.weaknesses || []).slice(0, 3).map((w: string, i: number) => (
@@ -345,7 +339,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="rounded-2xl border border-blue-500/30 bg-blue-500/8 p-5 text-center">
                             <div className="text-4xl font-black text-blue-400 mb-1">{session.final_score ?? '—'}</div>
-                            <div className="text-xs text-blue-300 font-medium">/100 Interview Score</div>
+                            <div className="text-xs text-blue-300 font-medium">/100 {isTr ? 'Mülakat Puanı' : 'Interview Score'}</div>
                             {session.score_breakdown && (
                                 <div className="mt-3 space-y-1 text-left">
                                     {Object.entries(session.score_breakdown as Record<string, number>).map(([key, val]) => (
@@ -361,7 +355,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             <div className={`text-4xl font-black mb-1 ${(session.hire_probability ?? 0) >= 60 ? 'text-emerald-400' :
                                 (session.hire_probability ?? 0) >= 40 ? 'text-amber-400' : 'text-red-400'
                                 }`}>{session.hire_probability ?? '—'}%</div>
-                            <div className="text-xs text-emerald-300 font-medium">Hire Probability</div>
+                            <div className="text-xs text-emerald-300 font-medium">{isTr ? 'İşe Alım İhtimali' : 'Hire Probability'}</div>
                             {session.feedback_summary && (
                                 <p className="text-xs text-slate-400 mt-3 leading-relaxed text-left">{session.feedback_summary}</p>
                             )}
@@ -372,13 +366,13 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 {/* ─── Score Overview ─── */}
                 <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-8">
                     <div className="flex flex-col lg:flex-row gap-8 items-center">
-                        <ScoreRing score={overallAvg} label="Overall Score" />
+                        <ScoreRing score={overallAvg} label={isTr ? "Genel Puan" : "Overall Score"} />
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-4">
-                            <ScoreRing score={feedback.job_match_score || 0} label="Genel Eşleşme Puanı" size="sm" />
-                            <ScoreRing score={feedback.star_methodology_score || 0} label="Star Metodu" size="sm" />
-                            <ScoreRing score={feedback.clarity_score || 0} label="Cevap Yeterliliği" size="sm" />
-                            <ScoreRing score={feedback.confidence_score || feedback.clarity_score || 0} label="Tatmin Puanı" size="sm" />
-                            <ScoreRing score={feedback.relevance_score || feedback.job_match_score || 0} label="İlgi Düzeyi" size="sm" />
+                            <ScoreRing score={feedback.job_match_score || 0} label={isTr ? "Genel Eşleşme Puanı" : "General Match"} size="sm" />
+                            <ScoreRing score={feedback.star_methodology_score || 0} label={isTr ? "Star Metodu" : "STAR Method"} size="sm" />
+                            <ScoreRing score={feedback.clarity_score || 0} label={isTr ? "Cevap Yeterliliği" : "Clarity"} size="sm" />
+                            <ScoreRing score={feedback.confidence_score || feedback.clarity_score || 0} label={isTr ? "Tatmin Puanı" : "Confidence"} size="sm" />
+                            <ScoreRing score={feedback.relevance_score || feedback.job_match_score || 0} label={isTr ? "İlgi Düzeyi" : "Relevance"} size="sm" />
                         </div>
                     </div>
                 </div>
@@ -391,8 +385,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <Brain className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">AI Coach&apos;s Message</h3>
-                                <p className="text-sm text-violet-600 dark:text-violet-400 font-medium mb-3">Personal feedback from your AI interview coach</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{isTr ? "AI Coach'un Mesajı" : "AI Coach's Message"}</h3>
+                                <p className="text-sm text-violet-600 dark:text-violet-400 font-medium mb-3">{isTr ? 'Koçunuzdan kişisel geri bildirim' : 'Personal feedback from your AI interview coach'}</p>
                                 <p className="text-[15px] text-slate-700 dark:text-slate-300 leading-relaxed">{aiCommentary}</p>
                             </div>
                         </div>
@@ -408,13 +402,13 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <MessageSquare className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Question-by-Question Analysis</h2>
-                                <p className="text-sm text-slate-500">Detailed AI feedback for each of your answers</p>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{isTr ? 'Soru Bazlı Analiz' : 'Question-by-Question Analysis'}</h2>
+                                <p className="text-sm text-slate-500">{isTr ? 'Verdiğiniz her cevabın detaylı analizi' : 'Detailed AI feedback for each of your answers'}</p>
                             </div>
                         </div>
 
                         {questionFeedbacks.map((qf: any, i: number) => (
-                            <QuestionFeedbackCard key={i} qf={qf} index={i} />
+                            <QuestionFeedbackCard key={i} qf={qf} index={i} language={session.language || 'en'} />
                         ))}
                     </div>
                 )}
