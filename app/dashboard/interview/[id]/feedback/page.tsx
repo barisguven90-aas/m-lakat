@@ -147,7 +147,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
     const { data: session } = await supabase
         .from('interview_sessions')
-        .select('*, applications(*), session_feedback(*), interview_turns(*)')
+        .select('*, applications(*), session_feedback(*), interview_turns(*), final_score, hire_probability, score_breakdown, feedback_summary')
         .eq('id', sessionId)
         .single();
 
@@ -339,6 +339,35 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                         </ul>
                     </div>
                 </div>
+
+                {/* ─── Intervio Score (if scoring engine ran) ─── */}
+                {(session.final_score || session.hire_probability) && (
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/8 p-5 text-center">
+                            <div className="text-4xl font-black text-blue-400 mb-1">{session.final_score ?? '—'}</div>
+                            <div className="text-xs text-blue-300 font-medium">/100 Interview Score</div>
+                            {session.score_breakdown && (
+                                <div className="mt-3 space-y-1 text-left">
+                                    {Object.entries(session.score_breakdown as Record<string, number>).map(([key, val]) => (
+                                        <div key={key} className="flex justify-between text-xs">
+                                            <span className="text-slate-400 capitalize">{key.replace('_', ' ')}</span>
+                                            <span className="text-white font-semibold">{val}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/8 p-5 text-center">
+                            <div className={`text-4xl font-black mb-1 ${(session.hire_probability ?? 0) >= 60 ? 'text-emerald-400' :
+                                    (session.hire_probability ?? 0) >= 40 ? 'text-amber-400' : 'text-red-400'
+                                }`}>{session.hire_probability ?? '—'}%</div>
+                            <div className="text-xs text-emerald-300 font-medium">Hire Probability</div>
+                            {session.feedback_summary && (
+                                <p className="text-xs text-slate-400 mt-3 leading-relaxed text-left">{session.feedback_summary}</p>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* ─── Score Overview ─── */}
                 <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-8">
