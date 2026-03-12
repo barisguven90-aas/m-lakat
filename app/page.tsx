@@ -59,12 +59,6 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-14 px-8 text-base bg-neutral-900 border-neutral-700 text-white hover:bg-neutral-800 hover:text-white rounded-full w-full sm:w-auto transition-all hover:scale-105 active:scale-95">
-              <Link href="/pricing">
-                <Star className="mr-2 h-5 w-5 text-yellow-400" />
-                View Pricing
-              </Link>
-            </Button>
           </div>
 
           {/* Trust signals */}
@@ -213,9 +207,9 @@ export default function LandingPage() {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Multilingual Support</h3>
+                <h3 className="text-xl font-semibold mb-2">Bilingual Support</h3>
                 <p className="text-neutral-400 text-sm leading-relaxed">
-                  Practice in English, Turkish, Spanish, French, German, or Chinese. Perfect for non-native speakers preparing for global roles.
+                  Practice in English or Turkish. Perfect for non-native speakers preparing for global roles or local opportunities.
                 </p>
               </div>
             </div>

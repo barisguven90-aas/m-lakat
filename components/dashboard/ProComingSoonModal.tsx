@@ -4,17 +4,8 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, Rocket, CheckCircle2 } from "lucide-react";
-import { toast } from "sonner";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
-const features = [
-    "Unlimited interviews",
-    "Detailed AI feedback",
-    "Interview history",
-    "Advanced scoring breakdown",
-    "Priority support"
-];
+import { Check, Rocket, CheckCircle2, X } from "lucide-react";
 
 export function ProComingSoonModal({
     isOpen: controlledOpen,
@@ -122,19 +113,61 @@ export function ProComingSoonModal({
                                 <Rocket className="h-6 w-6 text-white" />
                             </div>
 
-                            <h2 className="text-2xl font-bold text-white mb-6 text-center tracking-tight">
-                                Intervio Pro — Coming Soon
+                            <h2 className="text-2xl font-bold text-white mb-2 text-center tracking-tight">
+                                🚀 Intervio Pro — Coming Soon
                             </h2>
+                            <p className="text-sm text-slate-300 text-center mb-6 max-w-[280px]">
+                                You&apos;ve used your 2 free interviews. Here&apos;s what you&apos;re missing with Pro:
+                            </p>
 
-                            <div className="w-full space-y-3 mb-8">
-                                {features.map((feature, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                            <Check className="h-3 w-3 text-emerald-500" />
-                                        </div>
-                                        <span className="text-slate-300 font-medium">{feature}</span>
+                            <div className="w-full mb-6 bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden text-sm">
+                                <div className="grid grid-cols-3 bg-slate-800/80 p-3 border-b border-slate-700/50 text-slate-400 font-semibold text-xs uppercase tracking-wider">
+                                    <div className="col-span-1">Feature</div>
+                                    <div className="col-span-1 text-center">Free</div>
+                                    <div className="col-span-1 text-center text-indigo-400">Pro</div>
+                                </div>
+                                <div className="divide-y divide-slate-700/50">
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Interviews per month</div>
+                                        <div className="col-span-1 text-center text-slate-400">2</div>
+                                        <div className="col-span-1 text-center text-indigo-400 font-semibold">Unlimited</div>
                                     </div>
-                                ))}
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Interview score</div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Hire probability</div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">AI feedback</div>
+                                        <div className="col-span-1 text-center text-slate-400">Basic</div>
+                                        <div className="col-span-1 text-center text-indigo-400 font-semibold">Detailed</div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Interview history</div>
+                                        <div className="col-span-1 flex justify-center"><X className="h-4 w-4 text-slate-600" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Progress tracking</div>
+                                        <div className="col-span-1 flex justify-center"><X className="h-4 w-4 text-slate-600" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight text-[11px] sm:text-xs">Company personas <span className="block text-[10px] text-slate-500">(Amazon, Google etc)</span></div>
+                                        <div className="col-span-1 flex justify-center"><X className="h-4 w-4 text-slate-600" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-slate-800/30 transition-colors">
+                                        <div className="col-span-1 text-slate-300 leading-tight">Shareable result card</div>
+                                        <div className="col-span-1 flex justify-center"><X className="h-4 w-4 text-slate-600" /></div>
+                                        <div className="col-span-1 flex justify-center"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    </div>
+                                </div>
                             </div>
 
                             <p className="text-sm text-slate-400 text-center mb-6 font-medium">
