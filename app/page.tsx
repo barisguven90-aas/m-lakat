@@ -21,6 +21,9 @@ export default function LandingPage() {
             <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-5">
+            <Link href="/pricing" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+              Pricing
+            </Link>
             <Link href="/login" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
               Log In
             </Link>
