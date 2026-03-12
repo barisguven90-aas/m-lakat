@@ -19,26 +19,25 @@ export async function POST(request: Request) {
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
 
-        // Limit matrix: free=2 total, pro=unlimited
-        const FREE_LIMIT = 2;
+        // Limit matrix: free=1 text, pro=unlimited
+        const FREE_TEXT_LIMIT = 1;
 
-        let count = 0;
         if (!isPro) {
-            // Count all sessions ever for free user
-            const { count: totalCount } = await supabase
+            const { data: allSessions } = await supabase
                 .from('interview_sessions')
-                .select('*', { count: 'exact', head: true })
+                .select('config, status')
                 .eq('user_id', user.id)
-                .in('status', ['completed', 'in_progress', 'setup']); // Add statuses that count
+                .in('status', ['completed', 'in_progress', 'setup', 'active']);
 
-            count = totalCount || 0;
+            let textCount = 0;
+            allSessions?.forEach(s => {
+                if (!s.config?.mode || s.config.mode !== 'voice') textCount++;
+            });
 
-            if (count >= FREE_LIMIT) {
+            if (textCount >= FREE_TEXT_LIMIT) {
                 return NextResponse.json({
-                    error: "You've used your 2 free interviews. Upgrade to Intervio Pro for unlimited practice.",
-                    code: 'SUBSCRIPTION_REQUIRED',
-                    limit: FREE_LIMIT,
-                    used: count
+                    error: "You've used your 1 free text interview. Upgrade to Intervio Pro to unlock unlimited practice.",
+                    code: 'SUBSCRIPTION_REQUIRED'
                 }, { status: 403 });
             }
         }
