@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { generateComprehensiveFeedback } from '@/lib/feedback/generate-feedback';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { SendReportButton } from '@/components/interview/SendReportButton';
 import { FavoriteQuestionButton } from '@/components/interview/FavoriteQuestionButton';
 import { DownloadPDFButton } from '@/components/interview/DownloadPDFButton';
 import { ShareCard } from '@/components/interview/ShareCard';
+import { QuestionFeedbackCard } from '@/components/interview/QuestionFeedbackCard';
 import {
     CheckCircle, AlertTriangle, XCircle, ArrowLeft, Target, TrendingUp,
     TrendingDown, Minus, Brain, MessageSquare, Sparkles, Award, Shield,
@@ -48,87 +50,7 @@ function ScoreRing({ score, label, size = 'md' }: { score: number; label: string
     );
 }
 
-function QuestionFeedbackCard({ qf, index, language = 'en' }: { qf: any; index: number, language?: string }) {
-    const isTr = language === 'tr';
-    const scoreColor = qf.score >= 75 ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/15 border-emerald-200 dark:border-emerald-800/30'
-        : qf.score >= 55 ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/15 border-amber-200 dark:border-amber-800/30'
-            : 'text-red-500 bg-red-50 dark:bg-red-900/15 border-red-200 dark:border-red-800/30';
 
-    return (
-        <div className="rounded-xl border border-slate-200/60 dark:border-slate-700/50 bg-white dark:bg-slate-800/40 shadow-sm overflow-hidden mb-4">
-            {/* Header */}
-            <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-md bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">
-                        {index + 1}
-                    </div>
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                        {isTr ? 'Soru' : 'Question'} {index + 1}
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className={`px-2 py-0.5 rounded text-xs font-bold border ${scoreColor}`}>
-                        {qf.score}/100
-                    </div>
-                    <FavoriteQuestionButton question={qf.question} answer={qf.answer} />
-                </div>
-            </div>
-
-            <div className="p-4 space-y-4">
-                {/* Q & A */}
-                <div className="space-y-3">
-                    <div>
-                        <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                            <MessageSquare className="h-3 w-3" /> {isTr ? 'Soru' : 'Question'}
-                        </p>
-                        <p className="text-sm text-slate-800 dark:text-slate-200 italic font-medium leading-relaxed">&quot;{qf.question}&quot;</p>
-                    </div>
-                    <div className="pl-4 border-l-2 border-blue-200 dark:border-blue-800/50">
-                        <p className="text-[11px] font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                            <BookOpen className="h-3 w-3" /> {isTr ? 'Senin Cevabın' : 'Your Answer'}
-                        </p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">&quot;{qf.answer}&quot;</p>
-                    </div>
-                </div>
-
-                {/* AI Commentary */}
-                <div className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg p-3 border border-indigo-100/50 dark:border-indigo-800/20">
-                    <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
-                        <Brain className="h-3 w-3" /> {isTr ? 'Yapay Zeka Analizi' : 'AI Coach Analysis'}
-                    </p>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{qf.ai_commentary}</p>
-                </div>
-
-                {/* Good / Improve Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="p-2.5 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
-                        <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mb-1">
-                            <CheckCircle className="h-3 w-3" /> {isTr ? 'İyi Olan Nedir' : 'What Was Good'}
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">{qf.what_was_good}</p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
-                        <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mb-1">
-                            <AlertTriangle className="h-3 w-3" /> {isTr ? 'Nasıl Geliştirilir' : 'What To Improve'}
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">{qf.what_to_improve}</p>
-                    </div>
-                </div>
-
-                {/* Tip */}
-                {qf.ideal_answer_hint && (
-                    <div className="flex gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50">
-                        <Lightbulb className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-                        <p className="text-xs text-slate-600 dark:text-slate-400">
-                            <span className="font-bold text-slate-700 dark:text-slate-300 mr-1">{isTr ? 'Örnek Cevap:' : 'Pro Tip:'}</span>
-                            {qf.ideal_answer_hint}
-                        </p>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
 
 export default async function FeedbackPage({ params }: { params: { id: string } }) {
     const supabase = await createClient();
@@ -224,7 +146,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     };
     const level = getLevel(overallAvg);
 
-    const isTr = session.language === 'tr';
+    // Get language from cookie or fallback to session language
+    const cookieStore = await cookies();
+    const isEnLanguageCookie = cookieStore.get('NEXT_LOCALE')?.value;
+    const isTr = isEnLanguageCookie === 'tr' || (!isEnLanguageCookie && session.language === 'tr');
 
     return (
         <div className="min-h-screen">
@@ -422,8 +347,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <CheckCircle className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Güçlü Yanlarınız</h3>
-                                <p className="text-sm text-slate-500">{detailedStrengths.length > 0 ? 'Mülakattaki cevaplarınızla kanıtlanmış analiz' : `${(feedback.strengths || []).length} strengths identified`}</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isTr ? 'Güçlü Yanlarınız' : 'Detailed Strengths'}</h3>
+                                <p className="text-sm text-slate-500">{detailedStrengths.length > 0 ? (isTr ? 'Mülakattaki cevaplarınızla kanıtlanmış analiz' : 'Specific skills and their corresponding evidence') : (isTr ? `${(feedback.strengths || []).length} alan listelendi` : `${(feedback.strengths || []).length} strengths identified`)}</p>
                             </div>
                         </div>
 
@@ -464,8 +389,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <AlertTriangle className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Geliştirilmesi Gereken Yönler</h3>
-                                <p className="text-sm text-slate-500">{detailedWeaknesses.length > 0 ? 'Somut aksiyon önerileri ile' : `${(feedback.weaknesses || []).length} areas identified`}</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isTr ? 'Geliştirilmesi Gereken Yönler' : 'Detailed Areas to Improve'}</h3>
+                                <p className="text-sm text-slate-500">{detailedWeaknesses.length > 0 ? (isTr ? 'Somut aksiyon önerileri ile' : 'With concrete action suggestions') : (isTr ? `${(feedback.weaknesses || []).length} alan belirlendi` : `${(feedback.weaknesses || []).length} areas identified`)}</p>
                             </div>
                         </div>
 
@@ -520,8 +445,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <Shield className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">High Risk Factors</h3>
-                                <p className="text-sm text-slate-500">Issues that could affect the hiring decision</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isTr ? 'Kritik Risk Faktörleri' : 'High Risk Factors'}</h3>
+                                <p className="text-sm text-slate-500">{isTr ? 'İşe alım kararını olumsuz etkileyebilecek durumlar' : 'Issues that could affect the hiring decision'}</p>
                             </div>
                         </div>
                         <div className="space-y-2">
@@ -544,8 +469,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 <Target className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Action Plan</h3>
-                                <p className="text-sm text-slate-500">Steps to take before your real interview</p>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isTr ? 'Aksiyon Planı' : 'Action Plan'}</h3>
+                                <p className="text-sm text-slate-500">{isTr ? 'Gerçek mülakat öncesi atılacak adımlar' : 'Steps to take before your real interview'}</p>
                             </div>
                         </div>
                         <div className="space-y-3">
@@ -568,8 +493,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                     <GraduationCap className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Practice Exercises</h3>
-                                    <p className="text-sm text-slate-500">Specific drills to sharpen your skills</p>
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{isTr ? 'Pratik Egzersizleri' : 'Practice Exercises'}</h3>
+                                    <p className="text-sm text-slate-500">{isTr ? 'Becerilerinizi geliştirmek için tavsiyeler' : 'Specific drills to sharpen your skills'}</p>
                                 </div>
                             </div>
                             <div className="space-y-3">
@@ -586,17 +511,17 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
                 {/* ─── CTA ─── */}
                 <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-center border border-slate-700/50 shadow-xl">
-                    <h3 className="text-xl font-bold text-white mb-2">Ready to improve?</h3>
-                    <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">Practice makes perfect. Start another interview session to work on the areas identified above.</p>
+                    <h3 className="text-xl font-bold text-white mb-2">{isTr ? 'Gelişmeye hazır mısın?' : 'Ready to improve?'}</h3>
+                    <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">{isTr ? 'Pratik yapmak mükemmelleştirir. Belirlenen gelişim alanlarında çalışmak için yeni bir pratik seansına başla.' : 'Practice makes perfect. Start another interview session to work on the areas identified above.'}</p>
                     <div className="flex justify-center gap-4">
                         <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
                             <Link href={`/dashboard/applications/${session.application_id}`}>
-                                View Application
+                                {isTr ? 'Sürece Dön' : 'View Application'}
                             </Link>
                         </Button>
                         <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-900/40">
-                            <Link href={`/dashboard/applications/${session.application_id}`}>
-                                <Sparkles className="h-4 w-4 mr-2" /> Practice Again
+                            <Link href={`/dashboard/applications/${session.application_id}/interview/setup`}>
+                                <Sparkles className="h-4 w-4 mr-2" /> {isTr ? 'Tekrar Pratik Yap' : 'Practice Again'}
                             </Link>
                         </Button>
                     </div>

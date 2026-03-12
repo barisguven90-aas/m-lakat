@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { LanguageToggle } from "./LanguageToggle"
 
 interface Notification {
     id: string
@@ -98,6 +99,9 @@ export function DashboardHeader() {
 
     return (
         <div className="flex items-center gap-3 ml-auto">
+            {/* Language Toggle */}
+            <LanguageToggle />
+
             {/* Dark Mode Toggle */}
             {mounted && (
                 <button
