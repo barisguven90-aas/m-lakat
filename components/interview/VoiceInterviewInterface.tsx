@@ -275,11 +275,11 @@ export default function VoiceInterviewInterface({
             if (newFinal) finalText += (finalText ? ' ' : '') + newFinal;
             setCurrentUserText(finalText + (interim ? ' ' + interim : ''));
 
-            // Reset silence timer — increased to 6s so user can pause and think
+            // Reset silence timer — decreased to 4.5s for faster back-and-forth
             if (silenceTimer) clearTimeout(silenceTimer);
             silenceTimer = setTimeout(() => {
                 recognition.stop();
-            }, 6000);
+            }, 4500);
         };
 
         recognition.onend = () => {
