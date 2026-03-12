@@ -10,6 +10,7 @@ import { FavoriteQuestionButton } from '@/components/interview/FavoriteQuestionB
 import { DownloadPDFButton } from '@/components/interview/DownloadPDFButton';
 import { ShareCard } from '@/components/interview/ShareCard';
 import { QuestionFeedbackCard } from '@/components/interview/QuestionFeedbackCard';
+import { ProComingSoonModal } from '@/components/dashboard/ProComingSoonModal';
 import {
     CheckCircle, AlertTriangle, XCircle, ArrowLeft, Target, TrendingUp,
     TrendingDown, Minus, Brain, MessageSquare, Sparkles, Award, Shield,
@@ -146,13 +147,19 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     };
     const level = getLevel(overallAvg);
 
-    // Get language from cookie or fallback to session language
     const cookieStore = await cookies();
     const isEnLanguageCookie = cookieStore.get('NEXT_LOCALE')?.value;
     const isTr = isEnLanguageCookie === 'tr' || (!isEnLanguageCookie && session.language === 'tr');
 
+    // Limit Check for Free plan
+    const { data: profile } = await supabase.from('profiles').select('subscription_status').eq('id', user.id).single();
+    const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
+    const { count } = await supabase.from('interview_sessions').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'completed');
+    const limitReached = !isPro && (count || 0) >= 2;
+
     return (
         <div className="min-h-screen">
+            <ProComingSoonModal autoShow={limitReached} />
             {/* ─── Hero Header ─── */}
             <div className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />

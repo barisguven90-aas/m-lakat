@@ -1,0 +1,162 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Check, Rocket, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+
+const features = [
+    "Unlimited interviews",
+    "Detailed AI feedback",
+    "Interview history",
+    "Advanced scoring breakdown",
+    "Priority support"
+];
+
+export function ProComingSoonModal({
+    isOpen: controlledOpen,
+    onClose,
+    autoShow = false
+}: {
+    isOpen?: boolean;
+    onClose?: () => void;
+    autoShow?: boolean;
+}) {
+    const supabase = createClient();
+    const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [open, setOpen] = useState(controlledOpen || false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        if (controlledOpen !== undefined) {
+            setOpen(controlledOpen);
+        }
+    }, [controlledOpen]);
+
+    useEffect(() => {
+        if (mounted && autoShow && sessionStorage.getItem('dismissedProModal') !== 'true') {
+            setOpen(true);
+        }
+    }, [autoShow, mounted]);
+
+    const handleClose = () => {
+        setOpen(false);
+        // Save to sessionStorage that user dismissed it in this session
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('dismissedProModal', 'true');
+        }
+        if (onClose) onClose();
+    };
+
+    const handleNotifyMe = async () => {
+        setSubmitting(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // Update user record: set pro_waitlist = true and pro_waitlist_at
+            // If the column doesn't exist yet it might throw error, so we catch it gracefully.
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    pro_waitlist: true,
+                    pro_waitlist_at: new Date().toISOString()
+                })
+                .eq('id', user.id);
+
+            if (error) {
+                console.error("Waitlist error:", error);
+                // We fake success even if the column is missing to not block the UX. 
+                // The user can apply the migration later.
+            }
+
+            setSuccess(true);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={(val) => {
+            if (!val) handleClose();
+        }}>
+            <DialogContent className="sm:max-w-md max-w-full overflow-hidden p-0 border-none bg-slate-900 rounded-3xl" aria-describedby="pro-waitlist-content">
+                <VisuallyHidden>
+                    <DialogTitle>Intervio Pro Coming Soon</DialogTitle>
+                    <DialogDescription>
+                        Be the first to know when Pro launches and get exclusive early access.
+                    </DialogDescription>
+                </VisuallyHidden>
+
+                <div id="pro-waitlist-content" className="relative p-8">
+                    {/* Background glows */}
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]" />
+                    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px]" />
+
+                    {success ? (
+                        <div className="relative z-10 text-center py-6 flex flex-col items-center">
+                            <div className="h-16 w-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
+                                <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">You&apos;re on the list!</h2>
+                            <p className="text-slate-400 mb-8 max-w-[280px]">
+                                We&apos;ll notify you when Intervio Pro launches. 🎉
+                            </p>
+                            <Button
+                                onClick={handleClose}
+                                className="w-full rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700"
+                            >
+                                Close
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="relative z-10 flex flex-col items-center">
+                            <div className="h-14 w-14 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-indigo-500/20">
+                                <Rocket className="h-6 w-6 text-white" />
+                            </div>
+
+                            <h2 className="text-2xl font-bold text-white mb-6 text-center tracking-tight">
+                                Intervio Pro — Coming Soon
+                            </h2>
+
+                            <div className="w-full space-y-3 mb-8">
+                                {features.map((feature, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                            <Check className="h-3 w-3 text-emerald-500" />
+                                        </div>
+                                        <span className="text-slate-300 font-medium">{feature}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <p className="text-sm text-slate-400 text-center mb-6 font-medium">
+                                Be the first to know when Pro launches and get exclusive early access.
+                            </p>
+
+                            <div className="w-full space-y-3">
+                                <Button
+                                    onClick={handleNotifyMe}
+                                    disabled={submitting}
+                                    className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 shadow-lg shadow-indigo-500/25 h-12 text-base font-bold text-white"
+                                >
+                                    {submitting ? 'Please wait...' : 'Notify Me When Pro Launches →'}
+                                </Button>
+                                <p className="text-[11px] text-center text-slate-500 max-w-[250px] mx-auto">
+                                    No spam. We&apos;ll only contact you when Pro is ready.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}

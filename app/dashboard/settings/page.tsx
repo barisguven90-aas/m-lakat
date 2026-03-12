@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge"; // Added Badge import
 import { toast } from "sonner";
+import { ProComingSoonModal } from "@/components/dashboard/ProComingSoonModal";
 import {
     Loader2, CreditCard, User, Shield, Check, Crown, Settings,
     Mail, KeyRound, Sparkles, Zap, ArrowRight, ChevronRight
@@ -18,6 +19,7 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const [activeTab, setActiveTab] = useState<'profile' | 'billing'>('profile');
+    const [showProModal, setShowProModal] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -52,19 +54,13 @@ export default function SettingsPage() {
     };
 
     const handleManageSubscription = async () => {
+        if (!isPro) {
+            setShowProModal(true);
+            return;
+        }
+
         setUpdating(true);
         try {
-            if (!isPro || !profile?.stripe_customer_id) {
-                const res = await fetch('/api/stripe/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID }),
-                });
-                const data = await res.json();
-                if (data.url) window.location.href = data.url;
-                else toast.error('Could not create checkout session');
-                return;
-            }
             const res = await fetch('/api/stripe/portal', { method: 'POST' });
             const data = await res.json();
             if (data.url) {
@@ -100,6 +96,7 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50/50 dark:bg-[#0a0f1e] pb-20">
+            <ProComingSoonModal isOpen={showProModal} onClose={() => setShowProModal(false)} />
             {/* ─── Profile Cover & Header ─── */}
             <div className="w-full relative">
                 {/* Cover Image (Gradient/Mesh) */}

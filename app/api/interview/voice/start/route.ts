@@ -19,32 +19,25 @@ export async function POST(request: Request) {
             .single();
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-        const MONTHLY_PLAN_LIMIT = 10;
-        const YEARLY_PLAN_LIMIT = 20;
+        // Limit matrix: free=2 total, pro=unlimited
+        const FREE_LIMIT = 2;
 
-        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
-        const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
-
-        let limit = 0;
-        if (isPro) {
-            if (profile?.stripe_price_id === yearlyPriceId) limit = YEARLY_PLAN_LIMIT;
-            else limit = MONTHLY_PLAN_LIMIT;
-        }
-
-        if (isPro && limit > 0) {
-            const now = new Date();
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            const { count } = await supabase
+        let count = 0;
+        if (!isPro) {
+            // Count all sessions ever for free user
+            const { count: totalCount } = await supabase
                 .from('interview_sessions')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', user.id)
-                .gte('created_at', monthStart);
+                .in('status', ['completed', 'in_progress', 'setup']); // Add statuses that count
 
-            if ((count || 0) >= limit) {
+            count = totalCount || 0;
+
+            if (count >= FREE_LIMIT) {
                 return NextResponse.json({
-                    error: `Aylık mülakat limitinize ulaştınız (${limit}). Daha fazla mülakat için bizimle iletişime geçin.`,
-                    code: 'LIMIT_REACHED',
-                    limit,
+                    error: "You've used your 2 free interviews. Upgrade to Intervio Pro for unlimited practice.",
+                    code: 'SUBSCRIPTION_REQUIRED',
+                    limit: FREE_LIMIT,
                     used: count
                 }, { status: 403 });
             }

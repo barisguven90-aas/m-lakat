@@ -19,43 +19,28 @@ export async function POST(request: Request) {
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
 
-        // Limit matrix: free=2, monthly pro=10, yearly pro=20
+        // Limit matrix: free=2 total, pro=unlimited
         const FREE_LIMIT = 2;
-        const MONTHLY_PLAN_LIMIT = 10;
-        const YEARLY_PLAN_LIMIT = 20;
 
-        const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+        let count = 0;
+        if (!isPro) {
+            // Count all sessions ever for free user
+            const { count: totalCount } = await supabase
+                .from('interview_sessions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .in('status', ['completed', 'in_progress', 'setup']); // Add statuses that count
 
-        let limit = FREE_LIMIT; // default: free tier
-        if (isPro) {
-            if (profile?.stripe_price_id === yearlyPriceId) limit = YEARLY_PLAN_LIMIT;
-            else limit = MONTHLY_PLAN_LIMIT;
-        }
+            count = totalCount || 0;
 
-        // Count sessions this calendar month
-        const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const { count } = await supabase
-            .from('interview_sessions')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id)
-            .gte('created_at', monthStart);
-
-        if ((count || 0) >= limit) {
-            if (!isPro) {
+            if (count >= FREE_LIMIT) {
                 return NextResponse.json({
-                    error: "You've used your 2 free interviews this month. Upgrade to Intervio Pro for unlimited practice.",
-                    code: 'FREE_LIMIT_REACHED',
+                    error: "You've used your 2 free interviews. Upgrade to Intervio Pro for unlimited practice.",
+                    code: 'SUBSCRIPTION_REQUIRED',
                     limit: FREE_LIMIT,
                     used: count
                 }, { status: 403 });
             }
-            return NextResponse.json({
-                error: `Monthly interview limit reached (${limit}). Please wait until next month or contact support.`,
-                code: 'LIMIT_REACHED',
-                limit,
-                used: count
-            }, { status: 403 });
         }
 
 

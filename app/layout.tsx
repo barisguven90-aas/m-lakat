@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { PHProvider, PostHogPageView } from "@/app/providers";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,17 +39,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider>
-          {children}
-          <Toaster
-            position="bottom-right"
-            richColors
-            closeButton
-            toastOptions={{
-              duration: 4000,
-            }}
-          />
-        </ThemeProvider>
+        <PHProvider>
+          <ThemeProvider>
+            <Suspense fallback={null}>
+              <PostHogPageView />
+            </Suspense>
+            {children}
+            <Toaster
+              position="bottom-right"
+              richColors
+              closeButton
+              toastOptions={{
+                duration: 4000,
+              }}
+            />
+          </ThemeProvider>
+        </PHProvider>
+        <GoogleAnalytics gaId="G-RWSVD2T707" />
       </body>
     </html>
   );
