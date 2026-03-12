@@ -47,6 +47,7 @@ export default function VoiceInterviewInterface({
     const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [turnNumber, setTurnNumber] = useState(1);
+    const turnNumberRef = useRef(1);
 
     const [isListening, setIsListening] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -324,7 +325,7 @@ export default function VoiceInterviewInterface({
                 isFirst,
                 previousTurns: history.map(h => ({ role: h.role, content: h.content })),
                 responseText: !isFirst ? history[history.length - 1]?.content || '' : undefined,
-                turnNumber,
+                turnNumber: turnNumberRef.current,
             };
 
             const res = await fetch('/api/interview/voice/chat', {
@@ -365,7 +366,11 @@ export default function VoiceInterviewInterface({
                 const newEntry: TranscriptEntry = { role: 'assistant', content: aiText, timestamp: new Date() };
                 transcriptRef.current = [...transcriptRef.current, newEntry];
                 setTranscript([...transcriptRef.current]);
-                if (!isFirst) setTurnNumber(data.turnNumber || turnNumber + 1);
+                if (!isFirst) {
+                    const nextTurn = data.turnNumber || turnNumberRef.current + 1;
+                    turnNumberRef.current = nextTurn;
+                    setTurnNumber(nextTurn);
+                }
 
                 // Speak the AI response (stops any previous audio first)
                 await speakText(aiText);
