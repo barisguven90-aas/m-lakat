@@ -177,15 +177,15 @@ export function DashboardHeader() {
 
             {/* Upgrade / Pro Badge */}
             {isPro ? (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-semibold uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] md:text-xs font-semibold uppercase tracking-wider">
                     PRO
                 </div>
             ) : (
-                <button onClick={() => setShowProModal(true)} className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-blue-600 px-4 py-1.5 font-medium text-white transition duration-300 ease-out hover:scale-105 active:scale-95">
+                <button onClick={() => setShowProModal(true)} className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-blue-600 px-3 md:px-4 py-1.5 font-medium text-white transition duration-300 ease-out hover:scale-105 active:scale-95">
                     <span className="absolute inset-0 z-0 h-full w-full bg-gradient-to-br from-blue-400 via-blue-600 to-blue-800 opacity-100 transition-opacity duration-500 group-hover:opacity-80 border-b-2 border-blue-700" />
                     <span className="absolute -left-[100%] top-0 z-10 h-[200%] w-[50%] -rotate-45 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-1000 group-hover:left-[200%]" />
-                    <span className="relative z-20 flex items-center gap-1.5 text-sm font-semibold tracking-wide drop-shadow-sm">
-                        Upgrade <Zap className="h-4 w-4 fill-white/80" />
+                    <span className="relative z-20 flex items-center gap-1.5 text-xs md:text-sm font-semibold tracking-wide drop-shadow-sm">
+                        <span className="hidden md:inline">Upgrade</span> <Zap className="h-3.5 w-3.5 md:h-4 md:w-4 fill-white/80" />
                     </span>
                 </button>
             )}
@@ -193,11 +193,11 @@ export function DashboardHeader() {
             {/* Profile Dropdown */}
             <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
-                    <div className="flex items-center gap-2.5 px-1 py-1 pr-3 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700">
+                    <div className="flex items-center gap-2.5 px-0.5 md:px-1 py-1 md:pr-3 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer md:border md:border-transparent md:hover:border-neutral-200 dark:md:hover:border-neutral-700">
                         <div className="h-8 w-8 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-sm font-bold text-blue-600">
                             {userInitial}
                         </div>
-                        {userName && <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{userName}</span>}
+                        {userName && <span className="hidden md:inline text-sm font-medium text-neutral-700 dark:text-neutral-300">{userName}</span>}
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

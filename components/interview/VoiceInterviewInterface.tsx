@@ -486,7 +486,7 @@ export default function VoiceInterviewInterface({
                 : "bg-neutral-500";
 
     return (
-        <div className="flex flex-col lg:flex-row bg-neutral-950 h-[calc(100vh-80px)] w-full rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
+        <div className="flex flex-col lg:flex-row bg-neutral-950 h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] w-full md:rounded-2xl md:border border-neutral-800 overflow-hidden shadow-2xl">
 
             {/* LEFT: AI Presence */}
             <div className={cn("flex flex-col relative transition-all duration-300", showTranscript ? "flex-1" : "w-full")}>

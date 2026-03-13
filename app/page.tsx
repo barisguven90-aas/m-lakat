@@ -80,7 +80,7 @@ export default function LandingPage() {
 
             <div className="rounded-xl bg-[#0a0a0a] overflow-hidden border border-white/5 relative">
               {/* Floating elements inside mockup */}
-              <div className="absolute top-10 right-10 bg-neutral-900/80 backdrop-blur-md rounded-lg p-4 border border-white/5 flex items-center gap-4 animate-bounce" style={{ animationDuration: '4s' }}>
+              <div className="absolute top-10 right-10 bg-neutral-900/80 backdrop-blur-md rounded-lg p-4 border border-white/5 hidden lg:flex items-center gap-4 animate-bounce" style={{ animationDuration: '4s' }}>
                 <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                   <Star className="h-5 w-5 text-blue-400" />
                 </div>

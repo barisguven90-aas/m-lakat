@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,15 @@ import { PlayCircle, Loader2, User, Code, Globe, Languages, Rocket, Building2, B
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ProComingSoonModal } from "../dashboard/ProComingSoonModal";
+
+// Helper to get cookie
+const getCookie = (name: string) => {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+};
 
 interface StartInterviewButtonProps {
     applicationId: string;
@@ -117,6 +125,13 @@ export function StartInterviewButton({ applicationId, variant = "default", class
     const [companyStyle, setCompanyStyle] = useState("standard");
     const [showProModal, setShowProModal] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        const locale = getCookie('NEXT_LOCALE');
+        if (locale === 'en' || locale === 'tr') {
+            setLanguage(locale);
+        }
+    }, [open]);
 
     const handleStart = async () => {
         setLoading(true);

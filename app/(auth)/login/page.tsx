@@ -17,7 +17,7 @@ export default function LoginPage() {
             <AnimatedAuthBackground />
 
             {/* Feature pills — top */}
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-3 z-10">
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-3 z-10">
                 {[
                     { icon: Target, label: "Job-Specific Questions" },
                     { icon: Sparkles, label: "AI Feedback" },

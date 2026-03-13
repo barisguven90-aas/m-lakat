@@ -113,15 +113,15 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                     {/* Left: Tabs Content (2/3) */}
                     <div className="lg:col-span-2 space-y-6">
                         <Tabs defaultValue="analysis">
-                            <TabsList className="w-full grid grid-cols-3 h-12 bg-slate-100 dark:bg-slate-800/50">
-                                <TabsTrigger value="analysis" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-10">
-                                    <BarChart3 className="h-4 w-4" /> Analysis
+                            <TabsList className="w-full flex h-auto p-1 bg-slate-100 dark:bg-slate-800/50 overflow-x-auto overflow-y-hidden no-scrollbar justify-start md:grid md:grid-cols-3 md:h-12">
+                                <TabsTrigger value="analysis" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-9 md:h-10 text-xs md:text-sm px-4 md:px-2 whitespace-nowrap">
+                                    <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4" /> Analysis
                                 </TabsTrigger>
-                                <TabsTrigger value="job" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-10">
-                                    <Briefcase className="h-4 w-4" /> Job Description
+                                <TabsTrigger value="job" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-9 md:h-10 text-xs md:text-sm px-4 md:px-2 whitespace-nowrap">
+                                    <Briefcase className="h-3.5 w-3.5 md:h-4 md:w-4" /> Job Description
                                 </TabsTrigger>
-                                <TabsTrigger value="cv" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-10">
-                                    <FileText className="h-4 w-4" /> CV / Profile
+                                <TabsTrigger value="cv" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm h-9 md:h-10 text-xs md:text-sm px-4 md:px-2 whitespace-nowrap">
+                                    <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" /> CV / Profile
                                 </TabsTrigger>
                             </TabsList>
 
