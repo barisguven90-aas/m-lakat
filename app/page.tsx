@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BrainCircuit, Sparkles, Target, Mic, FileText, ArrowRight, CheckCircle2, Zap, PlayCircle, BarChart3, Star, Bot } from "lucide-react";
+import { BrainCircuit, Sparkles, Target, Mic, FileText, ArrowRight, CheckCircle2, Zap, PlayCircle, BarChart3, Star, Bot, TrendingUp, Building2, MonitorSmartphone } from "lucide-react";
+import { AnimatedAuthBackground } from "@/components/ui/animated-background";
 import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
@@ -35,6 +36,7 @@ export default function LandingPage() {
       </nav>
 
       <main className="relative z-10 pt-32 lg:pt-40">
+        <AnimatedAuthBackground />
         {/* === Hero Section === */}
         <div className="container mx-auto max-w-5xl text-center px-6 mb-24 lg:mb-32">
           {/* Badge */}

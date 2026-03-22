@@ -6,8 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import {
     Send, Loader2, User, Bot, Mic, Volume2, Square, Video, VideoOff,
     UserCircle, PhoneOff, Clock, MessageSquare, TrendingUp, TrendingDown,
-    Minus, CheckCircle, AlertCircle, Bell, ArrowDown, ChevronDown
+    Minus, CheckCircle, AlertCircle, Bell, ArrowDown, ChevronDown, Lightbulb, CheckCircle2
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { AudioVisualizer } from './AudioVisualizer';
@@ -61,6 +62,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
     const [isLoading, setIsLoading] = useState(false);
     const [turnNumber, setTurnNumber] = useState(1);
     const [showTranscript, setShowTranscript] = useState(true);
+    const [activeRightTab, setActiveRightTab] = useState<'transcript' | 'tips'>('transcript');
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isEndingEarly, setIsEndingEarly] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -363,6 +365,12 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             });
             if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
             if (timerRef.current) clearInterval(timerRef.current);
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b']
+            });
             toast.success(language === 'tr' ? "Mülakat bitti. Raporunuz hazırlanıyor..." : "Interview ended. Generating your feedback...");
             sendNotification("Interview Ended", "Your feedback report is being generated.");
             router.push(`/dashboard/interview/${sessionId}/feedback`);
@@ -413,6 +421,12 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 setIsInterviewEnded(true);
                 if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
                 if (timerRef.current) clearInterval(timerRef.current);
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b']
+                });
                 toast.success(language === 'tr' ? "Mülakat tamamlandı! Raporunuz hazırlanıyor..." : "Interview Complete! Generating your report...");
                 sendNotification("🎉 Interview Complete!", "Your personalized feedback report is ready. Click to view.");
                 router.push(`/dashboard/interview/${sessionId}/feedback`);
@@ -610,81 +624,140 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 </div>
             </div>
 
-            {/* RIGHT: Transcript Panel */}
+            {/* RIGHT: Panel */}
             {showTranscript && (
-                <div className="w-full lg:w-[360px] border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-900 flex flex-col max-h-[50vh] lg:max-h-none">
-                    <div className="p-4 border-b border-neutral-800 bg-neutral-900/50 backdrop-blur flex justify-between items-center sticky top-0 z-10">
-                        <div className="flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-neutral-500" />
-                            <span className="font-semibold text-neutral-200 text-sm">{t.transcript}</span>
-                            <span className="text-xs text-neutral-600 bg-neutral-800 px-2 py-0.5 rounded-full">{messages.length}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {notificationsEnabled && (
-                                <div title="Notifications enabled" className="text-blue-400/60">
-                                    <Bell className="h-3.5 w-3.5" />
-                                </div>
+                <div className="w-full lg:w-[420px] border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-900 flex flex-col max-h-[50vh] lg:max-h-none transition-all duration-300">
+                    <div className="flex border-b border-neutral-800 bg-neutral-900/50 backdrop-blur sticky top-0 z-10">
+                        <button
+                            onClick={() => setActiveRightTab('transcript')}
+                            className={cn(
+                                "flex-1 px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors border-b-2",
+                                activeRightTab === 'transcript' ? "border-blue-500 text-blue-400 bg-blue-500/5" : "border-transparent text-neutral-500 hover:text-neutral-300"
                             )}
-                        </div>
+                        >
+                            <MessageSquare className="h-4 w-4" />
+                            {language === 'tr' ? 'Transkript' : 'Transcript'}
+                            <span className="text-xs bg-neutral-800 px-2 py-0.5 rounded-full ml-1">{messages.length}</span>
+                        </button>
+                        <button
+                            onClick={() => setActiveRightTab('tips')}
+                            className={cn(
+                                "flex-1 px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition-colors border-b-2",
+                                activeRightTab === 'tips' ? "border-amber-500 text-amber-400 bg-amber-500/5" : "border-transparent text-neutral-500 hover:text-neutral-300"
+                            )}
+                        >
+                            <Lightbulb className="h-4 w-4" />
+                            {language === 'tr' ? 'İpuçları' : 'Tips & Advice'}
+                        </button>
                     </div>
 
                     <div className="flex-1 relative">
-                        <div
-                            ref={chatContainerRef}
-                            onScroll={handleChatScroll}
-                            className="absolute inset-0 overflow-y-auto p-4 scroll-smooth"
-                            style={{ scrollbarWidth: 'thin', scrollbarColor: '#444 transparent' }}
-                        >
-                            <div className="space-y-4">
-                                {messages.map((m, i) => (
-                                    <div key={i} className={cn("flex flex-col gap-1", m.role === 'user' ? "items-end" : "items-start")}>
-                                        <div className={cn(
-                                            "max-w-[90%] p-3 rounded-2xl text-sm leading-relaxed",
-                                            m.role === 'user'
-                                                ? "bg-blue-600 text-white rounded-tr-sm"
-                                                : "bg-neutral-800 text-neutral-200 rounded-tl-sm border border-neutral-700"
-                                        )}>
-                                            {m.content}
-                                        </div>
+                        {activeRightTab === 'transcript' ? (
+                            <>
+                                <div
+                                    ref={chatContainerRef}
+                                    onScroll={handleChatScroll}
+                                    className="absolute inset-0 overflow-y-auto p-4 scroll-smooth"
+                                    style={{ scrollbarWidth: 'thin', scrollbarColor: '#444 transparent' }}
+                                >
+                                    <div className="space-y-4">
+                                        {messages.map((m, i) => (
+                                            <div key={i} className={cn("flex flex-col gap-1", m.role === 'user' ? "items-end" : "items-start")}>
+                                                <div className={cn(
+                                                    "max-w-[90%] p-3 rounded-2xl text-sm leading-relaxed",
+                                                    m.role === 'user'
+                                                        ? "bg-blue-600 text-white rounded-tr-sm"
+                                                        : "bg-neutral-800 text-neutral-200 rounded-tl-sm border border-neutral-700"
+                                                )}>
+                                                    {m.content}
+                                                </div>
 
-                                        {/* Score badge — only show after interview is ended */}
-                                        {isInterviewEnded && m.role === 'user' && m.score !== undefined && (
-                                            <div className="w-[90%]">
-                                                <ScoreBadge score={m.score} feedback={m.feedback || ''} isStrong={m.isStrong || false} />
+                                                {/* Score badge — only show after interview is ended */}
+                                                {isInterviewEnded && m.role === 'user' && m.score !== undefined && (
+                                                    <div className="w-[90%]">
+                                                        <ScoreBadge score={m.score} feedback={m.feedback || ''} isStrong={m.isStrong || false} />
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center gap-1 px-1">
+                                                    {m.role === 'assistant' ? <Bot className="h-3 w-3 text-neutral-600" /> : <User className="h-3 w-3 text-neutral-600" />}
+                                                    <span className="text-[10px] text-neutral-600 uppercase">{m.role === 'assistant' ? t.aiInterviewer : t.you}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        {isLoading && (
+                                            <div className="flex items-center gap-2 text-neutral-500 text-xs pl-2">
+                                                <div className="flex gap-1">
+                                                    {[0, 1, 2].map(i => (
+                                                        <span key={i} className="h-1.5 w-1.5 bg-neutral-500 rounded-full animate-bounce"
+                                                            style={{ animationDelay: `${i * 100}ms` }} />
+                                                    ))}
+                                                </div>
+                                                <span>{language === 'tr' ? 'Koç düşünüyor...' : 'Coach thinking...'}</span>
                                             </div>
                                         )}
-
-                                        <div className="flex items-center gap-1 px-1">
-                                            {m.role === 'assistant' ? <Bot className="h-3 w-3 text-neutral-600" /> : <User className="h-3 w-3 text-neutral-600" />}
-                                            <span className="text-[10px] text-neutral-600 uppercase">{m.role === 'assistant' ? t.aiInterviewer : t.you}</span>
-                                        </div>
+                                        <div ref={scrollEndRef} />
                                     </div>
-                                ))}
+                                </div>
 
-                                {isLoading && (
-                                    <div className="flex items-center gap-2 text-neutral-500 text-xs pl-2">
-                                        <div className="flex gap-1">
-                                            {[0, 1, 2].map(i => (
-                                                <span key={i} className="h-1.5 w-1.5 bg-neutral-500 rounded-full animate-bounce"
-                                                    style={{ animationDelay: `${i * 100}ms` }} />
-                                            ))}
-                                        </div>
-                                        <span>{language === 'tr' ? 'Koç düşünüyor...' : 'Coach thinking...'}</span>
-                                    </div>
+                                {/* Scroll to bottom button */}
+                                {showScrollBtn && (
+                                    <button
+                                        onClick={() => scrollToBottom()}
+                                        className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white text-xs font-medium shadow-lg shadow-blue-900/40 backdrop-blur-sm border border-blue-500/30 transition-all duration-200 animate-in fade-in slide-in-from-bottom-2"
+                                    >
+                                        <ChevronDown className="h-3.5 w-3.5" />
+                                        {language === 'tr' ? 'Aşağı Kaydır' : 'Scroll Down'}
+                                    </button>
                                 )}
-                                <div ref={scrollEndRef} />
+                            </>
+                        ) : (
+                            <div className="absolute inset-0 overflow-y-auto p-5 space-y-6" style={{ scrollbarWidth: 'thin', scrollbarColor: '#444 transparent' }}>
+                                <div>
+                                    <h3 className="text-sm font-bold text-neutral-200 flex items-center gap-2 mb-3">
+                                        <Lightbulb className="h-4 w-4 text-amber-400" />
+                                        {language === 'tr' ? "STAR Formatını Kullanın" : "Use the STAR Method"}
+                                    </h3>
+                                    <p className="text-xs text-neutral-400 leading-relaxed mb-4">
+                                        {language === 'tr'
+                                            ? "Davranışsal sorularda cevaplarınızı yapılandırırken her zaman STAR metoduna başvurun. Bu, cevabınızın akıcı ve net olmasını sağlar."
+                                            : "Always frame your answers to behavioral questions using the STAR framework. It guarantees clarity and completeness."}
+                                    </p>
+                                    <div className="space-y-2">
+                                        <div className="flex items-start gap-2 bg-neutral-800/50 p-2.5 rounded-lg border border-neutral-700/50 hover:border-neutral-700 transition-colors">
+                                            <span className="bg-blue-500/20 text-blue-400 font-bold w-5 h-5 flex items-center justify-center rounded text-[10px] shrink-0 mt-0.5">S</span>
+                                            <div className="text-xs text-neutral-300"><strong className="text-neutral-200">Situation:</strong> {language === 'tr' ? "Olayı veya bağlamı açıklayın." : "Set the scene and provide necessary context."}</div>
+                                        </div>
+                                        <div className="flex items-start gap-2 bg-neutral-800/50 p-2.5 rounded-lg border border-neutral-700/50 hover:border-neutral-700 transition-colors">
+                                            <span className="bg-purple-500/20 text-purple-400 font-bold w-5 h-5 flex items-center justify-center rounded text-[10px] shrink-0 mt-0.5">T</span>
+                                            <div className="text-xs text-neutral-300"><strong className="text-neutral-200">Task:</strong> {language === 'tr' ? "Sizin sorumluluğunuz neydi?" : "What was your specific responsibility or challenge?"}</div>
+                                        </div>
+                                        <div className="flex items-start gap-2 bg-neutral-800/50 p-2.5 rounded-lg border border-neutral-700/50 hover:border-neutral-700 transition-colors">
+                                            <span className="bg-amber-500/20 text-amber-400 font-bold w-5 h-5 flex items-center justify-center rounded text-[10px] shrink-0 mt-0.5">A</span>
+                                            <div className="text-xs text-neutral-300"><strong className="text-neutral-200">Action:</strong> {language === 'tr' ? "Nasıl bir aksiyon aldınız?" : "What concrete steps did you take?"}</div>
+                                        </div>
+                                        <div className="flex items-start gap-2 bg-neutral-800/50 p-2.5 rounded-lg border border-neutral-700/50 hover:border-neutral-700 transition-colors">
+                                            <span className="bg-green-500/20 text-green-400 font-bold w-5 h-5 flex items-center justify-center rounded text-[10px] shrink-0 mt-0.5">R</span>
+                                            <div className="text-xs text-neutral-300"><strong className="text-neutral-200">Result:</strong> {language === 'tr' ? "Sonuç ne oldu? (Sayısal veri verin)" : "What was the measurable outcome?"}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr className="border-neutral-800" />
+                                <div>
+                                    <h3 className="text-sm font-bold text-neutral-200 flex items-center gap-2 mb-3">
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                                        {language === 'tr' ? "Neyi Görmek İstiyorlar?" : "What They Are Looking For"}
+                                    </h3>
+                                    <ul className="list-disc pl-5 text-xs text-neutral-400 space-y-2 marker:text-neutral-600">
+                                        <li>{language === 'tr' ? "Net, hedefe yönelik ve kendinizden emin bir iletişim." : "Clear, confident, and goal-oriented communication."}</li>
+                                        {companyStyle === 'google' && <li>{language === 'tr' ? "Büyük ölçekte düşünme ve çoklu çözümler sunma." : "Thinking at scale and showing Googliness."}</li>}
+                                        {companyStyle === 'amazon' && <li>{language === 'tr' ? "Liderlik prensipleriyle (LPs) süslenmiş somut kanıtlar." : "Solid evidence mapped to Amazon Leadership Principles."}</li>}
+                                        {companyStyle === 'startup' && <li>{language === 'tr' ? "Pratik olma, iş bitiricilik ve hız." : "Hackiness, speed, and getting things done fast."}</li>}
+                                        <li>{language === 'tr' ? "'Biz' değil, 'Ben' demeniz; gruptan izole şekilde sizin katkınız." : "Focus on 'I' instead of 'We'. Highlighting your specific contribution."}</li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Scroll to bottom button */}
-                        {showScrollBtn && (
-                            <button
-                                onClick={() => scrollToBottom()}
-                                className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white text-xs font-medium shadow-lg shadow-blue-900/40 backdrop-blur-sm border border-blue-500/30 transition-all duration-200 animate-in fade-in slide-in-from-bottom-2"
-                            >
-                                <ChevronDown className="h-3.5 w-3.5" />
-                                {language === 'tr' ? 'Aşağı Kaydır' : 'Scroll Down'}
-                            </button>
                         )}
                     </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    Home, FileText, User, Settings, LogOut, BrainCircuit, CreditCard
+    Home, FileText, User, Settings, LogOut, BrainCircuit, CreditCard, MonitorSmartphone
 } from "lucide-react"
 import {
     Sidebar,
@@ -20,6 +20,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { DesktopAppModal } from "./DesktopAppModal"
 
 const navItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -35,6 +36,7 @@ export function AppSidebar() {
     const supabase = createClient()
     const [userInitial, setUserInitial] = useState("?")
     const [userName, setUserName] = useState("")
+    const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false)
 
     useEffect(() => {
         async function fetchUser() {
@@ -62,55 +64,69 @@ export function AppSidebar() {
         url === "/dashboard" ? pathname === url : pathname.startsWith(url)
 
     return (
-        <Sidebar collapsible="icon">
-            <SidebarHeader className="p-4 border-b border-sidebar-border">
-                <div className="flex items-center gap-2.5 font-bold text-lg">
-                    <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
-                        <BrainCircuit className="h-4 w-4 text-blue-400" />
+        <>
+            <Sidebar collapsible="icon">
+                <SidebarHeader className="p-4 border-b border-sidebar-border">
+                    <div className="flex items-center gap-2.5 font-bold text-lg">
+                        <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+                            <BrainCircuit className="h-4 w-4 text-blue-400" />
+                        </div>
+                        <span className="truncate text-sidebar-foreground">Intervio</span>
                     </div>
-                    <span className="truncate text-sidebar-foreground">Intervio</span>
-                </div>
-            </SidebarHeader>
+                </SidebarHeader>
 
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {navItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={isActive(item.url)}
-                                        tooltip={item.title}
-                                    >
-                                        <Link href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {navItems.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isActive(item.url)}
+                                            tooltip={item.title}
+                                        >
+                                            <Link href={item.url}>
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
 
-            <SidebarFooter className="p-3 border-t border-sidebar-border space-y-1">
-                {/* Note: Profile has been moved to top-right DashboardHeader */}
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            onClick={handleSignOut}
-                            tooltip="Sign Out"
-                            className="text-neutral-400 hover:text-red-400 hover:bg-red-500/10"
-                        >
-                            <LogOut />
-                            <span>Sign Out</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarFooter>
-        </Sidebar>
+                <SidebarFooter className="p-3 border-t border-sidebar-border space-y-1">
+                    {/* Note: Profile has been moved to top-right DashboardHeader */}
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                onClick={() => setIsDesktopModalOpen(true)}
+                                tooltip="Desktop App"
+                                className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
+                            >
+                                <MonitorSmartphone />
+                                <span>Desktop App</span>
+                                <div className="ml-auto text-[10px] font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider">New</div>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                onClick={handleSignOut}
+                                tooltip="Sign Out"
+                                className="text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                            >
+                                <LogOut />
+                                <span>Sign Out</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarFooter>
+            </Sidebar>
+            <DesktopAppModal isOpen={isDesktopModalOpen} onClose={() => setIsDesktopModalOpen(false)} />
+        </>
     )
 }
