@@ -27,6 +27,7 @@ export interface MatchAnalysisResult {
 export async function analyzeJobCVMatch(
   jobData: LinkedInJobData,
   cvData: ParsedCVData,
+  language: string = 'en',
 ): Promise<MatchAnalysisResult> {
 
   const prompt = `Analyze the match between this Job Description and Candidate Profile in detail.
@@ -54,7 +55,8 @@ Return JSON:
   "candidate_profile_highlights": {"total_experience_years":0,"key_skills":[".."],"notable_achievements":[".."],"education_summary":"..","career_trajectory":".."}
 }
 
-Provide 3-5 strengths, 3-5 gaps, 5-7 interview tips. Be specific to this candidate and role.`;
+Provide 3-5 strengths, 3-5 gaps, 5-7 interview tips. Be specific to this candidate and role.
+IMPORTANT: Generate all content (strings, titles, descriptions, summaries) strictly in ${language === 'tr' ? 'Turkish' : 'English'}. The JSON keys must remain exact, but values must be in the specified language.`;
 
   try {
     return await aiJSON<MatchAnalysisResult>(

@@ -11,6 +11,7 @@ import { DownloadPDFButton } from '@/components/interview/DownloadPDFButton';
 import { ShareCard } from '@/components/interview/ShareCard';
 import { QuestionFeedbackCard } from '@/components/interview/QuestionFeedbackCard';
 import { ProComingSoonModal } from '@/components/dashboard/ProComingSoonModal';
+import { ConfettiWrapper } from '@/components/interview/ConfettiWrapper';
 import {
     CheckCircle, AlertTriangle, XCircle, ArrowLeft, Target, TrendingUp,
     TrendingDown, Minus, Brain, MessageSquare, Sparkles, Award, Shield,
@@ -68,6 +69,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
     if (!session) notFound();
 
+    const cookieStore = await cookies();
+    const isEnLanguageCookie = cookieStore.get('NEXT_LOCALE')?.value;
+    const isTr = isEnLanguageCookie === 'tr' || (!isEnLanguageCookie && session.language === 'tr');
+
     let feedback = session.session_feedback?.[0];
 
     if (!feedback && session.status === 'completed') {
@@ -78,11 +83,11 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 .from('session_feedback')
                 .insert({
                     session_id: sessionId,
-                    job_match_score: 50,
-                    star_methodology_score: 50,
-                    clarity_score: 50,
-                    strengths: ['You started the interview process!'],
-                    weaknesses: ['No answers were recorded for this session.'],
+                    job_match_score: 0,
+                    star_methodology_score: 0,
+                    clarity_score: 0,
+                    strengths: [isTr ? 'Mülakat sürecini başlattınız!' : 'You started the interview process!'],
+                    weaknesses: [isTr ? 'Bu oturumda hiçbir cevap kaydedilmedi.' : 'No answers were recorded for this session.'],
                     high_risk_areas: [],
                     improvement_actions: ['Complete a full interview session to get a detailed report.'],
                     summary_text: 'This session did not have enough data to generate a full analysis. Please complete a new interview session for a comprehensive report.'
@@ -147,10 +152,6 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     };
     const level = getLevel(overallAvg);
 
-    const cookieStore = await cookies();
-    const isEnLanguageCookie = cookieStore.get('NEXT_LOCALE')?.value;
-    const isTr = isEnLanguageCookie === 'tr' || (!isEnLanguageCookie && session.language === 'tr');
-
     // Limit Check for Free plan
     const { data: profile } = await supabase.from('profiles').select('subscription_status').eq('id', user.id).single();
     const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
@@ -159,6 +160,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
     return (
         <div className="min-h-screen">
+            <ConfettiWrapper score={overallAvg} delay={1000} />
             <ProComingSoonModal autoShow={limitReached} />
             {/* ─── Hero Header ─── */}
             <div className="relative overflow-hidden">
@@ -323,6 +325,38 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* ─── Motivational Message for Scores < 50 ─── */}
+                {overallAvg < 50 && overallAvg > 0 && (
+                     <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-6 flex flex-col md:flex-row items-center gap-4 shadow-lg text-center md:text-left">
+                        <div className="p-4 bg-blue-500/20 rounded-full shrink-0">
+                             <TrendingUp className="h-8 w-8 text-blue-400" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                             <h3 className="text-xl font-bold text-white">{isTr ? 'Pes Etme, Pratik Yap!' : 'Don\'t give up, keep practicing!'}</h3>
+                             <p className="text-sm text-slate-300">
+                                 {isTr 
+                                 ? 'Mülakat becerileri zamanla gelişir. İlk denemelerde düşük puan almak çok normal. Hemen pes etme, hatalarından ders alarak yeni bir pratik seansına başla, performansını artır!'
+                                 : 'Interview skills improve over time. It\'s completely normal to score low on early attempts. Don\'t give up—learn from from your feedback and try another session to boost your performance!'}
+                             </p>
+                        </div>
+                     </div>
+                )}
+                {overallAvg === 0 && (
+                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 flex flex-col md:flex-row items-center gap-4 shadow-lg text-center md:text-left">
+                        <div className="p-4 bg-amber-500/20 rounded-full shrink-0">
+                             <Lightbulb className="h-8 w-8 text-amber-400" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                             <h3 className="text-xl font-bold text-white">{isTr ? 'Bir Sonraki Sefere!' : 'Better luck next time!'}</h3>
+                             <p className="text-sm text-slate-300">
+                                 {isTr 
+                                 ? 'Bu oturumda sorulara yanıt vermedin, ancak mülakat deneyimini yaşamak başlangıç için harika bir adım. Daha fazla pratik yaparak kendine güvenini artırabilirsin!'
+                                 : 'You didn\'t answer the questions in this session, but getting familiar with the process is a great start. Build your confidence by jumping back in and practicing!'}
+                             </p>
+                        </div>
+                     </div>
                 )}
 
 
@@ -521,7 +555,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <h3 className="text-xl font-bold text-white mb-2">{isTr ? 'Gelişmeye hazır mısın?' : 'Ready to improve?'}</h3>
                     <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">{isTr ? 'Pratik yapmak mükemmelleştirir. Belirlenen gelişim alanlarında çalışmak için yeni bir pratik seansına başla.' : 'Practice makes perfect. Start another interview session to work on the areas identified above.'}</p>
                     <div className="flex justify-center gap-4">
-                        <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+                        <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
                             <Link href={`/dashboard/applications/${session.application_id}`}>
                                 {isTr ? 'Sürece Dön' : 'View Application'}
                             </Link>

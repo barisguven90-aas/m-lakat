@@ -109,48 +109,93 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* === How it Works Section === */}
-        <div className="bg-neutral-900/50 border-y border-white/5 py-32 relative overflow-hidden">
-          <div className="absolute left-1/2 top-0 w-px h-full bg-gradient-to-b from-transparent via-blue-500/20 to-transparent hidden lg:block" />
+        {/* === Trusted By Section === */}
+        <div className="pt-10 pb-20 mt-10 lg:mt-0 relative z-10">
+          <div className="container mx-auto px-6 max-w-6xl">
+            <p className="text-center text-lg lg:text-xl font-bold text-neutral-300 mb-12 tracking-tight">Trusted by professionals from the world's best companies...</p>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 lg:gap-24 opacity-75 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0">
+              <span className="text-2xl font-medium font-sans tracking-tighter flex items-center gap-0.5">
+                <span className="text-[#4285F4]">G</span><span className="text-[#EA4335]">o</span><span className="text-[#FBBC05]">o</span><span className="text-[#4285F4]">g</span><span className="text-[#34A853]">l</span><span className="text-[#EA4335]">e</span>
+              </span>
+              <span className="text-2xl font-bold tracking-tight flex items-center gap-2 text-white">
+                <div className="grid grid-cols-2 gap-[2px]"><div className="w-2.5 h-2.5 bg-[#f25022]"/><div className="w-2.5 h-2.5 bg-[#7fba00]"/><div className="w-2.5 h-2.5 bg-[#00a4ef]"/><div className="w-2.5 h-2.5 bg-[#ffb900]"/></div>
+                Microsoft
+              </span>
+              <span className="text-2xl font-semibold tracking-tight text-neutral-200 flex items-center gap-1">
+                <span className="text-3xl"></span> Apple
+              </span>
+              <span className="text-2xl font-black tracking-widest text-[#E50914] font-sans">NETFLIX</span>
+              <span className="text-2xl font-bold tracking-tighter text-white flex items-baseline gap-1">
+                amazon<span className="text-[#FF9900] -ml-1 mt-1 text-3xl font-black leading-[0]">_</span>
+              </span>
+              <span className="text-2xl font-bold tracking-tighter text-[#0668E1] flex items-center gap-1">
+                <span className="text-3xl">∞</span> Meta
+              </span>
+            </div>
+          </div>
+        </div>
 
-          <div className="container mx-auto px-6 max-w-5xl">
+        {/* === How it Works Section === */}
+        <div className="bg-neutral-900 border-y border-white/5 py-32 relative overflow-hidden">
+          <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center mb-20">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">How it works</h2>
-              <p className="text-neutral-400 text-lg">From zero to ready in three simple steps.</p>
+               <div className="inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-semibold uppercase tracking-widest mb-6">Leading Technology</div>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-white">How AI Interview Copilot works?</h2>
+              <p className="text-neutral-400 text-lg">Get real-time, personalized coaching tailored to your resume, job description, and company</p>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-12 lg:gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               {/* Step 1 */}
-              <div className="relative text-center lg:text-left bg-neutral-950 p-8 rounded-3xl border border-white/5 shadow-xl hover:border-white/10 transition-colors">
-                <div className="h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center mx-auto lg:mx-0 mb-6 border border-blue-500/20">
-                  <span className="text-xl font-bold text-blue-400">1</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Paste a Job Link</h3>
-                <p className="text-neutral-400 leading-relaxed text-sm">
-                  Find your dream job on LinkedIn and paste the URL. Our engine scrapes the exact real-world requirements.
-                </p>
+              <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
+                 <div className="h-56 bg-gradient-to-br from-blue-900/20 to-indigo-900/10 p-6 flex flex-col justify-end relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
+                    <div className="absolute top-10 left-8 right-8 bg-[#1a1a1a] rounded-t-xl border border-white/10 p-5 translate-y-8 group-hover:translate-y-4 transition-transform duration-500 shadow-2xl">
+                        <div className="text-xs text-neutral-500 font-medium mb-3">Interviewer Transcription</div>
+                        <div className="h-2 w-1/3 bg-blue-500/30 rounded-full mb-3" />
+                        <div className="h-2 w-full bg-neutral-800 rounded-full mb-2" />
+                        <div className="h-2 w-3/4 bg-neutral-800 rounded-full" />
+                    </div>
+                 </div>
+                 <div className="p-8 flex-1 bg-neutral-950">
+                    <h3 className="text-xl font-bold mb-3 text-white">Live Transcription</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed">Capture every interview detail that would make crucial difference. Practice behavioral, technical, or startup-style questions seamlessly.</p>
+                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="relative text-center lg:text-left bg-neutral-950 p-8 rounded-3xl border border-white/5 shadow-xl hover:border-white/10 transition-colors">
-                <div className="h-12 w-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mx-auto lg:mx-0 mb-6 border border-indigo-500/20">
-                  <span className="text-xl font-bold text-indigo-400">2</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Upload your CV</h3>
-                <p className="text-neutral-400 leading-relaxed text-sm">
-                  Give the AI context. Upload your PDF resume so the interviewer can ask personalized questions about your background.
-                </p>
+              <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
+                 <div className="h-56 bg-gradient-to-br from-indigo-900/20 to-purple-900/10 p-6 flex items-end relative overflow-hidden justify-center">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
+                    <div className="absolute -bottom-4 bg-[#1a1a1a] rounded-xl border border-white/10 p-5 translate-y-6 group-hover:-translate-y-2 transition-transform duration-500 shadow-2xl w-[85%]">
+                        <div className="text-xs text-purple-400 font-bold mb-2 flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-purple-500 animate-pulse"/> Detecting Question</div>
+                        <div className="text-xs text-neutral-300 leading-relaxed font-medium">...<span className="text-purple-300">could you share an example of when you overcame a major challenge</span> at work?</div>
+                    </div>
+                 </div>
+                 <div className="p-8 flex-1 bg-neutral-950">
+                    <h3 className="text-xl font-bold mb-3 text-white">Auto Question Detection</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed">Automatically detects questions for instant, precise contextual answers. Get scored heavily on STAR framework precision.</p>
+                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="relative text-center lg:text-left bg-neutral-950 p-8 rounded-3xl border border-white/5 shadow-xl hover:border-white/10 transition-colors">
-                <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto lg:mx-0 mb-6 border border-purple-500/20">
-                  <span className="text-xl font-bold text-purple-400">3</span>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Start Talking</h3>
-                <p className="text-neutral-400 leading-relaxed text-sm">
-                  Jump into a real-time voice call. Practice behavioral, technical, or startup-style questions and get scored instantly.
-                </p>
+              <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
+                 <div className="h-56 bg-gradient-to-br from-emerald-900/20 to-teal-900/10 p-6 flex items-center justify-center relative overflow-hidden gap-4">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
+                    <div className="bg-white border border-white/20 p-4 flex flex-col items-center gap-2 rounded-xl group-hover:-translate-y-3 transition-transform duration-500 delay-75 shadow-lg w-24">
+                         <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mb-1"><Target className="h-5 w-5 text-blue-600" /></div>
+                         <div className="h-1 w-10 bg-neutral-200 rounded-full mb-1" />
+                         <span className="text-[10px] text-blue-600 font-black uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 mt-1">Job Info</span>
+                    </div>
+                    <div className="bg-white border border-white/20 p-4 flex flex-col items-center gap-2 rounded-xl group-hover:-translate-y-3 transition-transform duration-500 delay-150 shadow-lg w-24 scale-110 z-10">
+                         <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center mb-1"><FileText className="h-5 w-5 text-emerald-600" /></div>
+                         <div className="h-1 w-12 bg-neutral-200 rounded-full mb-1" />
+                         <span className="text-[10px] text-emerald-600 font-black uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 mt-1">Resume</span>
+                    </div>
+                 </div>
+                 <div className="p-8 flex-1 bg-neutral-950">
+                    <h3 className="text-xl font-bold mb-3 text-white">Personalized AI Copilot</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed">Highlight skills and experience from your CV that perfectly align with company values and job requirements.</p>
+                 </div>
               </div>
             </div>
           </div>
@@ -242,8 +287,8 @@ export default function LandingPage() {
               <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
             </div>
             <div className="flex gap-6">
-              <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             </div>
           </div>
         </footer>

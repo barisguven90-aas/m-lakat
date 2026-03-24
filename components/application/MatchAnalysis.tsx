@@ -33,11 +33,46 @@ function GlassCard({ children, className }: { children: React.ReactNode; classNa
             "rounded-2xl border border-slate-200/60 dark:border-slate-700/50",
             "bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm",
             "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30",
-            "p-6 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/60 dark:hover:shadow-slate-900/40",
+            "transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/60 dark:hover:shadow-slate-900/40",
             className
         )}>
             {children}
         </div>
+    );
+}
+
+function CollapsibleSection({ 
+    icon: Icon, title, subtitle, gradient, defaultOpen = false, children, className
+}: {
+    icon: React.ElementType; title: string; subtitle?: string; gradient: string; defaultOpen?: boolean; children: React.ReactNode; className?: string;
+}) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    
+    return (
+        <GlassCard className={className}>
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full flex items-center justify-between p-6 text-left"
+            >
+                <div className="flex items-start gap-3">
+                    <div className={cn("p-2.5 rounded-xl shrink-0", gradient)}>
+                        <Icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+                        {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+                    </div>
+                </div>
+                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 shrink-0">
+                    {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+            </button>
+            {isOpen && (
+                <div className="px-6 pb-6 pt-2 border-t border-slate-100 dark:border-slate-700/50 animate-in slide-in-from-top-4 fade-in duration-300">
+                    {children}
+                </div>
+            )}
+        </GlassCard>
     );
 }
 
@@ -79,6 +114,12 @@ function ScoreRing({ score }: { score: number }) {
 // --- Main Component ---
 export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
     const [expandedTip, setExpandedTip] = useState<number | null>(null);
+    const [isTr, setIsTr] = useState(false);
+
+    React.useEffect(() => {
+        const locale = document.cookie.split('; ').find(row => row.startsWith('NEXT_LOCALE='))?.split('=')[1];
+        if (locale === 'tr') setIsTr(true);
+    }, []);
 
     if (!analysis) return null;
 
@@ -114,12 +155,15 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
         <div className="space-y-6">
 
             {/* ─── Executive Summary & Score ─── */}
-            <GlassCard>
+            {/* ─── Executive Summary & Score ─── */}
+            <GlassCard className="p-6">
                 <div className="flex flex-col lg:flex-row gap-8 items-center">
                     <ScoreRing score={matchScore} />
                     <div className="flex-1 space-y-4">
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Executive Summary</h3>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                                {isTr ? 'Özet Değerlendirme' : 'Executive Summary'}
+                            </h3>
                             <div className="h-0.5 w-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
                         </div>
                         <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-[15px]">{summary}</p>
@@ -153,9 +197,7 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
 
             {/* ─── Interview Preparation Tips (Moved UP) ─── */}
             {tips.length > 0 && (
-                <GlassCard className="border-orange-200/40 dark:border-orange-700/30">
-                    <SectionHeader icon={Shield} title="Interview Preparation Guide" subtitle="Key areas to focus on before your interview" gradient="bg-gradient-to-br from-orange-500 to-red-500" />
-
+                <CollapsibleSection icon={Shield} title={isTr ? "Mülakat Hazırlık Rehberi" : "Interview Preparation Guide"} subtitle={isTr ? "Mülakat öncesi odaklanmanız gereken alanlar" : "Key areas to focus on before your interview"} gradient="bg-gradient-to-br from-orange-500 to-red-500" className="border-orange-200/40 dark:border-orange-700/30">
                     <div className="space-y-3">
                         {tips.map((tip, i) => {
                             const t = typeof tip === 'string' ? { title: tip, description: '', priority: 'should' as const } : tip;
@@ -180,11 +222,6 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                                                 {t.priority === 'must' ? '🔴 Must' : t.priority === 'nice' ? '🔵 Nice' : '🟠 Should'}
                                             </span>
                                             <p className="flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">{t.title}</p>
-                                            {t.description && (
-                                                isExpanded
-                                                    ? <ChevronUp className="h-4 w-4 text-slate-400" />
-                                                    : <ChevronDown className="h-4 w-4 text-slate-400" />
-                                            )}
                                         </div>
                                         {isExpanded && t.description && (
                                             <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed pl-16">
@@ -196,13 +233,12 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                             );
                         })}
                     </div>
-                </GlassCard>
+                </CollapsibleSection>
             )}
 
             {/* ─── Candidate Key Skills ─── */}
             {profile && profile.key_skills && profile.key_skills.length > 0 && (
-                <GlassCard>
-                    <SectionHeader icon={Zap} title="Your Matching Skills" subtitle="Skills you have that the company is looking for" gradient="bg-gradient-to-br from-violet-500 to-purple-600" />
+                <CollapsibleSection defaultOpen={true} icon={Zap} title={isTr ? "Eşleşen Becerileriniz" : "Your Matching Skills"} subtitle={isTr ? "Sizin sahip olduğunuz ve şirketin aradığı beceriler" : "Skills you have that the company is looking for"} gradient="bg-gradient-to-br from-violet-500 to-purple-600">
                     <div className="flex flex-wrap gap-2 mb-4">
                         {profile.key_skills.map((skill, i) => (
                             <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -233,15 +269,13 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                             ))}
                         </div>
                     )}
-                </GlassCard>
+                </CollapsibleSection>
             )}
 
             {/* ─── Strengths & Gaps Side-by-Side ─── */}
             <div className="grid md:grid-cols-2 gap-6">
                 {/* Strengths */}
-                <GlassCard>
-                    <SectionHeader icon={CheckCircle2} title="Strengths" subtitle={`${strengths.length} alignment points identified`} gradient="bg-gradient-to-br from-emerald-500 to-green-600" />
-
+                <CollapsibleSection icon={CheckCircle2} title={isTr ? "Güçlü Yönler" : "Strengths"} subtitle={`${strengths.length} ${isTr ? "eşleşme noktası bulundu" : "alignment points identified"}`} gradient="bg-gradient-to-br from-emerald-500 to-green-600">
                     <div className="space-y-3">
                         {strengths.length > 0 ? strengths.map((s, i) => {
                             const strength = typeof s === 'string' ? { title: s, description: '', relevance: 'medium' as const } : s;
@@ -262,12 +296,10 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                             <p className="text-sm text-slate-400 italic">No specific strengths identified.</p>
                         )}
                     </div>
-                </GlassCard>
+                </CollapsibleSection>
 
                 {/* Gaps */}
-                <GlassCard>
-                    <SectionHeader icon={AlertTriangle} title={`${gaps.length} Areas to Improve`} subtitle="We recommend focusing on these points" gradient="bg-gradient-to-br from-amber-500 to-orange-600" />
-
+                <CollapsibleSection icon={AlertTriangle} title={`${gaps.length} ${isTr ? "Gelişim Alanı" : "Areas to Improve"}`} subtitle={isTr ? "Bu noktalara odaklanmanızı öneririz" : "We recommend focusing on these points"} gradient="bg-gradient-to-br from-amber-500 to-orange-600">
                     <div className="space-y-3">
                         {gaps.length > 0 ? gaps.map((g, i) => {
                             const gap = typeof g === 'string' ? { title: g, description: '', severity: 'moderate' as const, suggestion: '' } : g;
@@ -297,14 +329,12 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                             <p className="text-sm text-slate-400 italic">No specific gaps identified.</p>
                         )}
                     </div>
-                </GlassCard>
+                </CollapsibleSection>
             </div>
 
             {/* ─── AI Job Review ─── */}
             {aiReview && (
-                <GlassCard className="border-indigo-200/40 dark:border-indigo-700/30">
-                    <SectionHeader icon={Brain} title="AI Job Analysis" subtitle="AI's interpretation of the job posting and company" gradient="bg-gradient-to-br from-indigo-500 to-blue-600" />
-
+                <CollapsibleSection icon={Brain} title={isTr ? "Yapay Zeka İş Analizi" : "AI Job Analysis"} subtitle={isTr ? "Yapay zekanın iş ilanı ve şirket hakkındaki yorumu" : "AI's interpretation of the job posting and company"} gradient="bg-gradient-to-br from-indigo-500 to-blue-600" className="border-indigo-200/40 dark:border-indigo-700/30">
                     <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed mb-5">{aiReview.overview}</p>
 
                     <div className="grid md:grid-cols-2 gap-4">
@@ -346,10 +376,10 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                     {aiReview.salary_range_hint && (
                         <div className="mt-4 flex items-center gap-2 p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-200/50 dark:border-emerald-800/30 text-sm text-emerald-700 dark:text-emerald-400">
                             <TrendingUp className="h-4 w-4 shrink-0" />
-                            <span className="font-medium">Estimated Range:</span> {aiReview.salary_range_hint}
+                            <span className="font-medium">{isTr ? 'Tahmini Maaş Aralığı:' : 'Estimated Range:'}</span> {aiReview.salary_range_hint}
                         </div>
                     )}
-                </GlassCard>
+                </CollapsibleSection>
             )}
 
         </div>

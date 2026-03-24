@@ -4,8 +4,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, PhoneOff, Clock, Loader2, UserCircle, Volume2, MessageSquare, ChevronDown, Lightbulb, CheckCircle2 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
+import { ConfettiWrapper } from '@/components/interview/ConfettiWrapper';
 import { cn } from '@/lib/utils';
 import { AudioVisualizer } from './AudioVisualizer';
 import { ResultsEmailGate } from './ResultsEmailGate';
@@ -350,12 +350,6 @@ export default function VoiceInterviewInterface({
                 setPhase('ending');
                 // Show result modal if finalScore is available (Intervio Spec)
                 if (data.finalScore) {
-                    confetti({
-                        particleCount: 150,
-                        spread: 70,
-                        origin: { y: 0.6 },
-                        colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b']
-                    });
                     setResultModal({
                         isOpen: true,
                         finalScore: data.finalScore.final_score || 0,
@@ -760,6 +754,7 @@ export default function VoiceInterviewInterface({
             {/* Intervio Email Gate Result Modal */}
             {resultModal?.isOpen && (
                 <div className="fixed inset-0 z-[100] bg-[#0a0f1e]">
+                    <ConfettiWrapper score={resultModal.finalScore} delay={1000} />
                     <ResultsEmailGate
                         sessionId={sessionId}
                         finalScore={resultModal.finalScore}

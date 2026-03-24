@@ -8,7 +8,6 @@ import {
     UserCircle, PhoneOff, Clock, MessageSquare, TrendingUp, TrendingDown,
     Minus, CheckCircle, AlertCircle, Bell, ArrowDown, ChevronDown, Lightbulb, CheckCircle2
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { AudioVisualizer } from './AudioVisualizer';
@@ -365,12 +364,6 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
             });
             if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
             if (timerRef.current) clearInterval(timerRef.current);
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b']
-            });
             toast.success(language === 'tr' ? "Mülakat bitti. Raporunuz hazırlanıyor..." : "Interview ended. Generating your feedback...");
             sendNotification("Interview Ended", "Your feedback report is being generated.");
             router.push(`/dashboard/interview/${sessionId}/feedback`);
@@ -421,12 +414,6 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
                 setIsInterviewEnded(true);
                 if (activeSourceRef.current) { try { activeSourceRef.current.stop(); } catch { } }
                 if (timerRef.current) clearInterval(timerRef.current);
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b']
-                });
                 toast.success(language === 'tr' ? "Mülakat tamamlandı! Raporunuz hazırlanıyor..." : "Interview Complete! Generating your report...");
                 sendNotification("🎉 Interview Complete!", "Your personalized feedback report is ready. Click to view.");
                 router.push(`/dashboard/interview/${sessionId}/feedback`);
@@ -454,7 +441,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
         <div className="flex flex-col lg:flex-row bg-neutral-950 h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)] w-full rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl">
 
             {/* LEFT: AI Video Area */}
-            <div className={cn("flex flex-col relative transition-all duration-300", showTranscript ? "flex-1" : "w-full")}>
+            <div className={cn("flex flex-col relative transition-all duration-300", showTranscript ? "h-[40vh] shrink-0 lg:h-auto lg:flex-1" : "w-full")}>
 
                 {/* Top Bar */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm">
@@ -626,7 +613,7 @@ export function InterviewInterface({ sessionId, initialQuestion, initialLanguage
 
             {/* RIGHT: Panel */}
             {showTranscript && (
-                <div className="w-full lg:w-[420px] border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-900 flex flex-col max-h-[50vh] lg:max-h-none transition-all duration-300">
+                <div className="w-full lg:w-[420px] border-t lg:border-t-0 lg:border-l border-neutral-800 bg-neutral-900 flex flex-col flex-1 lg:max-h-none transition-all duration-300">
                     <div className="flex border-b border-neutral-800 bg-neutral-900/50 backdrop-blur sticky top-0 z-10">
                         <button
                             onClick={() => setActiveRightTab('transcript')}

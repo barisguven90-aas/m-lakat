@@ -221,55 +221,77 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[560px] bg-neutral-950 border-neutral-800 text-white p-0 overflow-hidden">
-                    {/* Header */}
-                    <div className="p-6 border-b border-neutral-800 bg-gradient-to-r from-blue-950/50 to-neutral-950">
-                        <DialogTitle className="text-xl flex items-center gap-2">
-                            <Sparkles className="h-5 w-5 text-blue-400" />
-                            Prepare for Your Interview
-                        </DialogTitle>
-                        <DialogDescription className="text-neutral-400 mt-1">
-                            Set up your practice session for maximum impact.
-                        </DialogDescription>
+                <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-3xl">
+                    {/* Header with modern gradient and glass effect */}
+                    <div className="relative p-8 pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden">
+                        
+                        {/* Abstract background glows */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
+                        <div className="absolute top-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[60px] -translate-x-1/3 -translate-y-1/3" />
+
+                        <div className="relative z-10 flex flex-col items-center text-center space-y-3">
+                            <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-500/30 shadow-inner">
+                                <Sparkles className="h-7 w-7 text-blue-400" />
+                            </div>
+                            <DialogTitle className="text-2xl font-bold tracking-tight text-white">
+                                {language === 'tr' ? 'Mülakatınızı Yapılandırın' : 'Design Your Interview'}
+                            </DialogTitle>
+                            <DialogDescription className="text-neutral-400 max-w-sm font-medium">
+                                {language === 'tr' ? 'Odağı ve tarzı belirleyerek yapay zeka deneyiminizi özelleştirin.' : 'Customize your AI experience by selecting the focus and style.'}
+                            </DialogDescription>
+                        </div>
                     </div>
 
-                    <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                    <div className="p-8 space-y-8 bg-neutral-950/50 max-h-[60vh] overflow-y-auto custom-scrollbar">
 
-                        {/* Step 1: Language */}
-                        <div>
-                            <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <Languages className="h-4 w-4 text-blue-400" />
-                                Interview Language
+                        {/* Step 1: Language Selection */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                                <Languages className="h-3.5 w-3.5 text-blue-500" />
+                                {language === 'tr' ? 'Mülakat Dili' : 'Interview Language'}
                             </h3>
-                            <div className="grid grid-cols-3 gap-3">
-                                {LANGUAGES.map(lang => (
-                                    <button
-                                        key={lang.id}
-                                        onClick={() => setLanguage(lang.id)}
-                                        className={cn(
-                                            "flex items-center gap-2 p-2.5 rounded-xl border-2 transition-all duration-200 text-left",
-                                            language === lang.id
-                                                ? "border-blue-500 bg-blue-900/30 text-white"
-                                                : "border-neutral-700 bg-neutral-900 text-neutral-400 hover:border-neutral-600"
-                                        )}
-                                    >
-                                        <span className="text-xl">{lang.flag}</span>
-                                        <span className="font-medium text-sm">{lang.label}</span>
-                                        {language === lang.id && (
-                                            <div className="ml-auto h-2 w-2 rounded-full bg-blue-400" />
-                                        )}
-                                    </button>
-                                ))}
+                            <div className="flex gap-4">
+                                {LANGUAGES.map(lang => {
+                                    const isSelected = language === lang.id;
+                                    return (
+                                        <button
+                                            key={lang.id}
+                                            onClick={() => setLanguage(lang.id)}
+                                            className={cn(
+                                                "relative flex-1 group overflow-hidden flex items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300",
+                                                isSelected
+                                                    ? "bg-gradient-to-br from-blue-900/40 to-indigo-900/30 border-blue-500/50 shadow-lg shadow-blue-500/10"
+                                                    : "bg-neutral-900/50 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/50"
+                                            )}
+                                        >
+                                            {isSelected && (
+                                                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-indigo-500" />
+                                            )}
+                                            <span className="text-2xl drop-shadow-md transition-transform duration-300 group-hover:scale-110">{lang.flag}</span>
+                                            <span className={cn(
+                                                "font-semibold text-sm",
+                                                isSelected ? "text-white" : "text-neutral-400 group-hover:text-neutral-200"
+                                            )}>
+                                                {lang.label}
+                                            </span>
+                                            {isSelected && (
+                                                <div className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500/20">
+                                                    <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
-                        {/* Step 2: Interview Type */}
-                        <div>
-                            <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <User className="h-4 w-4 text-purple-400" />
-                                Interview Focus
+                        {/* Step 2: Interview Focus */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                                <User className="h-3.5 w-3.5 text-purple-500" />
+                                {language === 'tr' ? 'Mülakat Odak Noktası' : 'Interview Focus'}
                             </h3>
-                            <div className="space-y-2">
+                            <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-3">
                                 {INTERVIEW_TYPES.map(t => {
                                     const Icon = t.icon;
                                     const isActive = type === t.id;
@@ -278,34 +300,44 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             key={t.id}
                                             onClick={() => setType(t.id)}
                                             className={cn(
-                                                "w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-200",
+                                                "relative group flex flex-col items-start gap-4 p-5 rounded-2xl border transition-all duration-300 text-left",
                                                 isActive
-                                                    ? "border-purple-500 bg-purple-900/20 text-white"
-                                                    : "border-neutral-800 bg-neutral-900/50 text-neutral-400 hover:border-neutral-700"
+                                                    ? "bg-gradient-to-br from-purple-900/40 to-fuchsia-900/30 border-purple-500/50 shadow-lg shadow-purple-500/10"
+                                                    : "bg-neutral-900/50 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/50"
                                             )}
                                         >
-                                            <div className={cn("p-2 rounded-lg", isActive ? "bg-neutral-800" : "bg-neutral-800/50")}>
-                                                <Icon className={cn("h-5 w-5", isActive ? t.color : "text-neutral-500")} />
+                                            <div className={cn(
+                                                "p-3 rounded-xl transition-all duration-300 shadow-inner",
+                                                isActive ? "bg-purple-500/20" : "bg-neutral-800/80 group-hover:bg-neutral-700"
+                                            )}>
+                                                <Icon className={cn("h-6 w-6", isActive ? t.color : "text-neutral-400")} />
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-semibold">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1.5 mt-2">
+                                                    <span className={cn(
+                                                        "font-bold text-sm",
+                                                        isActive ? "text-white" : "text-neutral-300 group-hover:text-white"
+                                                    )}>
                                                         {t.id === 'language'
                                                             ? `${LANGUAGES.find(l => l.id === language)?.label || 'Language'} ${language === 'tr' ? 'Yeterliliği' : 'Proficiency'}`
                                                             : (language === 'tr' ? t.labelTr : t.label)
                                                         }
                                                     </span>
-                                                    {t.badge && (
-                                                        <Badge className={cn("text-[10px] px-1.5 py-0", t.badge === 'New' ? 'bg-green-600' : 'bg-blue-700')}>
-                                                            {t.badge}
-                                                        </Badge>
-                                                    )}
                                                 </div>
-                                                <p className="text-xs text-neutral-500 mt-0.5">
+                                                <p className="text-xs text-neutral-500 leading-relaxed font-medium">
                                                     {language === 'tr' ? t.descTr : t.desc}
                                                 </p>
                                             </div>
-                                            {isActive && <ChevronRight className="h-4 w-4 text-purple-400" />}
+                                            {isActive && (
+                                                <div className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-purple-500/20">
+                                                    <div className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                                                </div>
+                                            )}
+                                            {t.badge && (
+                                                <Badge className={cn("absolute bottom-4 right-4 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider", t.badge === 'New' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30')}>
+                                                    {language === 'tr' && t.badge === 'Most Common' ? 'Sık Tercih' : language === 'tr' && t.badge === 'New' ? 'Yeni' : t.badge}
+                                                </Badge>
+                                            )}
                                         </button>
                                     );
                                 })}
@@ -313,12 +345,12 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                         </div>
 
                         {/* Step 3: Company Style */}
-                        <div>
-                            <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <Building2 className="h-4 w-4 text-amber-400" />
-                                Interview Style
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                                <Building2 className="h-3.5 w-3.5 text-amber-500" />
+                                {language === 'tr' ? 'Mülakat Tarzı' : 'Interview Style'}
                             </h3>
-                            <div className="grid grid-cols-5 gap-2">
+                            <div className="grid grid-cols-5 gap-3">
                                 {COMPANY_STYLES.map(style => {
                                     const Icon = style.icon;
                                     const isActive = companyStyle === style.id;
@@ -327,43 +359,55 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             key={style.id}
                                             onClick={() => setCompanyStyle(style.id)}
                                             className={cn(
-                                                "flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all duration-200",
-                                                isActive ? style.activeColor : "border-neutral-800 bg-neutral-900/50 text-neutral-500 hover:border-neutral-700 hover:text-neutral-300"
+                                                "relative group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-300",
+                                                isActive 
+                                                    ? `${style.activeColor} shadow-md` 
+                                                    : "bg-neutral-900/50 border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-300 hover:bg-neutral-800/50"
                                             )}
-                                            title={style.desc}
+                                            title={language === 'tr' ? style.labelTr : style.label}
                                         >
-                                            <div className="h-6 w-6 flex items-center justify-center">
-                                                <Icon className="h-5 w-5" />
+                                            <div className="h-8 w-8 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
+                                                <Icon className="h-6 w-6" />
                                             </div>
-                                            <span className="text-[11px] font-medium leading-tight">
+                                            <span className="text-[11px] font-bold tracking-wide">
                                                 {language === 'tr' ? style.labelTr : style.label}
                                             </span>
+                                            {isActive && (
+                                                <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white/10 backdrop-blur border border-white/20">
+                                                    <div className="h-1.5 w-1.5 rounded-full bg-current" />
+                                                </div>
+                                            )}
                                         </button>
                                     );
                                 })}
                             </div>
-                            {companyStyle !== 'standard' && (
-                                <p className="text-xs text-neutral-500 mt-2 pl-1">
-                                    ✨ {COMPANY_STYLES.find(s => s.id === companyStyle)?.desc}
-                                </p>
-                            )}
+                            <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-3 px-4 flex items-center gap-3 text-sm">
+                                <div className="p-1.5 bg-neutral-800 rounded-md shrink-0">
+                                    <Sparkles className="h-4 w-4 text-amber-500" />
+                                </div>
+                                <span className="text-neutral-300 font-medium h-5 overflow-hidden block">
+                                    <div key={companyStyle} className="animate-in slide-in-from-bottom-2 fade-in duration-300 block">
+                                        {COMPANY_STYLES.find(s => s.id === companyStyle)?.desc}
+                                    </div>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Footer — Two Mode Buttons */}
-                    <div className="p-6 border-t border-neutral-800 bg-neutral-950 space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
+                    {/* Footer Actions */}
+                    <div className="p-6 border-t border-neutral-800/60 bg-neutral-900 flex flex-col gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             {/* Text Mode */}
                             <Button
                                 onClick={handleStart}
                                 disabled={loading || voiceLoading}
-                                className="h-12 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-0 shadow-lg shadow-blue-900/40"
+                                className="h-14 font-semibold text-sm bg-gradient-to-br from-neutral-800 to-neutral-700 hover:from-neutral-700 hover:to-neutral-600 text-white border border-neutral-600 shadow-md transition-all duration-300"
                             >
                                 {loading ? (
-                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting...</>
+                                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {(language === 'tr' ? 'Başlatılıyor...' : 'Starting...')}</>
                                 ) : (
-                                    <><PlayCircle className="mr-2 h-4 w-4" />
-                                        {language === 'tr' ? 'Yazılı Mülakat' : 'Text Mode'}
+                                    <><PlayCircle className="mr-2 h-5 w-5 text-neutral-400" />
+                                        {language === 'tr' ? 'Mesajlaşma Modu' : 'Chat Mode'}
                                     </>
                                 )}
                             </Button>
@@ -372,19 +416,19 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                             <Button
                                 onClick={handleVoiceStart}
                                 disabled={loading || voiceLoading}
-                                className="h-12 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white border-0 shadow-lg shadow-purple-900/40"
+                                className="h-14 font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-300"
                             >
                                 {voiceLoading ? (
-                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting...</>
+                                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {(language === 'tr' ? 'Başlatılıyor...' : 'Starting...')}</>
                                 ) : (
-                                    <><Mic className="mr-2 h-4 w-4" />
-                                        {language === 'tr' ? '🎙️ Sesli Mülakat' : '🎙️ Voice Mode'}
+                                    <><Mic className="mr-2 h-5 w-5" />
+                                        {language === 'tr' ? 'Gerçek Zamanlı Sesli Mülakat' : 'Real-Time Voice Mode'}
                                     </>
                                 )}
                             </Button>
                         </div>
-                        <p className="text-center text-neutral-600 text-xs">
-                            {language === 'tr' ? 'Sesli mod gerçek zamanlı konuşma sunar • Yaklaşık 10-15 dk' : 'Voice mode offers real-time conversation • Approx. 10-15 min'}
+                        <p className="text-center text-neutral-500 text-xs font-medium">
+                            {language === 'tr' ? 'Sesli mod interaktif bir konuşma sunar ve yaklaşık 10-15 dk sürer.' : 'Voice mode offers an interactive AI conversation lasting approx. 10-15 min.'}
                         </p>
                     </div>
                 </DialogContent>

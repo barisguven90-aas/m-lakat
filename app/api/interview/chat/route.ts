@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { generateQuestion } from '@/lib/interview/question-generator';
 import { analyzeResponse } from '@/lib/interview/response-analyzer';
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
     try {
         const { sessionId, responseText, turnNumber, language = 'en', companyStyle = 'standard' } = await request.json();
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
             .eq('turn_number', turnNumber)
             .single();
 
-        // 3. Analyze Response (runs in parallel with question generation)
+        // 3. Start Response Analysis
         const analysisPromise = analyzeResponse(
             currentTurn?.question_text || '',
             responseText,
@@ -38,26 +40,24 @@ export async function POST(request: Request) {
             language
         );
 
-        // 4. Check if we should end (Limit to 12 questions for fuller interviews)
+        // 4. Check if we should end
         const isLastTurn = turnNumber >= 12;
 
-        // 5. Update Current Turn with response
-        const analysis = await analysisPromise;
-        await supabase
-            .from('interview_turns')
-            .update({
-                response_text: responseText,
-                response_timestamp: new Date().toISOString(),
-                analysis: analysis
-            })
-            .eq('id', currentTurn?.id);
-
         if (isLastTurn) {
+            const analysis = await analysisPromise;
+            await supabase
+                .from('interview_turns')
+                .update({
+                    response_text: responseText,
+                    response_timestamp: new Date().toISOString(),
+                    analysis: analysis
+                })
+                .eq('id', currentTurn?.id);
             await supabase.from('interview_sessions').update({ status: 'completed' }).eq('id', sessionId);
             return NextResponse.json({ isCompleted: true, analysis });
         }
 
-        // 6. Fetch all history for context
+        // 5. Fetch history and start Question Generation
         const { data: turns } = await supabase
             .from('interview_turns')
             .select('question_text, response_text')
@@ -65,12 +65,15 @@ export async function POST(request: Request) {
             .order('turn_number');
 
         const previousTurns = turns?.flatMap(t => [
-            { role: 'assistant' as const, content: t.question_text },
+            { role: 'assistant' as const, content: t.question_text || '' },
             { role: 'user' as const, content: t.response_text || '' }
         ]) || [];
+        
+        // Add current turn data correctly to history before generating next
+        previousTurns.push({ role: 'assistant' as const, content: currentTurn?.question_text || '' });
+        previousTurns.push({ role: 'user' as const, content: responseText || '' });
 
-        // 7. Generate Next Question
-        const nextQuestionText = await generateQuestion({
+        const nextQuestionPromise = generateQuestion({
             interviewType: session.interview_type,
             jobTitle: session.applications.job_title,
             companyName: session.applications.job_company,
@@ -80,6 +83,19 @@ export async function POST(request: Request) {
             language,
             companyStyle
         });
+
+        // 6. Wait for both AI tasks concurrently
+        const [analysis, nextQuestionText] = await Promise.all([analysisPromise, nextQuestionPromise]);
+
+        // 7. Update current turn
+        await supabase
+            .from('interview_turns')
+            .update({
+                response_text: responseText,
+                response_timestamp: new Date().toISOString(),
+                analysis: analysis
+            })
+            .eq('id', currentTurn?.id);
 
         // 8. Save Next Turn
         await supabase.from('interview_turns').insert({

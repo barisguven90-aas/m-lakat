@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { analyzeJobCVMatch, MatchAnalysisResult } from '@/lib/matching/analyze-match';
+import { cookies } from 'next/headers';
+
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
     try {
@@ -12,14 +15,17 @@ export async function POST(request: Request) {
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         // 2. Analyze Match (This takes a few seconds)
+        const cookieStore = await cookies();
+        const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+
         let matchAnalysis: MatchAnalysisResult = {
             match_score: 50,
-            summary: "Analysis pending or failed.",
+            summary: locale === 'tr' ? "Analiz tamamlanamadı." : "Analysis pending or failed.",
             strengths: [],
             gaps: [],
             risks: [],
             ai_job_review: {
-                overview: "Analysis could not be completed.",
+                overview: locale === 'tr' ? "Analiz tamamlanamadı." : "Analysis could not be completed.",
                 company_culture_hints: [],
                 role_expectations: [],
             },
@@ -33,7 +39,7 @@ export async function POST(request: Request) {
             },
         };
         try {
-            matchAnalysis = await analyzeJobCVMatch(jobData, cvData);
+            matchAnalysis = await analyzeJobCVMatch(jobData, cvData, locale);
         } catch (matchError) {
             console.error("Match analysis failed (non-fatal):", matchError);
             // Proceed with default/fallback analysis so creation doesn't fail
