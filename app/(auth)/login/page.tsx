@@ -33,9 +33,7 @@ export default function LoginPage() {
             <div className="relative z-10 w-full max-w-md">
                 {/* Logo */}
                 <div className="flex flex-col items-center mb-6">
-                    <div className="h-14 w-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-3 shadow-lg shadow-blue-500/10">
-                        <BrainCircuit className="h-7 w-7 text-blue-400" />
-                    </div>
+                    <img src="/logo.png" alt="Intervio Logo" className="h-16 w-16 object-contain rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.2)] mb-3" />
                     <FadeText
                         text="Intervio"
                         className="text-2xl font-bold tracking-tight text-white"

@@ -7,10 +7,8 @@ export default function PrivacyPolicy() {
     <div className="min-h-screen bg-[#050505] text-neutral-300 selection:bg-blue-500/30">
       <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center">
-              <BrainCircuit className="h-5 w-5 text-blue-400" />
-            </div>
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded" />
             <span className="font-bold text-lg tracking-tight text-white">Intervio</span>
           </Link>
         </div>

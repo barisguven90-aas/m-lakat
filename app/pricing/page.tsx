@@ -19,11 +19,9 @@ export default function PricingPage() {
             {/* Navigation */}
             <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50 transition-all duration-300">
                 <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-                        <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                            <BrainCircuit className="h-5 w-5 text-blue-400" />
-                        </div>
-                        <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
+                    <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded scale-110" />
+            <span className="font-bold text-lg tracking-tight text-white">Intervio</span>
                     </Link>
                     <div className="flex items-center gap-5">
                         <Link href="/login" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
@@ -135,8 +133,8 @@ export default function PricingPage() {
             <footer className="border-t border-white/5 py-12 px-6 mt-auto">
                 <div className="container mx-auto max-w-5xl flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
                     <div className="flex items-center gap-2">
-                        <BrainCircuit className="h-5 w-5 text-neutral-600" />
-                        <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
+              <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
+              <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
                     </div>
                     <div className="flex gap-6">
                         <Link href="/" className="hover:text-white transition-colors">Home</Link>

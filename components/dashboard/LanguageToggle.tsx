@@ -20,8 +20,29 @@ export function LanguageToggle() {
     const toggleLang = () => {
         const next = lang === 'en' ? 'tr' : 'en';
         setLang(next);
+        
+        // Keep NEXT_LOCALE for internal logical checks
         document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000;`;
-        router.refresh();
+        
+        // Setup Google Translate cookie fallbacks
+        if (next === 'tr') {
+            document.cookie = "googtrans=/en/tr; path=/;";
+            document.cookie = "googtrans=/auto/tr; path=/;";
+        } else {
+            // Restore English
+            document.cookie = "googtrans=/en/en; path=/;";
+            document.cookie = "googtrans=/auto/en; path=/;";
+        }
+        
+        // Programmatically trigger the Google Translate dropdown to translate in real-time
+        const translateCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+        if (translateCombo) {
+            translateCombo.value = next === 'tr' ? 'tr' : 'en';
+            translateCombo.dispatchEvent(new Event('change'));
+        } else {
+            // If the script hasn't loaded yet, fallback to hard reload which grabs the cookie
+            window.location.reload();
+        }
     };
 
     if (!mounted) {

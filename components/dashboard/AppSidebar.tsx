@@ -68,10 +68,10 @@ export function AppSidebar() {
             <Sidebar collapsible="icon">
                 <SidebarHeader className="p-4 border-b border-sidebar-border">
                     <div className="flex items-center gap-2.5 font-bold text-lg">
-                        <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
-                            <BrainCircuit className="h-4 w-4 text-blue-400" />
+                        <div className="flex items-center justify-center">
+                            <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded shadow-sm" />
                         </div>
-                        <span className="truncate text-sidebar-foreground">Intervio</span>
+                        <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400">Intervio</span>
                     </div>
                 </SidebarHeader>
 

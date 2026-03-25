@@ -6,20 +6,19 @@ import { Button } from "@/components/ui/button";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-900/10 mix-blend-screen blur-[120px] rounded-full" />
-        <div className="absolute top-[30%] right-[-10%] w-[40%] h-[60%] bg-indigo-900/10 mix-blend-screen blur-[120px] rounded-full" />
+      {/* Dynamic Animated Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900/15 mix-blend-screen blur-[100px] rounded-full animate-float" />
+        <div className="absolute top-[20%] right-[-10%] w-[40vw] h-[60vw] bg-indigo-900/10 mix-blend-screen blur-[120px] rounded-full animate-float-delayed" />
+        <div className="absolute bottom-[-20%] left-[15%] w-[60vw] h-[50vw] bg-purple-900/15 mix-blend-screen blur-[120px] rounded-full animate-float" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Navigation */}
       <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50 transition-all duration-300">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-              <BrainCircuit className="h-5 w-5 text-blue-400" />
-            </div>
-            <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Intervio Logo" className="h-10 w-10 object-contain rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+            <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-5">
             <Link href="/pricing" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
@@ -283,7 +282,7 @@ export default function LandingPage() {
         <footer className="border-t border-white/5 py-12 px-6 bg-[#050505]">
           <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
             <div className="flex items-center gap-2">
-              <BrainCircuit className="h-5 w-5 text-neutral-600" />
+              <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
               <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
             </div>
             <div className="flex gap-6">
