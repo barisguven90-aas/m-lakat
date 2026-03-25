@@ -26,7 +26,7 @@ const navItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Applications", url: "/dashboard/applications", icon: FileText },
     { title: "Interviews", url: "/dashboard/interviews", icon: User },
-    { title: "Planlar", url: "/pricing", icon: CreditCard },
+    { title: "Billing", url: "/pricing", icon: CreditCard },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ]
 
