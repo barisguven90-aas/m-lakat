@@ -60,7 +60,7 @@ export default function SignUpPage() {
                             <Separator className="flex-1 bg-neutral-800" />
                         </div>
 
-                        <GoogleAuthButton text="Sign up with Intervio" />
+                        <GoogleAuthButton text="Sign up with Google" />
                     </CardContent>
 
                     <CardFooter className="flex justify-center pb-6">
