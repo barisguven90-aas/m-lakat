@@ -55,7 +55,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                     <div className="absolute bottom-0 left-[40%] w-96 h-40 bg-purple-500/8 rounded-full blur-3xl" />
                 </div>
 
-                <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-8 sm:pb-10">
+                <div className="relative px-4 sm:px-6 pt-14 sm:pt-16 pb-8 sm:pb-10">
                     {/* Back Button */}
                     <Button variant="ghost" size="sm" asChild className="text-slate-300 hover:text-white hover:bg-white/10 mb-6 -ml-2">
                         <Link href="/dashboard/applications">
