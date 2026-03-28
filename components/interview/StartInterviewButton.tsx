@@ -221,28 +221,28 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-3xl">
+                <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-2xl sm:rounded-3xl max-h-[90vh] w-[95vw] sm:w-auto">
                     {/* Header with modern gradient and glass effect */}
-                    <div className="relative p-8 pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden">
+                    <div className="relative p-5 sm:p-8 pb-4 sm:pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden">
                         
                         {/* Abstract background glows */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
                         <div className="absolute top-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[60px] -translate-x-1/3 -translate-y-1/3" />
 
-                        <div className="relative z-10 flex flex-col items-center text-center space-y-3">
-                            <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-500/30 shadow-inner">
-                                <Sparkles className="h-7 w-7 text-blue-400" />
+                        <div className="relative z-10 flex flex-col items-center text-center space-y-2 sm:space-y-3">
+                            <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl sm:rounded-2xl border border-blue-500/30 shadow-inner">
+                                <Sparkles className="h-5 w-5 sm:h-7 sm:w-7 text-blue-400" />
                             </div>
-                            <DialogTitle className="text-2xl font-bold tracking-tight text-white">
+                            <DialogTitle className="text-lg sm:text-2xl font-bold tracking-tight text-white">
                                 {language === 'tr' ? 'Mülakatınızı Yapılandırın' : 'Design Your Interview'}
                             </DialogTitle>
-                            <DialogDescription className="text-neutral-400 max-w-sm font-medium">
+                            <DialogDescription className="text-neutral-400 max-w-sm font-medium text-xs sm:text-sm">
                                 {language === 'tr' ? 'Odağı ve tarzı belirleyerek yapay zeka deneyiminizi özelleştirin.' : 'Customize your AI experience by selecting the focus and style.'}
                             </DialogDescription>
                         </div>
                     </div>
 
-                    <div className="p-8 space-y-8 bg-neutral-950/50 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    <div className="p-4 sm:p-8 space-y-5 sm:space-y-8 bg-neutral-950/50 max-h-[55vh] sm:max-h-[60vh] overflow-y-auto custom-scrollbar">
 
                         {/* Step 1: Language Selection */}
                         <div className="space-y-4">
@@ -250,7 +250,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                 <Languages className="h-3.5 w-3.5 text-blue-500" />
                                 {language === 'tr' ? 'Mülakat Dili' : 'Interview Language'}
                             </h3>
-                            <div className="flex gap-4">
+                            <div className="flex gap-2 sm:gap-4">
                                 {LANGUAGES.map(lang => {
                                     const isSelected = language === lang.id;
                                     return (
@@ -258,7 +258,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             key={lang.id}
                                             onClick={() => setLanguage(lang.id)}
                                             className={cn(
-                                                "relative flex-1 group overflow-hidden flex items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300",
+                                                "relative flex-1 group overflow-hidden flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-300",
                                                 isSelected
                                                     ? "bg-gradient-to-br from-blue-900/40 to-indigo-900/30 border-blue-500/50 shadow-lg shadow-blue-500/10"
                                                     : "bg-neutral-900/50 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/50"
@@ -267,7 +267,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             {isSelected && (
                                                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-400 to-indigo-500" />
                                             )}
-                                            <span className="text-2xl drop-shadow-md transition-transform duration-300 group-hover:scale-110">{lang.flag}</span>
+                                            <span className="text-lg sm:text-2xl drop-shadow-md transition-transform duration-300 group-hover:scale-110">{lang.flag}</span>
                                             <span className={cn(
                                                 "font-semibold text-sm",
                                                 isSelected ? "text-white" : "text-neutral-400 group-hover:text-neutral-200"
@@ -291,7 +291,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                 <User className="h-3.5 w-3.5 text-purple-500" />
                                 {language === 'tr' ? 'Mülakat Odak Noktası' : 'Interview Focus'}
                             </h3>
-                            <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                                 {INTERVIEW_TYPES.map(t => {
                                     const Icon = t.icon;
                                     const isActive = type === t.id;
@@ -300,7 +300,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             key={t.id}
                                             onClick={() => setType(t.id)}
                                             className={cn(
-                                                "relative group flex flex-col items-start gap-4 p-5 rounded-2xl border transition-all duration-300 text-left",
+                                                "relative group flex flex-col items-start gap-2 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border transition-all duration-300 text-left",
                                                 isActive
                                                     ? "bg-gradient-to-br from-purple-900/40 to-fuchsia-900/30 border-purple-500/50 shadow-lg shadow-purple-500/10"
                                                     : "bg-neutral-900/50 border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/50"
@@ -334,7 +334,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                                 </div>
                                             )}
                                             {t.badge && (
-                                                <Badge className={cn("absolute bottom-4 right-4 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider", t.badge === 'New' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30')}>
+                                                <Badge className={cn("absolute top-3 right-3 sm:bottom-4 sm:right-4 sm:top-auto text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-bold uppercase tracking-wider", t.badge === 'New' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30')}>
                                                     {language === 'tr' && t.badge === 'Most Common' ? 'Sık Tercih' : language === 'tr' && t.badge === 'New' ? 'Yeni' : t.badge}
                                                 </Badge>
                                             )}
@@ -350,7 +350,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                 <Building2 className="h-3.5 w-3.5 text-amber-500" />
                                 {language === 'tr' ? 'Mülakat Tarzı' : 'Interview Style'}
                             </h3>
-                            <div className="grid grid-cols-5 gap-3">
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
                                 {COMPANY_STYLES.map(style => {
                                     const Icon = style.icon;
                                     const isActive = companyStyle === style.id;
@@ -359,7 +359,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             key={style.id}
                                             onClick={() => setCompanyStyle(style.id)}
                                             className={cn(
-                                                "relative group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-300",
+                                                "relative group flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border transition-all duration-300",
                                                 isActive 
                                                     ? `${style.activeColor} shadow-md` 
                                                     : "bg-neutral-900/50 border-neutral-800 text-neutral-500 hover:border-neutral-700 hover:text-neutral-300 hover:bg-neutral-800/50"
@@ -369,7 +369,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                             <div className="h-8 w-8 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
                                                 <Icon className="h-6 w-6" />
                                             </div>
-                                            <span className="text-[11px] font-bold tracking-wide">
+                                            <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-center leading-tight">
                                                 {language === 'tr' ? style.labelTr : style.label}
                                             </span>
                                             {isActive && (
@@ -381,7 +381,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                                     );
                                 })}
                             </div>
-                            <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-3 px-4 flex items-center gap-3 text-sm">
+                            <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-2.5 sm:p-3 px-3 sm:px-4 flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
                                 <div className="p-1.5 bg-neutral-800 rounded-md shrink-0">
                                     <Sparkles className="h-4 w-4 text-amber-500" />
                                 </div>
@@ -395,13 +395,13 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="p-6 border-t border-neutral-800/60 bg-neutral-900 flex flex-col gap-4">
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 sm:p-6 border-t border-neutral-800/60 bg-neutral-900 flex flex-col gap-3 sm:gap-4">
+                        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-4">
                             {/* Text Mode */}
                             <Button
                                 onClick={handleStart}
                                 disabled={loading || voiceLoading}
-                                className="h-14 font-semibold text-sm bg-gradient-to-br from-neutral-800 to-neutral-700 hover:from-neutral-700 hover:to-neutral-600 text-white border border-neutral-600 shadow-md transition-all duration-300"
+                                className="h-11 sm:h-14 font-semibold text-xs sm:text-sm bg-gradient-to-br from-neutral-800 to-neutral-700 hover:from-neutral-700 hover:to-neutral-600 text-white border border-neutral-600 shadow-md transition-all duration-300"
                             >
                                 {loading ? (
                                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {(language === 'tr' ? 'Başlatılıyor...' : 'Starting...')}</>
@@ -416,7 +416,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                             <Button
                                 onClick={handleVoiceStart}
                                 disabled={loading || voiceLoading}
-                                className="h-14 font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-300"
+                                className="h-11 sm:h-14 font-bold text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-300"
                             >
                                 {voiceLoading ? (
                                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {(language === 'tr' ? 'Başlatılıyor...' : 'Starting...')}</>

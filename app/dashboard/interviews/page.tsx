@@ -40,7 +40,7 @@ export default function InterviewsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Interview History</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Interview History</h2>
                     <p className="text-muted-foreground mt-1">Review your past performance and continue active simulations.</p>
                 </div>
                 <Link href="/dashboard/applications">
@@ -110,14 +110,14 @@ export default function InterviewsPage() {
                             return (
                                 <div
                                     key={session.id}
-                                    className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-xl border bg-card hover:bg-slate-50 dark:hover:bg-slate-900 transition-all duration-200 gap-4"
+                                    className="group flex flex-col p-4 sm:p-5 rounded-xl border bg-card hover:bg-slate-50 dark:hover:bg-slate-900 transition-all duration-200 gap-3 sm:gap-4 overflow-hidden"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xl shadow-sm flex-shrink-0">
                                             {session.applications?.job_company?.charAt(0)?.toUpperCase() || 'I'}
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="font-semibold text-base leading-tight">{session.applications?.job_title || 'Interview Session'}</p>
+                                            <p className="font-semibold text-sm sm:text-base leading-tight line-clamp-2">{session.applications?.job_title || 'Interview Session'}</p>
                                             <p className="text-sm text-muted-foreground">{session.applications?.job_company || 'Unknown Company'}</p>
                                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                                 <span>{format(new Date(session.created_at), 'PPP')}</span>
@@ -127,7 +127,7 @@ export default function InterviewsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3 sm:flex-shrink-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         <Badge variant="outline" className="capitalize text-xs">
                                             {session.interview_type?.replace('_', ' ') || 'general'}
                                         </Badge>
