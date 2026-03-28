@@ -43,7 +43,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         : null;
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen overflow-x-hidden">
             {/* ─── Hero Header ─── */}
             <div className="relative overflow-hidden">
                 {/* Background gradient */}
@@ -55,7 +55,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                     <div className="absolute bottom-0 left-[40%] w-96 h-40 bg-purple-500/8 rounded-full blur-3xl" />
                 </div>
 
-                <div className="relative container mx-auto px-6 pt-6 pb-10">
+                <div className="relative container mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 sm:pb-10">
                     {/* Back Button */}
                     <Button variant="ghost" size="sm" asChild className="text-slate-300 hover:text-white hover:bg-white/10 mb-6 -ml-2">
                         <Link href="/dashboard/applications">
@@ -71,7 +71,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             </div>
 
                             {/* Job Title */}
-                            <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                                 {app.job_title}
                             </h1>
 
@@ -108,7 +108,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             </div>
 
             {/* ─── Main Content ─── */}
-            <div className="container mx-auto px-6 py-8">
+            <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Left: Tabs Content (2/3) */}
                     <div className="lg:col-span-2 space-y-6">

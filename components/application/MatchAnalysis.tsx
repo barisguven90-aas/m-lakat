@@ -52,7 +52,7 @@ function CollapsibleSection({
         <GlassCard className={className}>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-6 text-left"
+                className="w-full flex items-center justify-between p-4 sm:p-6 text-left"
             >
                 <div className="flex items-start gap-3">
                     <div className={cn("p-2.5 rounded-xl shrink-0", gradient)}>
@@ -68,7 +68,7 @@ function CollapsibleSection({
                 </div>
             </button>
             {isOpen && (
-                <div className="px-6 pb-6 pt-2 border-t border-slate-100 dark:border-slate-700/50 animate-in slide-in-from-top-4 fade-in duration-300">
+                <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-2 border-t border-slate-100 dark:border-slate-700/50 animate-in slide-in-from-top-4 fade-in duration-300">
                     {children}
                 </div>
             )}
@@ -87,8 +87,8 @@ function ScoreRing({ score }: { score: number }) {
     const colors = getScoreColor(score);
 
     return (
-        <div className={cn("relative flex flex-col items-center justify-center p-8 rounded-3xl bg-gradient-to-br", colors.bg)}>
-            <div className="relative h-36 w-36 flex items-center justify-center">
+        <div className={cn("relative flex flex-col items-center justify-center p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br", colors.bg)}>
+            <div className="relative h-28 w-28 sm:h-36 sm:w-36 flex items-center justify-center">
                 <svg className="absolute top-0 left-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-slate-200 dark:text-slate-700" />
                     <circle
@@ -100,7 +100,7 @@ function ScoreRing({ score }: { score: number }) {
                     />
                 </svg>
                 <div className="text-center z-10">
-                    <span className="text-5xl font-black text-slate-900 dark:text-white">{score}</span>
+                    <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white">{score}</span>
                     <span className="text-lg font-bold text-slate-400">%</span>
                 </div>
             </div>
@@ -156,8 +156,8 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
 
             {/* ─── Executive Summary & Score ─── */}
             {/* ─── Executive Summary & Score ─── */}
-            <GlassCard className="p-6">
-                <div className="flex flex-col lg:flex-row gap-8 items-center">
+            <GlassCard className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-center">
                     <ScoreRing score={matchScore} />
                     <div className="flex-1 space-y-4">
                         <div>
@@ -273,7 +273,7 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
             )}
 
             {/* ─── Strengths & Gaps Side-by-Side ─── */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Strengths */}
                 <CollapsibleSection icon={CheckCircle2} title={isTr ? "Güçlü Yönler" : "Strengths"} subtitle={`${strengths.length} ${isTr ? "eşleşme noktası bulundu" : "alignment points identified"}`} gradient="bg-gradient-to-br from-emerald-500 to-green-600">
                     <div className="space-y-3">
@@ -337,7 +337,7 @@ export function MatchAnalysis({ analysis }: { analysis: MatchAnalysisResult }) {
                 <CollapsibleSection icon={Brain} title={isTr ? "Yapay Zeka İş Analizi" : "AI Job Analysis"} subtitle={isTr ? "Yapay zekanın iş ilanı ve şirket hakkındaki yorumu" : "AI's interpretation of the job posting and company"} gradient="bg-gradient-to-br from-indigo-500 to-blue-600" className="border-indigo-200/40 dark:border-indigo-700/30">
                     <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed mb-5">{aiReview.overview}</p>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Company Culture */}
                         {aiReview.company_culture_hints && aiReview.company_culture_hints.length > 0 && (
                             <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-50/80 to-blue-50/40 dark:from-indigo-900/15 dark:to-blue-900/10 border border-indigo-100 dark:border-indigo-800/30">

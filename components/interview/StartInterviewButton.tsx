@@ -223,20 +223,20 @@ export function StartInterviewButton({ applicationId, variant = "default", class
 
                 <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-2xl sm:rounded-3xl max-h-[95vh] sm:max-h-[90vh] w-[95vw] sm:w-auto flex flex-col">
                     {/* Header with modern gradient and glass effect */}
-                    <div className="relative p-5 sm:p-8 pb-4 sm:pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden">
+                    <div className="relative p-4 pb-3 sm:p-8 sm:pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden shrink-0">
                         
                         {/* Abstract background glows */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
                         <div className="absolute top-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[60px] -translate-x-1/3 -translate-y-1/3" />
 
-                        <div className="relative z-10 flex flex-col items-center text-center space-y-2 sm:space-y-3">
+                        <div className="relative z-10 flex flex-col items-center text-center space-y-1.5 sm:space-y-3">
                             <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl sm:rounded-2xl border border-blue-500/30 shadow-inner">
                                 <Sparkles className="h-5 w-5 sm:h-7 sm:w-7 text-blue-400" />
                             </div>
-                            <DialogTitle className="text-lg sm:text-2xl font-bold tracking-tight text-white">
+                            <DialogTitle className="text-base sm:text-2xl font-bold tracking-tight text-white">
                                 {language === 'tr' ? 'Mülakatınızı Yapılandırın' : 'Design Your Interview'}
                             </DialogTitle>
-                            <DialogDescription className="text-neutral-400 max-w-sm font-medium text-xs sm:text-sm">
+                            <DialogDescription className="text-neutral-400 max-w-sm font-medium text-[11px] sm:text-sm leading-tight">
                                 {language === 'tr' ? 'Odağı ve tarzı belirleyerek yapay zeka deneyiminizi özelleştirin.' : 'Customize your AI experience by selecting the focus and style.'}
                             </DialogDescription>
                         </div>
