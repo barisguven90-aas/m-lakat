@@ -159,7 +159,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     const limitReached = !isPro && (count || 0) >= 2;
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen overflow-x-hidden">
             <ConfettiWrapper score={overallAvg} delay={1000} />
             <ProComingSoonModal autoShow={limitReached} />
             {/* ─── Hero Header ─── */}
@@ -169,7 +169,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 <div className="absolute top-10 left-[10%] w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
                 <div className="absolute top-20 right-[15%] w-64 h-64 bg-purple-500/8 rounded-full blur-3xl" />
 
-                <div className="relative container mx-auto px-6 pt-6 pb-10">
+                <div className="relative container mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 sm:pb-10">
                     <Button variant="ghost" size="sm" asChild className="text-slate-300 hover:text-white hover:bg-white/10 mb-6 -ml-2">
                         <Link href="/dashboard/interviews">
                             <ArrowLeft className="h-4 w-4 mr-2" /> {isTr ? 'Mülakatlara Dön' : 'Back to Interviews'}
@@ -181,7 +181,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-slate-200">
                                 <Award className="h-3.5 w-3.5" /> Interview Feedback Report
                             </div>
-                            <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">
+                            <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                                 {session.applications?.job_title || 'Interview'} Feedback
                             </h1>
                             <p className="text-slate-400">
@@ -207,7 +207,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-2 sm:gap-3">
                             <SendReportButton sessionId={sessionId} />
                             <DownloadPDFButton
                                 sessionId={sessionId}
@@ -236,10 +236,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
             </div>
 
             {/* ─── Content ─── */}
-            <div className="container mx-auto px-6 py-8 max-w-5xl space-y-8">
+            <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-5xl space-y-6 sm:space-y-8">
 
                 {/* ─── Quick Summary Card (Feature 6) ─── */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="rounded-2xl border border-emerald-200/60 dark:border-emerald-700/30 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
                         <div className="flex items-center gap-2 mb-3">
                             <CheckCircle className="h-4 w-4 text-emerald-500" />
@@ -270,7 +270,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
 
                 {/* ─── Intervio Score (if scoring engine ran) ─── */}
                 {(session.final_score || session.hire_probability) && (
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                         <div className="rounded-2xl border border-blue-500/30 bg-blue-500/8 p-5 text-center">
                             <div className="text-4xl font-black text-blue-400 mb-1">{session.final_score ?? '—'}</div>
                             <div className="text-xs text-blue-300 font-medium">/100 {isTr ? 'Mülakat Puanı' : 'Interview Score'}</div>
@@ -298,10 +298,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 )}
 
                 {/* ─── Score Overview ─── */}
-                <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-8">
+                <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-4 sm:p-8">
                     <div className="flex flex-col lg:flex-row gap-8 items-center">
                         <ScoreRing score={overallAvg} label={isTr ? "Genel Puan" : "Overall Score"} />
-                        <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div className="flex-1 grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4">
                             <ScoreRing score={feedback.job_match_score || 0} label={isTr ? "Genel Eşleşme Puanı" : "General Match"} size="sm" />
                             <ScoreRing score={feedback.star_methodology_score || 0} label={isTr ? "Star Metodu" : "STAR Method"} size="sm" />
                             <ScoreRing score={feedback.clarity_score || 0} label={isTr ? "Cevap Yeterliliği" : "Clarity"} size="sm" />
@@ -380,9 +380,9 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 )}
 
                 {/* ─── Strengths & Weaknesses ─── */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Detailed Strengths */}
-                    <div className="rounded-2xl border border-emerald-200/50 dark:border-emerald-700/30 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-6">
+                    <div className="rounded-2xl border border-emerald-200/50 dark:border-emerald-700/30 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-4 sm:p-6">
                         <div className="flex items-start gap-3 mb-5">
                             <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600">
                                 <CheckCircle className="h-5 w-5 text-white" />
@@ -424,7 +424,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     </div>
 
                     {/* Detailed Weaknesses */}
-                    <div className="rounded-2xl border border-amber-200/50 dark:border-amber-700/30 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-6">
+                    <div className="rounded-2xl border border-amber-200/50 dark:border-amber-700/30 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-4 sm:p-6">
                         <div className="flex items-start gap-3 mb-5">
                             <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
                                 <AlertTriangle className="h-5 w-5 text-white" />
@@ -502,7 +502,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 )}
 
                 {/* ─── Action Plan & Practice ─── */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Action Plan */}
                     <div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/50 bg-white/70 dark:bg-slate-800/40 backdrop-blur-sm shadow-lg p-6">
                         <div className="flex items-start gap-3 mb-5">
@@ -551,10 +551,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                 </div>
 
                 {/* ─── CTA ─── */}
-                <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-center border border-slate-700/50 shadow-xl">
+                <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 p-5 sm:p-8 text-center border border-slate-700/50 shadow-xl">
                     <h3 className="text-xl font-bold text-white mb-2">{isTr ? 'Gelişmeye hazır mısın?' : 'Ready to improve?'}</h3>
                     <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">{isTr ? 'Pratik yapmak mükemmelleştirir. Belirlenen gelişim alanlarında çalışmak için yeni bir pratik seansına başla.' : 'Practice makes perfect. Start another interview session to work on the areas identified above.'}</p>
-                    <div className="flex justify-center gap-4">
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
                         <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
                             <Link href={`/dashboard/applications/${session.application_id}`}>
                                 {isTr ? 'Sürece Dön' : 'View Application'}

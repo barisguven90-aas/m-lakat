@@ -24,7 +24,7 @@ export default function LandingPage() {
             <Link href="/pricing" className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors">
               Pricing
             </Link>
-            <Link href="/login" className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors hidden sm:block">
+            <Link href="/login" className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors">
               Log In
             </Link>
             <Button asChild className="bg-white text-black hover:bg-neutral-200 rounded-full px-3 sm:px-5 h-8 sm:h-9 text-xs sm:text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">

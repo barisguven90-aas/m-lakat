@@ -221,7 +221,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                     </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-2xl sm:rounded-3xl max-h-[90vh] w-[95vw] sm:w-auto">
+                <DialogContent className="sm:max-w-[720px] bg-neutral-900 border-neutral-700/50 text-white p-0 overflow-hidden shadow-2xl backdrop-blur-xl rounded-2xl sm:rounded-3xl max-h-[95vh] sm:max-h-[90vh] w-[95vw] sm:w-auto flex flex-col">
                     {/* Header with modern gradient and glass effect */}
                     <div className="relative p-5 sm:p-8 pb-4 sm:pb-6 bg-gradient-to-b from-blue-900/40 via-neutral-900 to-neutral-900 border-b border-neutral-800/60 overflow-hidden">
                         
@@ -242,7 +242,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                         </div>
                     </div>
 
-                    <div className="p-4 sm:p-8 space-y-5 sm:space-y-8 bg-neutral-950/50 max-h-[55vh] sm:max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    <div className="p-4 sm:p-8 space-y-5 sm:space-y-8 bg-neutral-950/50 flex-1 overflow-y-auto custom-scrollbar">
 
                         {/* Step 1: Language Selection */}
                         <div className="space-y-4">
@@ -395,7 +395,7 @@ export function StartInterviewButton({ applicationId, variant = "default", class
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="p-4 sm:p-6 border-t border-neutral-800/60 bg-neutral-900 flex flex-col gap-3 sm:gap-4">
+                    <div className="p-4 sm:p-6 border-t border-neutral-800/60 bg-neutral-900 flex flex-col gap-3 sm:gap-4 shrink-0">
                         <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 sm:gap-4">
                             {/* Text Mode */}
                             <Button
