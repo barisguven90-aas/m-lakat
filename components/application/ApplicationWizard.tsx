@@ -291,8 +291,8 @@ export function ApplicationWizard() {
                                 </div>
                             )}
                         </CardContent>
-                        <CardFooter className="mt-auto flex justify-end p-6 bg-slate-50/50">
-                            <Button onClick={handleJobScrape} disabled={isLoading} size="lg" className="w-full md:w-auto">
+                        <CardFooter className="mt-auto flex flex-col sm:flex-row justify-end p-4 sm:p-6 border-t border-border/50">
+                            <Button onClick={handleJobScrape} disabled={isLoading} size="lg" className="w-full sm:w-auto">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Next Step <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
@@ -317,8 +317,8 @@ export function ApplicationWizard() {
                             <CardContent>
                                 <CVUploadZone onUploadComplete={handleCVUpload} />
                             </CardContent>
-                            <CardFooter className="mt-auto p-6 bg-slate-50/50 border-t flex justify-start">
-                                <Button variant="ghost" onClick={() => setStep(1)}>
+                            <CardFooter className="mt-auto p-4 sm:p-6 border-t border-border/50 flex justify-start">
+                                <Button variant="ghost" onClick={() => setStep(1)} className="w-full sm:w-auto">
                                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                                 </Button>
                             </CardFooter>
@@ -339,11 +339,11 @@ export function ApplicationWizard() {
                                         className="h-12"
                                     />
                                 </div>
-                                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 rounded-lg text-sm text-amber-800 dark:text-amber-300 flex gap-3 items-start">
-                                    <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-                                    <div>
-                                        <p className="font-semibold mb-1">⚠️ Important — Read Before Using</p>
-                                        <ul className="space-y-1 text-xs leading-relaxed list-disc ml-4">
+                                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-sm flex gap-3 items-start">
+                                    <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-amber-500" />
+                                    <div className="text-amber-600 dark:text-amber-400">
+                                        <p className="font-semibold mb-2">Important — Read Before Using</p>
+                                        <ul className="space-y-1.5 text-xs leading-relaxed list-disc ml-4 opacity-90">
                                             <li>This feature fetches <strong>publicly visible</strong> LinkedIn data. It may fail if your profile has privacy restrictions.</li>
                                             <li>Scraping LinkedIn profiles may conflict with LinkedIn&apos;s Terms of Service. Use at your own discretion.</li>
                                             <li><strong>Recommended:</strong> For more accurate results, use the <em>&quot;Upload CV&quot;</em> tab instead. It&apos;s more reliable and privacy-friendly.</li>
@@ -351,13 +351,13 @@ export function ApplicationWizard() {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="mt-auto p-6 bg-slate-50/50 border-t flex justify-between">
-                                <Button variant="ghost" onClick={() => setStep(1)}>
+                            <CardFooter className="mt-auto flex flex-col-reverse sm:flex-row gap-3 p-4 sm:p-6 border-t border-border/50">
+                                <Button variant="ghost" onClick={() => setStep(1)} className="w-full sm:w-auto">
                                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                                 </Button>
-                                <Button onClick={handleProfileScrape} disabled={isLoading} size="lg">
+                                <Button onClick={handleProfileScrape} disabled={isLoading} size="default" className="w-full sm:w-auto">
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Import Profile <ArrowRight className="ml-2 h-4 w-4" />
+                                    Import Profile <ArrowRight className="ml-2 h-4 w-4 hidden sm:inline-block" />
                                 </Button>
                             </CardFooter>
                         </TabsContent>
@@ -372,36 +372,36 @@ export function ApplicationWizard() {
                             <CardDescription>We are ready to create your personalized interview plan.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-base flex items-center gap-2 text-foreground">
                                         <div className="h-2 w-2 rounded-full bg-blue-500" /> Target Job
                                     </h3>
-                                    <div className="p-4 rounded-lg border bg-slate-50 text-sm space-y-2">
-                                        <p className="font-bold text-base">{jobData?.title || "Unknown Job"}</p>
-                                        <p className="text-muted-foreground">{typeof jobData?.companyName === 'object' ? jobData?.companyName?.name : jobData?.companyName || "Unknown Company"}</p>
-                                        <p className="text-xs text-muted-foreground line-clamp-2">{jobData?.description || "No description"}</p>
+                                    <div className="p-4 rounded-xl border border-border/50 bg-muted/30 text-sm space-y-2">
+                                        <p className="font-bold text-base text-card-foreground line-clamp-1">{jobData?.title || "Unknown Job"}</p>
+                                        <p className="text-muted-foreground line-clamp-1">{typeof jobData?.companyName === 'object' ? jobData?.companyName?.name : jobData?.companyName || "Unknown Company"}</p>
+                                        <p className="text-xs text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed">{jobData?.description || "No description"}</p>
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-base flex items-center gap-2 text-foreground">
                                         <div className="h-2 w-2 rounded-full bg-green-500" /> Candidate
                                     </h3>
-                                    <div className="p-4 rounded-lg border bg-slate-50 text-sm space-y-2">
-                                        <p className="font-bold text-base">{cvData?.personal?.name || "Candidate"}</p>
-                                        <p className="text-muted-foreground">{cvData?.personal?.email || (cvData?.rawText ? "Manual/Linked Entry" : "No email provided")}</p>
-                                        <p className="text-xs text-muted-foreground truncate">{cvData?.personal?.linkedin_url || "CV Provided"}</p>
+                                    <div className="p-4 rounded-xl border border-border/50 bg-muted/30 text-sm space-y-2">
+                                        <p className="font-bold text-base text-card-foreground line-clamp-1">{cvData?.personal?.name || "Candidate"}</p>
+                                        <p className="text-muted-foreground line-clamp-1">{cvData?.personal?.email || (cvData?.rawText ? "Manual/LinkedIn Entry" : "No email provided")}</p>
+                                        <p className="text-xs text-muted-foreground truncate opacity-70">{cvData?.personal?.linkedin_url || "CV Provided"}</p>
                                     </div>
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="mt-auto flex justify-between p-6 bg-slate-50/50 border-t">
-                            <Button variant="ghost" onClick={() => setStep(2)}>
+                        <CardFooter className="mt-auto flex flex-col-reverse sm:flex-row gap-3 p-4 sm:p-6 border-t border-border/50">
+                            <Button variant="ghost" onClick={() => setStep(2)} className="w-full sm:w-auto">
                                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
                             </Button>
-                            <Button onClick={handleCreateApplication} disabled={isLoading} className="bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20" size="lg">
+                            <Button onClick={handleCreateApplication} disabled={isLoading} className="w-full sm:w-auto bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20 text-white" size="default">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Application & Analyze Fit
+                                Analyze Fit <ArrowRight className="ml-2 h-4 w-4 hidden sm:inline-block" />
                             </Button>
                         </CardFooter>
                     </>
