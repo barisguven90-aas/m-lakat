@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BrainCircuit, Sparkles, Target, Mic, FileText, ArrowRight, CheckCircle2, Zap, PlayCircle, BarChart3, Star, Bot, TrendingUp, Building2, MonitorSmartphone } from "lucide-react";
 import { AnimatedAuthBackground } from "@/components/ui/animated-background";
 import { Button } from "@/components/ui/button";
+import { LanguageToggle } from "@/components/dashboard/LanguageToggle";
 
 export default function LandingPage() {
   return (
@@ -21,7 +22,8 @@ export default function LandingPage() {
             <span className="font-bold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-5">
-            <Link href="/pricing" className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+            <LanguageToggle />
+            <Link href="/pricing" className="hidden sm:inline-block text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors">
               Pricing
             </Link>
             <Link href="/login" className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors">
@@ -149,28 +151,36 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {/* Step 1 */}
               <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
-                 <div className="h-56 bg-gradient-to-br from-blue-900/20 to-indigo-900/10 p-6 flex flex-col justify-end relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
-                    <div className="absolute top-10 left-8 right-8 bg-[#1a1a1a] rounded-t-xl border border-white/10 p-5 translate-y-8 group-hover:translate-y-4 transition-transform duration-500 shadow-2xl">
-                        <div className="text-xs text-neutral-500 font-medium mb-3">Interviewer Transcription</div>
-                        <div className="h-2 w-1/3 bg-blue-500/30 rounded-full mb-3" />
-                        <div className="h-2 w-full bg-neutral-800 rounded-full mb-2" />
-                        <div className="h-2 w-3/4 bg-neutral-800 rounded-full" />
+                 <div className="h-56 bg-gradient-to-br from-blue-900/20 to-indigo-900/10 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+                    <div className="w-[85%] bg-neutral-900/90 backdrop-blur-sm rounded-xl border border-white/10 p-5 shadow-xl z-10 group-hover:scale-[1.03] transition-transform duration-500">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                <Mic className="h-4 w-4 text-blue-400" />
+                            </div>
+                            <div className="text-xs text-neutral-300 font-medium tracking-wide">Interviewer is speaking...</div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="h-2 w-full bg-neutral-800 rounded-full" />
+                            <div className="h-2 w-4/5 bg-neutral-800 rounded-full animate-pulse" />
+                        </div>
                     </div>
                  </div>
                  <div className="p-8 flex-1 bg-neutral-950">
                     <h3 className="text-xl font-bold mb-3 text-white">Live Transcription</h3>
-                    <p className="text-neutral-400 text-sm leading-relaxed">Capture every interview detail that would make crucial difference. Practice behavioral, technical, or startup-style questions seamlessly.</p>
+                    <p className="text-neutral-400 text-sm leading-relaxed">Capture every interview detail that would make a crucial difference. Practice behavioral, technical, or startup-style questions seamlessly.</p>
                  </div>
               </div>
 
               {/* Step 2 */}
               <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
-                 <div className="h-56 bg-gradient-to-br from-indigo-900/20 to-purple-900/10 p-6 flex items-end relative overflow-hidden justify-center">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
-                    <div className="absolute -bottom-4 bg-[#1a1a1a] rounded-xl border border-white/10 p-5 translate-y-6 group-hover:-translate-y-2 transition-transform duration-500 shadow-2xl w-[85%]">
-                        <div className="text-xs text-purple-400 font-bold mb-2 flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-purple-500 animate-pulse"/> Detecting Question</div>
-                        <div className="text-xs text-neutral-300 leading-relaxed font-medium">...<span className="text-purple-300">could you share an example of when you overcame a major challenge</span> at work?</div>
+                 <div className="h-56 bg-gradient-to-br from-indigo-900/20 to-purple-900/10 p-6 flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+                    <div className="w-[90%] bg-neutral-900/90 backdrop-blur-sm rounded-xl border border-purple-500/30 p-5 shadow-xl shadow-purple-500/10 z-10 group-hover:scale-[1.03] transition-transform duration-500">
+                        <div className="text-xs text-purple-400 font-bold mb-3 flex items-center gap-2">
+                          <Bot className="h-4 w-4" /> Detecting Question...
+                        </div>
+                        <div className="text-sm text-neutral-200 leading-relaxed font-medium">"<span className="text-purple-300 bg-purple-500/20 px-1 rounded border border-purple-500/30">Can you share a situation</span> where you had to adapt quickly?"</div>
                     </div>
                  </div>
                  <div className="p-8 flex-1 bg-neutral-950">
@@ -181,17 +191,17 @@ export default function LandingPage() {
 
               {/* Step 3 */}
               <div className="bg-[#111] rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex flex-col group hover:border-white/10 transition-colors">
-                 <div className="h-56 bg-gradient-to-br from-emerald-900/20 to-teal-900/10 p-6 flex items-center justify-center relative overflow-hidden gap-4">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" />
-                    <div className="bg-white border border-white/20 p-4 flex flex-col items-center gap-2 rounded-xl group-hover:-translate-y-3 transition-transform duration-500 delay-75 shadow-lg w-24">
-                         <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mb-1"><Target className="h-5 w-5 text-blue-600" /></div>
-                         <div className="h-1 w-10 bg-neutral-200 rounded-full mb-1" />
-                         <span className="text-[10px] text-blue-600 font-black uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 mt-1">Job Info</span>
+                 <div className="h-56 bg-gradient-to-br from-emerald-900/20 to-teal-900/10 p-6 flex items-center justify-center relative overflow-hidden gap-6">
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10" />
+                    <div className="bg-neutral-900/90 backdrop-blur flex flex-col items-center gap-3 rounded-2xl border border-white/10 p-5 z-10 shadow-xl group-hover:-translate-y-2 group-hover:-rotate-3 transition-transform duration-500">
+                         <div className="h-12 w-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1"><Target className="h-6 w-6 text-emerald-400" /></div>
+                         <div className="h-1.5 w-12 bg-neutral-800 rounded-full mb-1" />
+                         <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Target Job</span>
                     </div>
-                    <div className="bg-white border border-white/20 p-4 flex flex-col items-center gap-2 rounded-xl group-hover:-translate-y-3 transition-transform duration-500 delay-150 shadow-lg w-24 scale-110 z-10">
-                         <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center mb-1"><FileText className="h-5 w-5 text-emerald-600" /></div>
-                         <div className="h-1 w-12 bg-neutral-200 rounded-full mb-1" />
-                         <span className="text-[10px] text-emerald-600 font-black uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 mt-1">Resume</span>
+                    <div className="bg-neutral-900/90 backdrop-blur flex flex-col items-center gap-3 rounded-2xl border border-white/10 p-5 z-10 shadow-xl group-hover:-translate-y-2 group-hover:rotate-3 transition-transform duration-500">
+                         <div className="h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-1"><FileText className="h-6 w-6 text-blue-400" /></div>
+                         <div className="h-1.5 w-12 bg-neutral-800 rounded-full mb-1" />
+                         <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Your CV</span>
                     </div>
                  </div>
                  <div className="p-8 flex-1 bg-neutral-950">
