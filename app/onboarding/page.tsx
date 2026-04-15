@@ -37,7 +37,7 @@ export default function OnboardingPage() {
                 {/* Title & Subtitle */}
                 <div className="space-y-4">
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                        Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Intervio</span>
+                        Welcome to <span translate="no" className="notranslate text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Intervio</span>
                     </h1>
                     <p className="text-lg md:text-xl text-neutral-400 max-w-xl mx-auto leading-relaxed">
                         Your personal AI interview coach. Prepare for the toughest questions, get real-time feedback, and land your dream job with confidence.

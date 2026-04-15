@@ -35,8 +35,8 @@ export async function POST(request: Request) {
                 initial: 'Candidate has entered the room. Welcome them warmly, introduce yourself briefly, and ask them to introduce themselves.'
             },
             tr: {
-                instruction: 'Mülakatı tamamen Türkçe olarak yürüt. Samimi ama profesyonel bir dil kullan.',
-                initial: 'Aday odaya girdi. Mülakata başla — sıcak bir karşılama yap, kısaca kendini tanıt ve adayın kendini tanıtmasını iste.'
+                instruction: 'Mülakatı tamamen Tükçe ve son derece akıcı, profesyonel bir İk uzmanı diliyle yürüt. Çeviri (translate) kokan yapay cümleler KURMA. Kısa, doğal ve empati kuran insansı tepkiler ver.',
+                initial: 'Aday mülakata bağlandı. Mülakata başla — sıcak ve profesyonel bir karşılama yap, kısaca kendini tanıt ve adayın kendini tanıtmasını iste.'
             },
         };
         const langConfig = languageMap[language] || languageMap.en;
@@ -73,8 +73,8 @@ INTERVIEW CONDUCT RULES:
    - Turn 6: Another technical/CV-based question.
    - Turn 7: Ask if they have any questions and wrap up the interview professionally.
 4. IMPORTANT: Keep your questions and responses extremely short and concise (max 2-3 sentences total per response).
-5. If the language is Turkish, ensure you pronounce technical terms and acronyms (like KPI, Power BI, SQL, AI) properly without trying to literally translate them.
-7. Generate ONLY what you will literally speak out loud. No meta-text, no "Interviewer:" prefix.
+5. If the language is Turkish, ensure you translate concepts natively. NEVER use robotic translated phrases. Speak naturally like a native Turkish HR Director. For example, instead of saying "Bana bir zamanından bahset", say "Bize çalışma stilini gösterecek şöyle bir tecrübenden bahseder misin?". Keep it strictly professional yet friendly.
+6. Generate ONLY what you will literally speak out loud. No meta-text, no "Interviewer:" prefix.
 8. NONSENSE RULE: If the candidate gives a nonsensical, completely unrelated, or weird answer, DO NOT hallucinate or give a weird response back. Briefly say something like "I didn't quite catch how that relates, but let's move on" and immediately ask the NEXT scheduled question.`;
 
         // ─── FIRST TURN: Opening ───

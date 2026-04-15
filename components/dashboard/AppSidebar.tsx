@@ -71,7 +71,7 @@ export function AppSidebar() {
                         <div className="flex items-center justify-center">
                             <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded shadow-sm" />
                         </div>
-                        <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400">Intervio</span>
+                        <span translate="no" className="notranslate font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400">Intervio</span>
                     </div>
                 </SidebarHeader>
 

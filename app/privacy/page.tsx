@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded" />
-            <span className="font-bold text-lg tracking-tight text-white">Intervio</span>
+            <span translate="no" className="notranslate font-bold text-lg tracking-tight text-white">Intervio</span>
           </Link>
         </div>
       </nav>

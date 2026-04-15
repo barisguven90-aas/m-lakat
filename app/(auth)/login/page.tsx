@@ -34,11 +34,13 @@ export default function LoginPage() {
                 {/* Logo */}
                 <div className="flex flex-col items-center mb-6">
                     <img src="/logo.png" alt="Intervio Logo" className="h-16 w-16 object-contain rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.2)] mb-3" />
-                    <FadeText
-                        text="Intervio"
-                        className="text-2xl font-bold tracking-tight text-white"
-                        direction="down"
-                    />
+                    <div translate="no" className="notranslate">
+                        <FadeText
+                            text="Intervio"
+                            className="text-2xl font-bold tracking-tight text-white"
+                            direction="down"
+                        />
+                    </div>
                     <p className="text-neutral-500 text-sm mt-1">AI-Powered Mock Interview Platform</p>
                 </div>
 

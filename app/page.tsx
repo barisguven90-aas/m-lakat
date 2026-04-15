@@ -19,7 +19,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
-            <span className="font-bold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
+            <span translate="no" className="notranslate font-bold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-5">
             <LanguageToggle />
