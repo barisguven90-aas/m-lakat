@@ -1,0 +1,18 @@
+{
+  "start_interview": "Mülakata Başla",
+  "upload_cv": "CV Yükle",
+  "paste_job_description": "İş Tanımını Yapıştır",
+  "try_demo": "1 Soru Dene",
+  "demo_title": "Hızlı Mülakat Demosu",
+  "demo_feedback_msg": "Bu sadece 1 soruluk bir demoydu. Gerçek mülakatlar genellikle 15-20 soru içerir.",
+  "start_full_interview": "Tam Mülakata Başla",
+  "upload_cv_msg": "Tam kapsamlı bir yapay zeka mülakat pratiği için CV'nizi yükleyin.",
+  "hire_probability": "İşe Alım Olasılığı",
+  "share_linkedin": "LinkedIn'de Paylaş",
+  "share_twitter": "X'te Paylaş",
+  "demo_answering": "Cevaplanıyor...",
+  "demo_submit": "Cevabı Gönder",
+  "demo_your_answer": "Cevabınız",
+  "demo_feedback_title": "Yapay Zeka Geri Bildirimi",
+  "get_started": "Hemen Başla"
+}

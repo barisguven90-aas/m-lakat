@@ -3,6 +3,7 @@ import { BrainCircuit, Sparkles, Target, Mic, FileText, ArrowRight, CheckCircle2
 import { AnimatedAuthBackground } from "@/components/ui/animated-background";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/dashboard/LanguageToggle";
+import { DemoSection } from "@/components/landing/DemoSection";
 
 export default function LandingPage() {
   return (
@@ -61,13 +62,8 @@ export default function LandingPage() {
             Get your <span className="text-white font-medium">hire probability score</span> instantly.
           </p>
 
-          <div className="animate-fade-in-up animation-delay-400 flex flex-col sm:flex-row items-center justify-center gap-4 px-4 sm:px-0">
-            <Button asChild size="lg" className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base bg-blue-600 hover:bg-blue-500 text-white rounded-full w-full sm:w-auto shadow-[0_0_30px_rgba(37,99,235,0.3)] transition-all hover:scale-105 active:scale-95">
-              <Link href="/signup">
-                Start Practicing for Free
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
-            </Button>
+          <div className="animate-fade-in-up animation-delay-400 w-full px-4 sm:px-0">
+            <DemoSection />
           </div>
 
           {/* Trust signals */}
@@ -125,7 +121,7 @@ export default function LandingPage() {
                 <div className="grid grid-cols-2 gap-[2px]"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#f25022]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#7fba00]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#00a4ef]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#ffb900]"/></div>
                 Microsoft
               </span>
-              <span className="text-base sm:text-2xl font-semibold tracking-tight text-neutral-200 flex items-center justify-center gap-1">
+              <span translate="no" className="notranslate text-base sm:text-2xl font-semibold tracking-tight text-neutral-200 flex items-center justify-center gap-1">
                 <span className="text-xl sm:text-3xl"></span> Apple
               </span>
               <span className="text-base sm:text-2xl font-black tracking-widest text-[#E50914] font-sans text-center">NETFLIX</span>

@@ -1,30 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Globe } from "lucide-react";
+import { useLanguageStore } from "@/store/useLanguageStore";
 
 export function LanguageToggle() {
-    const router = useRouter();
-    const [lang, setLang] = useState('en');
+    const { language, setLanguage } = useLanguageStore();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
-        const stored = document.cookie.split('; ').find(row => row.startsWith('NEXT_LOCALE='));
-        if (stored) {
-            setLang(stored.split('=')[1]);
-        }
     }, []);
 
     const toggleLang = () => {
-        const next = lang === 'en' ? 'tr' : 'en';
-        setLang(next);
+        const next = language === 'en' ? 'tr' : 'en';
+        setLanguage(next);
         
-        // Keep NEXT_LOCALE for internal logical checks
-        document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=31536000;`;
-        
-        // Setup Google Translate cookie fallbacks
+        // Setup Google Translate cookie fallbacks just in case
         if (next === 'tr') {
             document.cookie = "googtrans=/en/tr; path=/;";
             document.cookie = "googtrans=/auto/tr; path=/;";
@@ -34,14 +26,11 @@ export function LanguageToggle() {
             document.cookie = "googtrans=/auto/en; path=/;";
         }
         
-        // Programmatically trigger the Google Translate dropdown to translate in real-time
+        // Trigger Google Translate drop-down if present (legacy support)
         const translateCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
         if (translateCombo) {
             translateCombo.value = next === 'tr' ? 'tr' : 'en';
             translateCombo.dispatchEvent(new Event('change'));
-        } else {
-            // If the script hasn't loaded yet, fallback to hard reload which grabs the cookie
-            window.location.reload();
         }
     };
 
@@ -56,8 +45,8 @@ export function LanguageToggle() {
             aria-label="Toggle language"
         >
             <Globe className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">{lang === 'en' ? 'EN' : 'TR'}</span>
-            <span className="md:hidden text-[10px]">{lang === 'en' ? 'GB' : 'TR'}</span>
+            <span className="hidden md:inline">{language === 'en' ? 'EN' : 'TR'}</span>
+            <span className="md:hidden text-[10px]">{language === 'en' ? 'GB' : 'TR'}</span>
         </button>
     );
 }

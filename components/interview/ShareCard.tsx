@@ -5,19 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Share2, Copy, Check, Linkedin, Twitter } from "lucide-react";
 import { toast } from "sonner";
 
+import { useLanguageStore } from "@/store/useLanguageStore";
+
 interface ShareCardProps {
-    overallScore: number;
+    hireProbability: number;
     jobTitle?: string;
     company?: string;
-    level: string;
-    questionsCount: number;
+    level?: string;
+    questionsCount?: number;
 }
 
-export function ShareCard({ overallScore, jobTitle, company, level, questionsCount }: ShareCardProps) {
+export function ShareCard({ hireProbability, jobTitle, company, level, questionsCount }: ShareCardProps) {
     const [copied, setCopied] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const shareText = `🎯 I just completed an AI mock interview${jobTitle ? ` for "${jobTitle}"` : ''}${company ? ` at ${company}` : ''}!\n\n📊 Score: ${overallScore}/100 (${level} Level)\n💬 ${questionsCount} questions analyzed\n\nPractice with AI at intervioai.com 🚀 #InterviewPrep #CareerGrowth`;
+    const { language, t } = useLanguageStore();
+
+    const shareText = language === 'tr' 
+        ? `IntervioAI ile mülakat hazırlığımı test ettim. İşe Alım Olasılığım: %${hireProbability}.` 
+        : `I just tested my interview readiness with AI on IntervioAI. My hire probability was ${hireProbability}%.`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareText);
@@ -45,7 +51,7 @@ export function ShareCard({ overallScore, jobTitle, company, level, questionsCou
                 className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
             >
                 <Share2 className="h-4 w-4 mr-2" />
-                Share
+                {language === 'tr' ? 'Paylaş' : 'Share'}
             </Button>
         );
     }
@@ -59,7 +65,7 @@ export function ShareCard({ overallScore, jobTitle, company, level, questionsCou
                 className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white text-xs h-8"
             >
                 {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
-                {copied ? 'Copied' : 'Copy'}
+                {copied ? (language === 'tr' ? 'Kopyalandı' : 'Copied') : (language === 'tr' ? 'Kopyala' : 'Copy')}
             </Button>
             <Button
                 onClick={handleLinkedIn}
@@ -77,7 +83,7 @@ export function ShareCard({ overallScore, jobTitle, company, level, questionsCou
                 className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white text-xs h-8"
             >
                 <Twitter className="h-3.5 w-3.5 mr-1" />
-                Twitter
+                {language === 'tr' ? 'X\'te Paylaş' : 'Share on X'}
             </Button>
         </div>
     );

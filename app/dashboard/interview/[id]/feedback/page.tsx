@@ -219,7 +219,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 questionFeedbacks={questionFeedbacks}
                             />
                             <ShareCard
-                                overallScore={overallAvg}
+                                hireProbability={session.hire_probability || 0}
                                 jobTitle={session.applications?.job_title}
                                 company={session.applications?.job_company}
                                 level={level.label}

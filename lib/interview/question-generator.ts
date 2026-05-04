@@ -128,9 +128,13 @@ export async function generateQuestion(context: QuestionContext) {
     const typePromptFn = TYPE_PROMPTS[interviewType] || TYPE_PROMPTS.hr_behavioral;
     const typeSpecificInstructions = typePromptFn(jobTitle, jobReqStr, cvStr, difficulty);
 
-    const systemPrompt = `You are interviewing a candidate at ${companyName} for the ${jobTitle} position.
+    const systemPrompt = `You are a professional job interviewer.
+Always conduct the interview in the user's selected language.
+Selected language: ${langLabel}
 
-LANGUAGE: ${langConfig.instruction}
+Ask realistic interview questions based on the user's CV and job description.
+Be concise and professional.
+
 COMPANY STYLE: ${companyStyleGuide}
 
 ${typeSpecificInstructions}

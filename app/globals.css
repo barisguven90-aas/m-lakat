@@ -137,11 +137,16 @@ body {
 .skiptranslate {
   display: none !important;
 }
-#goog-gt-tt {
+#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover {
   display: none !important;
 }
 .goog-te-banner-frame {
   display: none !important;
+}
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* Background floating animations */

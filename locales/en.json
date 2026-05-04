@@ -1,0 +1,18 @@
+{
+  "start_interview": "Start Interview",
+  "upload_cv": "Upload CV",
+  "paste_job_description": "Paste Job Description",
+  "try_demo": "Try 1 Interview Question",
+  "demo_title": "Instant Mock Interview",
+  "demo_feedback_msg": "This was just 1 interview question. Real interviews usually contain 15–20 questions.",
+  "start_full_interview": "Start Full Interview",
+  "upload_cv_msg": "Upload your CV and practice a full AI interview simulation.",
+  "hire_probability": "Hire Probability",
+  "share_linkedin": "Share on LinkedIn",
+  "share_twitter": "Share on X",
+  "demo_answering": "Answering...",
+  "demo_submit": "Submit Answer",
+  "demo_your_answer": "Your Answer",
+  "demo_feedback_title": "AI Feedback",
+  "get_started": "Get Started"
+}
