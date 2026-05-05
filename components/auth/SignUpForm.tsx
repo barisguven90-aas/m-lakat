@@ -30,6 +30,9 @@ const formSchema = z.object({
     password: z.string().min(6, {
         message: "Password must be at least 6 characters.",
     }),
+    acceptTerms: z.literal(true, {
+        errorMap: () => ({ message: "Aydınlatma metnini onaylamanız gerekmektedir." })
+    })
 })
 
 export function SignUpForm() {
@@ -43,6 +46,7 @@ export function SignUpForm() {
             full_name: "",
             email: "",
             password: "",
+            acceptTerms: undefined,
         },
     })
 
@@ -142,6 +146,28 @@ export function SignUpForm() {
                                 <Input type="password" placeholder="******" {...field} className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/30" />
                             </FormControl>
                             <FormMessage className="text-red-400" />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="acceptTerms"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 rounded-md border border-white/10 bg-white/5">
+                            <FormControl>
+                                <input
+                                    type="checkbox"
+                                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
+                                    checked={field.value === true}
+                                    onChange={(e) => field.onChange(e.target.checked ? true : undefined)}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel className="text-white text-xs leading-relaxed">
+                                    Kişisel verilerimin işlenmesine ilişkin <a href="/privacy" className="text-blue-400 hover:underline" target="_blank">Aydınlatma Metni</a>'ni okudum ve onaylıyorum.
+                                </FormLabel>
+                            </div>
+                            <FormMessage className="text-red-400 text-xs block pt-1" />
                         </FormItem>
                     )}
                 />

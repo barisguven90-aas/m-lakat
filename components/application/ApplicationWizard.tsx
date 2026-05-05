@@ -37,8 +37,8 @@ export function ApplicationWizard() {
         }
 
         if (useManualJob) {
-            if (!manualJobData.title || !manualJobData.description) {
-                toast.error("Please fill in Job Title and Description");
+            if (!manualJobData.description) {
+                toast.error("Lütfen ilan bilgisini girin.");
                 return;
             }
             setJobData({
@@ -59,11 +59,19 @@ export function ApplicationWizard() {
                 formattedUrl = 'https://' + formattedUrl;
             }
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
             const res = await fetch('/api/scrape/job', {
                 method: 'POST',
                 body: JSON.stringify({ url: formattedUrl }),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal
+            }).catch(e => {
+                throw new Error("Timeout or Network Error");
             });
+
+            clearTimeout(timeoutId);
 
             if (!res.ok) {
                 console.warn("API Scrape failed, requesting manual entry.");
@@ -88,7 +96,7 @@ export function ApplicationWizard() {
 
         } catch (e) {
             console.error("Job Scrape Error:", e);
-            toast.error("Connection error. Switching to manual entry.");
+            toast.error("İlan okunamadı (Zaman aşımı veya hata).");
             setUseManualJob(true);
         } finally {
             setIsLoading(false);
@@ -258,28 +266,16 @@ export function ApplicationWizard() {
                                 </div>
                             ) : (
                                 <div className="space-y-4 animate-in fade-in">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label>Job Title</Label>
-                                            <Input
-                                                placeholder="e.g. Senior Frontend Engineer"
-                                                value={manualJobData.title}
-                                                onChange={e => setManualJobData({ ...manualJobData, title: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Company</Label>
-                                            <Input
-                                                placeholder="e.g. Acme Corp"
-                                                value={manualJobData.company}
-                                                onChange={e => setManualJobData({ ...manualJobData, company: e.target.value })}
-                                            />
+                                    <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-sm flex gap-3 items-start">
+                                        <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-amber-500" />
+                                        <div className="text-amber-600 dark:text-amber-400">
+                                            <p className="font-semibold">İlan otomatik okunamadı. Lütfen ilanın metnini aşağıya yapıştırın.</p>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Job Description</Label>
                                         <Textarea
-                                            placeholder="Paste the full job description here..."
+                                            placeholder="İş ilanı açıklamasını buraya yapıştırın..."
                                             className="min-h-[200px]"
                                             value={manualJobData.description}
                                             onChange={e => setManualJobData({ ...manualJobData, description: e.target.value })}
@@ -292,7 +288,7 @@ export function ApplicationWizard() {
                             )}
                         </CardContent>
                         <CardFooter className="mt-auto flex flex-col sm:flex-row justify-end p-4 sm:p-6 border-t border-border/50">
-                            <Button onClick={handleJobScrape} disabled={isLoading} size="lg" className="w-full sm:w-auto">
+                            <Button onClick={handleJobScrape} disabled={isLoading || (useManualJob && !manualJobData.description.trim())} size="lg" className="w-full sm:w-auto">
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Next Step <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>

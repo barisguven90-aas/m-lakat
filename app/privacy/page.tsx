@@ -57,7 +57,14 @@ export default function PrivacyPolicy() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-white">6. Contact Us</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-white">6. KVKK Kapsamında Haklarınız</h2>
+              <p>
+                [Buraya KVKK aydınlatma metni eklenecek]
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4 text-white">7. Contact Us</h2>
               <p>
                 If you have any questions about this Privacy Policy, please contact us at support@intervioai.com.
               </p>

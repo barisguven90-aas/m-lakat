@@ -109,28 +109,68 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* === Trusted By Section === */}
+        {/* === Testimonials Section === */}
         <div className="pt-6 sm:pt-10 pb-12 sm:pb-20 mt-6 lg:mt-0 relative z-10">
           <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-            <p className="text-center text-sm sm:text-lg lg:text-xl font-bold text-neutral-300 mb-8 sm:mb-12 tracking-tight">Trusted by professionals from the world&apos;s best companies...</p>
-            <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-4 sm:gap-8 md:gap-16 lg:gap-24 opacity-75 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0">
-              <span className="text-base sm:text-2xl font-medium font-sans tracking-tighter flex items-center justify-center gap-0.5">
-                <span className="text-[#4285F4]">G</span><span className="text-[#EA4335]">o</span><span className="text-[#FBBC05]">o</span><span className="text-[#4285F4]">g</span><span className="text-[#34A853]">l</span><span className="text-[#EA4335]">e</span>
-              </span>
-              <span className="text-base sm:text-2xl font-bold tracking-tight flex items-center justify-center gap-1 sm:gap-2 text-white">
-                <div className="grid grid-cols-2 gap-[2px]"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#f25022]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#7fba00]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#00a4ef]"/><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#ffb900]"/></div>
-                Microsoft
-              </span>
-              <span translate="no" className="notranslate text-base sm:text-2xl font-semibold tracking-tight text-neutral-200 flex items-center justify-center gap-1">
-                <span className="text-xl sm:text-3xl"></span> Apple
-              </span>
-              <span className="text-base sm:text-2xl font-black tracking-widest text-[#E50914] font-sans text-center">NETFLIX</span>
-              <span className="text-base sm:text-2xl font-bold tracking-tighter text-white flex items-baseline justify-center gap-1">
-                amazon<span className="text-[#FF9900] -ml-1 mt-1 text-xl sm:text-3xl font-black leading-[0]">_</span>
-              </span>
-              <span className="text-base sm:text-2xl font-bold tracking-tighter text-[#0668E1] flex items-center justify-center gap-1">
-                <span className="text-xl sm:text-3xl">∞</span> Meta
-              </span>
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight mb-2">Our users interview for companies like</h2>
+              <p className="text-sm sm:text-base text-neutral-400">Join thousands of candidates practicing for top-tier roles</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              {/* Testimonial 1 */}
+              <div className="bg-neutral-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Star className="w-12 h-12 fill-white" />
+                </div>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />)}
+                </div>
+                <p className="text-neutral-300 text-sm leading-relaxed mb-6">"The AI interviewer felt incredibly realistic. The STAR method feedback specifically helped me land my dream role as a Senior Product Manager."</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">AS</div>
+                  <div>
+                    <h4 className="text-white font-medium text-sm">Alex S.</h4>
+                    <p className="text-neutral-500 text-xs">Senior Product Manager</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 2 */}
+              <div className="bg-neutral-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Star className="w-12 h-12 fill-white" />
+                </div>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />)}
+                </div>
+                <p className="text-neutral-300 text-sm leading-relaxed mb-6">"Practicing in both English and Turkish was a game-changer. It caught my technical jargon mistakes before my actual engineering interview."</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">MK</div>
+                  <div>
+                    <h4 className="text-white font-medium text-sm">Mert K.</h4>
+                    <p className="text-neutral-500 text-xs">Software Engineer</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonial 3 */}
+              <div className="bg-neutral-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Star className="w-12 h-12 fill-white" />
+                </div>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />)}
+                </div>
+                <p className="text-neutral-300 text-sm leading-relaxed mb-6">"I loved the instant hire probability score. It gamified my interview prep and gave me the confidence I needed to succeed."</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">JD</div>
+                  <div>
+                    <h4 className="text-white font-medium text-sm">Jessica D.</h4>
+                    <p className="text-neutral-500 text-xs">Marketing Director</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

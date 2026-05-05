@@ -32,6 +32,54 @@ export async function POST(request: Request) {
             });
         } catch { /* silent fail if table doesn't exist yet */ }
 
+        // Cost Calculation
+        try {
+            const { data: turns } = await supabase
+                .from('interview_turns')
+                .select('question_text, response_text')
+                .eq('session_id', sessionId);
+            
+            const { data: session } = await supabase
+                .from('interview_sessions')
+                .select('config, created_at, updated_at')
+                .eq('id', sessionId)
+                .single();
+
+            let totalChars = 0;
+            turns?.forEach(t => {
+                totalChars += (t.question_text?.length || 0) + (t.response_text?.length || 0);
+            });
+
+            // Groq Llama 3.3 70B: input $0.59/1M token, output $0.79/1M token
+            const estimatedGroqTokens = Math.floor(totalChars / 4);
+            const groqCost = (estimatedGroqTokens * 0.59) / 1000000;
+
+            // GPT-4o: input $2.50/1M token, output $10.00/1M token (For feedback generation)
+            const gpt4oTokens = 2500; // estimated
+            const gpt4oCost = (gpt4oTokens * 5.0) / 1000000; // average mix
+            
+            // Google Cloud Speech: $0.016/dakika
+            let speechMinutes = 0;
+            if (session?.config?.mode === 'voice' && session?.created_at && session?.updated_at) {
+                const diffMs = new Date(session.updated_at).getTime() - new Date(session.created_at).getTime();
+                speechMinutes = diffMs / 60000;
+            }
+            const speechCost = speechMinutes * 0.016;
+
+            const totalCostUsd = groqCost + gpt4oCost + speechCost;
+
+            await supabase.from('interview_costs').insert({
+                interview_id: sessionId,
+                user_id: user.id,
+                groq_tokens_used: estimatedGroqTokens,
+                gpt4o_tokens_used: gpt4oTokens,
+                speech_minutes_used: speechMinutes,
+                estimated_cost_usd: totalCostUsd
+            });
+        } catch (e) {
+            console.error('Cost tracking error:', e);
+        }
+
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('End Interview Error:', error);
