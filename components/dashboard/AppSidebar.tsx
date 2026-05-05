@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    Home, FileText, User, Settings, LogOut, BrainCircuit, CreditCard, MonitorSmartphone
+    Home, FileText, User, Settings, LogOut, BrainCircuit, CreditCard, MonitorSmartphone, Shield
 } from "lucide-react"
 import {
     Sidebar,
@@ -37,6 +37,7 @@ export function AppSidebar() {
     const [userInitial, setUserInitial] = useState("?")
     const [userName, setUserName] = useState("")
     const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
         async function fetchUser() {
@@ -46,6 +47,12 @@ export function AppSidebar() {
                 const fullName = profile?.full_name || user.user_metadata?.full_name || user.email || ""
                 setUserName(fullName.split(" ")[0] || fullName)
                 setUserInitial((fullName[0] || "?").toUpperCase())
+                
+                // Admin link visibility check
+                const adminEmails = ['barisguven90@gmail.com'];
+                if (user.email && adminEmails.includes(user.email)) {
+                    setIsAdmin(true)
+                }
             }
         }
         fetchUser()
@@ -94,6 +101,16 @@ export function AppSidebar() {
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}
+                                {isAdmin && (
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton asChild isActive={isActive('/dashboard/admin')} tooltip="Admin Panel">
+                                            <Link href="/dashboard/admin">
+                                                <Shield className="text-amber-500" />
+                                                <span className="text-amber-500 font-medium">Admin Panel</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                )}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
