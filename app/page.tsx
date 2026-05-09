@@ -49,11 +49,11 @@ export default function LandingPage() {
 
           {/* Headline */}
           <h1 className="animate-fade-in-up animation-delay-200 text-3xl sm:text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight mb-4 sm:mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400">
-            Practice Real{" "}
+            AI Mock Interview Practice —{" "}
             <br className="sm:hidden" />
-            Job Interviews{" "}
+            Mülakat Hazırlık{" "}
             <br />
-            with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI</span>
+            ile <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">İş Kazan</span>
           </h1>
 
           {/* Subtext */}
@@ -180,7 +180,7 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
             <div className="text-center mb-10 sm:mb-20">
                <div className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-4 sm:mb-6">Leading Technology</div>
-              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-white px-2">How AI Interview Copilot works?</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4 text-white px-2">AI Mock Interview Nasıl Çalışır?</h2>
               <p className="text-neutral-400 text-sm sm:text-lg px-4">Get real-time, personalized coaching tailored to your resume, job description, and company</p>
             </div>
 
@@ -252,7 +252,7 @@ export default function LandingPage() {
         {/* === Features Grid === */}
         <div className="container mx-auto px-4 sm:px-6 py-16 sm:py-32 max-w-5xl">
           <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-4">Everything you need to succeed</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-4">Başarılı Mülakat İçin İhtiyacın Her Şey</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -317,7 +317,7 @@ export default function LandingPage() {
         {/* === Final CTA === */}
         <div className="border-t border-white/5 py-16 sm:py-32">
           <div className="container mx-auto px-4 sm:px-6 text-center max-w-3xl">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6 sm:mb-8">Ready to land your dream job?</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6 sm:mb-8">Hayalindeki İşe Hazır Mısın? Ücretsiz Başla</h2>
             <Button asChild size="lg" className="h-12 sm:h-14 px-8 sm:px-10 text-sm sm:text-base bg-blue-600 hover:bg-blue-500 text-white rounded-full">
               <Link href="/signup">
                 Create your free account
@@ -329,14 +329,19 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="border-t border-white/5 py-12 px-6 bg-[#050505]">
-          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
-            <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
-              <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500 mb-8">
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
+                <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
+              </div>
+              <div className="flex gap-6">
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              </div>
             </div>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <div className="text-xs text-neutral-600 text-center md:text-left max-w-3xl">
+              Intervio, iş mülakatı hazırlığı için yapay zeka destekli bir platform. AI mock interview, bilingual mülakat pratiği ve anlık hire probability skoru ile fark yarat.
             </div>
           </div>
         </footer>

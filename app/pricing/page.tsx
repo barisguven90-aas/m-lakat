@@ -3,8 +3,11 @@ import { BrainCircuit, CheckCircle2, Rocket, ArrowRight, X } from "lucide-react"
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-    title: "Pricing | Intervio AI",
-    description: "Simple, transparent pricing for AI interview practice.",
+    title: "Fiyatlandırma | Intervio AI — Ücretsiz Başla",
+    description: "Intervio ile ayda 2 mülakat ücretsiz. Pro planla sınırsız pratik, detaylı feedback ve ilerleme takibi. Kredi kartı gerekmez.",
+    alternates: {
+        canonical: 'https://intervioai.com/pricing',
+    },
 };
 
 export default function PricingPage() {

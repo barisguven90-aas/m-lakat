@@ -19,15 +19,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://intervioai.com'),
   title: {
-    default: "Intervio — Practice Real Job Interviews with AI",
+    default: "Intervio — AI Mock Interview Practice | Mülakat Hazırlık",
     template: "%s | Intervio"
   },
-  description: "Paste a job link, upload your CV, and start your AI-powered mock interview in seconds. Get your hire probability score instantly.",
-  keywords: ["interview prep", "mock interview", "AI interview", "job interview", "hire probability", "intervio", "mülakat"],
+  description: "Yapay zeka ile gerçekçi iş mülakatı pratiği yap. CV'ni yükle, iş ilanını yapıştır, anında başla. Her ay 2 mülakat ücretsiz. AI mock interview, bilingual EN/TR.",
+  keywords: ["ai mock interview", "interview practice", "mülakat hazırlık", "mülakat soruları", "AI interview", "hire probability", "interview prep", "iş mülakatı", "yapay zeka mülakat"],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: "Intervio — Practice Real Job Interviews with AI",
-    description: "Paste a job link, upload your CV, and get your hire probability score instantly.",
+    title: "Intervio — AI Mock Interview | Mülakat Hazırlık",
+    description: "CV'ni yükle, iş ilanını yapıştır, yapay zeka ile mülakat pratiği yap. Anında hire probability skoru al.",
     type: "website",
   },
 };
@@ -39,6 +43,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Intervio",
+              "description": "AI powered mock interview practice platform. Practice job interviews with AI in English and Turkish.",
+              "url": "https://intervioai.com",
+              "applicationCategory": "EducationalApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+                "description": "2 free interviews per month"
+              },
+              "inLanguage": ["en", "tr"]
+            })
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <PHProvider>
           <ThemeProvider>
