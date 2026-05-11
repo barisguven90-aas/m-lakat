@@ -15,23 +15,6 @@ export function LanguageToggle() {
     const toggleLang = () => {
         const next = language === 'en' ? 'tr' : 'en';
         setLanguage(next);
-        
-        // Setup Google Translate cookie fallbacks just in case
-        if (next === 'tr') {
-            document.cookie = "googtrans=/en/tr; path=/;";
-            document.cookie = "googtrans=/auto/tr; path=/;";
-        } else {
-            // Restore English
-            document.cookie = "googtrans=/en/en; path=/;";
-            document.cookie = "googtrans=/auto/en; path=/;";
-        }
-        
-        // Trigger Google Translate drop-down if present (legacy support)
-        const translateCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-        if (translateCombo) {
-            translateCombo.value = next === 'tr' ? 'tr' : 'en';
-            translateCombo.dispatchEvent(new Event('change'));
-        }
     };
 
     if (!mounted) {
@@ -45,8 +28,8 @@ export function LanguageToggle() {
             aria-label="Toggle language"
         >
             <Globe className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">{language === 'en' ? 'EN' : 'TR'}</span>
-            <span className="md:hidden text-[10px]">{language === 'en' ? 'GB' : 'TR'}</span>
+            <span translate="no" className="notranslate hidden md:inline">{language === 'en' ? 'EN' : 'TR'}</span>
+            <span translate="no" className="notranslate md:hidden text-[10px]">{language === 'en' ? 'EN' : 'TR'}</span>
         </button>
     );
 }

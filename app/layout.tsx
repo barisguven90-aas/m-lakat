@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { PHProvider, PostHogPageView } from "@/app/providers";
 import { Suspense } from "react";
-import { GoogleTranslate } from "@/components/GoogleTranslate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -84,7 +83,6 @@ export default function RootLayout({
           </ThemeProvider>
         </PHProvider>
         <GoogleAnalytics gaId="G-RWSVD2T707" />
-        <GoogleTranslate />
       </body>
     </html>
   );
