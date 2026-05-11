@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateQuestion } from '@/lib/interview/question-generator';
+import { RateLimiter } from '@/lib/rate-limit';
+
+const interviewRateLimiter = new RateLimiter(10, 60 * 60 * 1000); // 10 requests per hour
 
 export async function POST(request: Request) {
     try {
         const { applicationId, interviewType, language = 'en', companyStyle = 'standard', difficulty = 'medium' } = await request.json();
         const supabase = await createClient();
+
+        // Rate limiting by IP
+        const ip = request.headers.get('x-forwarded-for') || 'unknown';
+        if (!interviewRateLimiter.check(ip)) {
+            return NextResponse.json({ error: 'Too many interview requests. Please try again later.' }, { status: 429 });
+        }
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

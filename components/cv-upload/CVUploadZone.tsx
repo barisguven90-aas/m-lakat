@@ -65,11 +65,21 @@ export function CVUploadZone({ onUploadComplete }: CVUploadZoneProps) {
         onDrop,
         accept: {
             'application/pdf': ['.pdf'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-            'application/msword': ['.doc']
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
         },
         maxFiles: 1,
-        multiple: false
+        multiple: false,
+        maxSize: 5 * 1024 * 1024, // 5MB limit
+        onDropRejected: (fileRejections) => {
+            const error = fileRejections[0]?.errors[0];
+            if (error?.code === 'file-too-large') {
+                toast.error('File is larger than 5MB');
+            } else if (error?.code === 'file-invalid-type') {
+                toast.error('Only PDF and DOCX files are supported');
+            } else {
+                toast.error('Invalid file');
+            }
+        }
     });
 
     return (
@@ -105,7 +115,7 @@ export function CVUploadZone({ onUploadComplete }: CVUploadZoneProps) {
                                 {isDragActive ? "Drop your CV here" : "Click to upload or drag & drop"}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                PDF or DOCX (Max 10MB)
+                                PDF or DOCX (Max 5MB)
                             </p>
                         </div>
                     </>

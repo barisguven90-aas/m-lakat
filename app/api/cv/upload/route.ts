@@ -17,15 +17,20 @@ export async function POST(request: Request) {
 
         console.log(`File received: ${file.name} (${file.type})`);
 
-        // 1. Validate file type
+        // 1. Validate file type and size
         const validTypes = [
             'application/pdf',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/msword'
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ];
         if (!validTypes.includes(file.type)) {
             console.error(`Invalid file type: ${file.type}`);
             return NextResponse.json({ error: 'Invalid file type. Only PDF and DOCX are supported.' }, { status: 400 });
+        }
+
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+        if (file.size > MAX_FILE_SIZE) {
+            console.error(`File too large: ${file.size} bytes`);
+            return NextResponse.json({ error: 'File size exceeds the 5MB limit.' }, { status: 400 });
         }
 
         const arrayBuffer = await file.arrayBuffer();
