@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { redirect } from 'next/navigation';
 
@@ -14,8 +14,9 @@ export default async function AdminDashboard() {
         redirect('/dashboard'); // Yetkisiz kişiyi ana dashboarda at
     }
 
-    // Maliyet verilerini çek
-    const { data: costs } = await supabase.from('interview_costs').select('*');
+    // Maliyet verilerini admin yetkisiyle (RLS'i aşarak) çek
+    const adminSupabase = await createAdminClient();
+    const { data: costs } = await adminSupabase.from('interview_costs').select('*');
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
