@@ -41,7 +41,7 @@ export async function POST(request: Request) {
             
             const { data: session } = await supabase
                 .from('interview_sessions')
-                .select('config, created_at, updated_at')
+                .select('config, created_at')
                 .eq('id', sessionId)
                 .single();
 
@@ -60,8 +60,8 @@ export async function POST(request: Request) {
             
             // Google Cloud Speech: $0.016/dakika
             let speechMinutes = 0;
-            if (session?.config?.mode === 'voice' && session?.created_at && session?.updated_at) {
-                const diffMs = new Date(session.updated_at).getTime() - new Date(session.created_at).getTime();
+            if (session?.config?.mode === 'voice' && session?.created_at) {
+                const diffMs = Date.now() - new Date(session.created_at).getTime();
                 speechMinutes = diffMs / 60000;
             }
             const speechCost = speechMinutes * 0.016;
