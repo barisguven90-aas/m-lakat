@@ -62,8 +62,9 @@ export function ProComingSoonModal({
 
             if (error) {
                 console.error("Waitlist error:", error);
-                // We fake success even if the column is missing to not block the UX. 
-                // The user can apply the migration later.
+            } else {
+                // Send Waitlist Email
+                fetch('/api/mail/waitlist', { method: 'POST' }).catch(e => console.error(e));
             }
 
             setSuccess(true);

@@ -1,0 +1,4 @@
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS welcome_email_sent_at TIMESTAMP WITH TIME ZONE,
+ADD COLUMN IF NOT EXISTS activation_email_sent_at TIMESTAMP WITH TIME ZONE,
+ADD COLUMN IF NOT EXISTS reengagement_email_sent_at TIMESTAMP WITH TIME ZONE;

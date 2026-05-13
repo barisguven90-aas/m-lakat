@@ -52,6 +52,9 @@ export function DashboardHeader() {
                 setUserName(fullName.split(" ")[0] || fullName)
                 setUserInitial((fullName[0] || "?").toUpperCase())
                 setIsPro(profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing')
+                
+                // Passively trigger welcome email logic
+                fetch('/api/mail/welcome', { method: 'POST' }).catch(() => {});
             }
         }
         fetchUser()
