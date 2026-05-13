@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import en from '../locales/en.json';
 import tr from '../locales/tr.json';
+import { createClient } from '@/lib/supabase/client';
 
 type Language = 'en' | 'tr';
 
@@ -18,10 +19,19 @@ export const useLanguageStore = create<LanguageState>()(
     (set, get) => ({
       language: 'en',
       t: (key) => translations[get().language][key] || key,
-      setLanguage: (lang) => {
+      setLanguage: async (lang) => {
         set({ language: lang });
-        // Optional: Keep cookie sync for backend if needed
         document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000;`;
+        
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('profiles').update({ language: lang }).eq('id', user.id);
+            }
+        } catch (e) {
+            console.error("Failed to sync language to profile", e);
+        }
       },
     }),
     { name: 'intervio-language' }

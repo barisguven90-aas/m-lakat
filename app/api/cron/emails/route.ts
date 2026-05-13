@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
         const { data: usersForActivation } = await supabase
             .from('profiles')
-            .select('id, email, full_name')
+            .select('id, email, full_name, language')
             .is('activation_email_sent_at', null)
             .lt('created_at', twentyFourHoursAgo)
             .gt('created_at', fortyEightHoursAgo);
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
                     .eq('user_id', profile.id);
                 
                 if (count === 0 && profile.email) {
-                    await sendActivationEmail(profile.email, profile.full_name || '');
+                    await sendActivationEmail(profile.email, profile.full_name || '', profile.language || 'en');
                     await supabase.from('profiles').update({ activation_email_sent_at: new Date().toISOString() }).eq('id', profile.id);
                 }
             }
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 
         const { data: usersForReengagement } = await supabase
             .from('profiles')
-            .select('id, email, full_name')
+            .select('id, email, full_name, language')
             .is('reengagement_email_sent_at', null)
             .lt('created_at', sevenDaysAgo)
             .gt('created_at', eightDaysAgo);
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
                     .eq('user_id', profile.id);
                 
                 if (count !== null && count < 2 && profile.email) {
-                    await sendReengagementEmail(profile.email, profile.full_name || '');
+                    await sendReengagementEmail(profile.email, profile.full_name || '', profile.language || 'en');
                     await supabase.from('profiles').update({ reengagement_email_sent_at: new Date().toISOString() }).eq('id', profile.id);
                 }
             }
