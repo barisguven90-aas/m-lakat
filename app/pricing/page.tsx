@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BrainCircuit, CheckCircle2, Rocket, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -23,7 +24,7 @@ export default function PricingPage() {
             <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50 transition-all duration-300">
                 <div className="container mx-auto px-6 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 object-contain rounded scale-110" />
+            <Image src="/logo.png" alt="Intervio Logo" width={40} height={40} className="h-8 w-8 object-contain rounded scale-110" />
             <span translate="no" className="notranslate font-bold text-lg tracking-tight text-white">Intervio</span>
                     </Link>
                     <div className="flex items-center gap-5">
@@ -136,7 +137,7 @@ export default function PricingPage() {
             <footer className="border-t border-white/5 py-12 px-6 mt-auto">
                 <div className="container mx-auto max-w-5xl flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500">
                     <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
+              <Image src="/logo.png" alt="Intervio Logo" width={24} height={24} className="h-6 w-6 object-contain rounded opacity-70" />
               <span>© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
                     </div>
                     <div className="flex gap-6">

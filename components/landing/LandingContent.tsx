@@ -8,16 +8,10 @@ import { LanguageToggle } from "@/components/dashboard/LanguageToggle";
 import { DemoSection } from "@/components/landing/DemoSection";
 import { useLanguageStore } from "@/store/useLanguageStore";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function LandingContent() {
   const { t } = useLanguageStore();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null; // Hydration safe
 
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden">
@@ -30,7 +24,7 @@ export function LandingContent() {
       <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50 transition-all duration-300">
         <div className="container mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <img src="/logo.png" alt="Intervio Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
+            <Image src="/logo.png" alt="Intervio Logo" width={40} height={40} className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
             <span translate="no" className="notranslate font-bold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">Intervio</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-5">
@@ -310,7 +304,7 @@ export function LandingContent() {
           <div className="container mx-auto max-w-6xl">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-500 mb-8">
               <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="Intervio Logo" className="h-6 w-6 object-contain rounded opacity-70" />
+                <Image src="/logo.png" alt="Intervio Logo" width={24} height={24} className="h-6 w-6 object-contain rounded opacity-70" />
                 <span translate="no" className="notranslate">© {new Date().getFullYear()} Intervio AI. All rights reserved.</span>
               </div>
               <div className="flex gap-6">
