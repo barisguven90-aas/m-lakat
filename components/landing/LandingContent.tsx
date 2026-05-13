@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export function LandingContent() {
-  const { t } = useLanguageStore();
+  const { t, language } = useLanguageStore();
 
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden">
@@ -52,12 +52,24 @@ export function LandingContent() {
             <span>{t('hero_badge')}</span>
           </div>
 
-          <h1 className="animate-fade-in-up animation-delay-200 text-3xl sm:text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight mb-4 sm:mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400">
-            {t('hero_h1_1')}{" "}
-            <br className="sm:hidden" />
-            {t('hero_h1_2')}{" "}
-            <br />
-            {t('hero_h1_3')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI</span>
+          <h1 suppressHydrationWarning className="animate-fade-in-up animation-delay-200 text-3xl sm:text-5xl md:text-7xl lg:text-[80px] font-extrabold tracking-tight mb-4 sm:mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400">
+            {language === 'tr' ? (
+                <>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI</span> {t('hero_h1_1')}{" "}
+                    <br className="sm:hidden" />
+                    {t('hero_h1_2')}{" "}
+                    <br />
+                    {t('hero_h1_3')}
+                </>
+            ) : (
+                <>
+                    {t('hero_h1_1')}{" "}
+                    <br className="sm:hidden" />
+                    {t('hero_h1_2')}{" "}
+                    <br />
+                    {t('hero_h1_3')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">AI</span>
+                </>
+            )}
           </h1>
 
           <p className="animate-fade-in-up animation-delay-300 text-sm sm:text-lg md:text-xl text-neutral-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed font-light px-2">
