@@ -16,9 +16,9 @@ export function LandingContent() {
   return (
     <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900/15 mix-blend-screen blur-[100px] rounded-full animate-float" />
-        <div className="absolute top-[20%] right-[-10%] w-[40vw] h-[60vw] bg-indigo-900/10 mix-blend-screen blur-[120px] rounded-full animate-float-delayed" />
-        <div className="absolute bottom-[-20%] left-[15%] w-[60vw] h-[50vw] bg-purple-900/15 mix-blend-screen blur-[120px] rounded-full animate-float" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-[-10%] left-[-10%] w-[80vw] sm:w-[50vw] h-[80vw] sm:h-[50vw] bg-[radial-gradient(circle,rgba(30,58,138,0.15)_0%,transparent_70%)] rounded-full animate-float" />
+        <div className="absolute top-[20%] right-[-10%] w-[70vw] sm:w-[40vw] h-[90vw] sm:h-[60vw] bg-[radial-gradient(circle,rgba(49,46,129,0.1)_0%,transparent_70%)] rounded-full animate-float-delayed" />
+        <div className="absolute bottom-[-20%] left-[15%] w-[90vw] sm:w-[60vw] h-[80vw] sm:h-[50vw] bg-[radial-gradient(circle,rgba(88,28,135,0.15)_0%,transparent_70%)] rounded-full animate-float" style={{ animationDelay: '4s' }} />
       </div>
 
       <nav className="fixed top-0 w-full border-b border-white/5 bg-[#050505]/60 backdrop-blur-xl z-50 transition-all duration-300">

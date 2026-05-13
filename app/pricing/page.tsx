@@ -14,10 +14,9 @@ export const metadata = {
 export default function PricingPage() {
     return (
         <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden flex flex-col">
-            {/* Dynamic Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-900/10 mix-blend-screen blur-[120px] rounded-full" />
-                <div className="absolute top-[30%] right-[-10%] w-[40%] h-[60%] bg-indigo-900/10 mix-blend-screen blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,rgba(30,58,138,0.1)_0%,transparent_70%)] rounded-full" />
+                <div className="absolute top-[30%] right-[-10%] w-[40%] h-[60%] bg-[radial-gradient(circle,rgba(49,46,129,0.1)_0%,transparent_70%)] rounded-full" />
             </div>
 
             {/* Navigation */}
@@ -85,7 +84,7 @@ export default function PricingPage() {
 
                         {/* Pro Tier */}
                         <div className="relative p-8 rounded-3xl bg-[#0a0f1c] border border-blue-500/30 hover:border-blue-500/50 transition-colors shadow-[0_0_30px_rgba(59,130,246,0.1)] flex flex-col h-full overflow-hidden">
-                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-blue-500/20 rounded-full blur-[60px]" />
+                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-[radial-gradient(circle,rgba(59,130,246,0.2)_0%,transparent_70%)] rounded-full" />
 
                             <div className="mb-8 relative z-10 flex justify-between items-start">
                                 <div>

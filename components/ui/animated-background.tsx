@@ -20,13 +20,14 @@ export function AnimatedAuthBackground() {
         };
         window.addEventListener("resize", resize);
 
+        const isMobile = window.innerWidth < 768;
         const opts = {
             color: "rgba(59, 130, 246, 0.15)", // tailwind blue-500
             glow: "rgba(147, 197, 253, 0.4)", // tailwind blue-300
             speed: 0.0003,
-            particleCount: 50,
-            particleSize: 3,
-            particleSpeed: 0.4,
+            particleCount: isMobile ? 15 : 45, // Reduce drastically on mobile to fix TBT (CPU overload)
+            particleSize: isMobile ? 2 : 3,
+            particleSpeed: 0.3,
         };
 
         const particles: any[] = [];
