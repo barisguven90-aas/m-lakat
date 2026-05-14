@@ -9,8 +9,13 @@ import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { BrainCircuit, CheckCircle } from "lucide-react"
 import { AnimatedAuthBackground } from "@/components/ui/animated-background"
+import { useLanguageStore } from "@/store/useLanguageStore"
+import React from "react"
 
 export default function SignUpPage() {
+    const { language } = useLanguageStore()
+    const [isMounted, setIsMounted] = React.useState(false)
+    React.useEffect(() => setIsMounted(true), [])
     return (
         <div className="min-h-screen w-full relative flex items-center justify-center p-4 overflow-hidden bg-neutral-950">
             {/* Animated 21st.dev style particle background */}
@@ -21,20 +26,26 @@ export default function SignUpPage() {
                 <div className="flex flex-col items-center mb-6">
                     <img src="/logo.png" alt="Intervio Logo" className="h-16 w-16 object-contain rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.2)] mb-3" />
                     <FadeText
-                        text="Start Your Journey"
+                        text={isMounted && language === 'tr' ? "Yolculuğa Başla" : "Start Your Journey"}
                         className="text-2xl font-bold tracking-tight text-white"
                         direction="down"
                     />
-                    <p className="text-neutral-500 text-sm mt-1">Free to start · AI-Powered Intervio</p>
+                    <p className="text-neutral-500 text-sm mt-1">
+                        {isMounted && language === 'tr' ? "Başlamak ücretsiz · AI Destekli Intervio" : "Free to start · AI-Powered Intervio"}
+                    </p>
                 </div>
 
                 {/* Benefits */}
                 <div className="flex flex-col gap-1.5 mb-5">
-                    {[
+                    {(isMounted && language === 'tr' ? [
+                        "Özgeçmişinize ve işe özel kişiselleştirilmiş sorular",
+                        "Gerçekçi mülakatlar: Google, Amazon, Startup tarzı",
+                        "6 farklı dil desteği (TR, EN, ES, FR, DE, ZH)"
+                    ] : [
                         "Personalized questions based on your CV & job",
                         "Company-style interviews: Google, Amazon, Startup",
                         "6 global languages (EN, TR, ES, FR, DE, ZH)"
-                    ].map(text => (
+                    ]).map(text => (
                         <div key={text} className="flex items-center gap-2 text-xs text-neutral-400">
                             <CheckCircle className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                             {text}
@@ -47,7 +58,7 @@ export default function SignUpPage() {
 
                     <CardHeader className="pb-2 text-center">
                         <CardDescription className="text-neutral-400">
-                            Create your free account to begin
+                            {isMounted && language === 'tr' ? "Başlamak için ücretsiz hesabınızı oluşturun" : "Create your free account to begin"}
                         </CardDescription>
                     </CardHeader>
 
@@ -56,18 +67,18 @@ export default function SignUpPage() {
 
                         <div className="flex items-center gap-4">
                             <Separator className="flex-1 bg-neutral-800" />
-                            <span className="text-xs text-neutral-600 font-medium">OR</span>
+                            <span className="text-xs text-neutral-600 font-medium">{isMounted && language === 'tr' ? 'VEYA' : 'OR'}</span>
                             <Separator className="flex-1 bg-neutral-800" />
                         </div>
 
-                        <GoogleAuthButton text="Sign up with Google" />
+                        <GoogleAuthButton text={isMounted && language === 'tr' ? "Google ile Kayıt Ol" : "Sign up with Google"} />
                     </CardContent>
 
                     <CardFooter className="flex justify-center pb-6">
                         <p className="text-sm text-neutral-500">
-                            Already have an account?{" "}
+                            {isMounted && language === 'tr' ? "Zaten bir hesabınız var mı?" : "Already have an account?"}{" "}
                             <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
-                                Log in
+                                {isMounted && language === 'tr' ? "Giriş yap" : "Log in"}
                             </Link>
                         </p>
                     </CardFooter>

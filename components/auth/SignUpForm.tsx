@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useLanguageStore } from "@/store/useLanguageStore"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,27 +21,35 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const formSchema = z.object({
+const getFormSchema = (lang: string) => z.object({
     full_name: z.string().min(2, {
-        message: "Name must be at least 2 characters.",
+        message: lang === 'tr' ? "İsim en az 2 karakter olmalıdır." : "Name must be at least 2 characters.",
     }),
     email: z.string().email({
-        message: "Please enter a valid email address.",
+        message: lang === 'tr' ? "Lütfen geçerli bir e-posta adresi girin." : "Please enter a valid email address.",
     }),
     password: z.string().min(6, {
-        message: "Password must be at least 6 characters.",
+        message: lang === 'tr' ? "Şifre en az 6 karakter olmalıdır." : "Password must be at least 6 characters.",
     }),
     acceptTerms: z.literal(true, {
-        errorMap: () => ({ message: "Aydınlatma metnini onaylamanız gerekmektedir." })
+        errorMap: () => ({ message: lang === 'tr' ? "Aydınlatma metnini onaylamanız gerekmektedir." : "You must accept the privacy policy." })
     })
 })
+
+type FormValues = z.infer<ReturnType<typeof getFormSchema>>
 
 export function SignUpForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
     const supabase = createClient()
+    const { language } = useLanguageStore()
+    
+    const [isMounted, setIsMounted] = React.useState(false)
+    React.useEffect(() => setIsMounted(true), [])
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const formSchema = React.useMemo(() => getFormSchema(language), [language])
+
+    const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             full_name: "",
@@ -50,7 +59,7 @@ export function SignUpForm() {
         },
     })
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: FormValues) {
         setIsLoading(true)
         console.log("Attempting signup for:", values.email);
 
@@ -115,9 +124,9 @@ export function SignUpForm() {
                     name="full_name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-white">Full Name</FormLabel>
+                            <FormLabel className="text-white">{language === 'tr' ? 'Ad Soyad' : 'Full Name'}</FormLabel>
                             <FormControl>
-                                <Input placeholder="John Doe" {...field} className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/30" />
+                                <Input placeholder={language === 'tr' ? 'Ali Yılmaz' : 'John Doe'} {...field} className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/30" />
                             </FormControl>
                             <FormMessage className="text-red-400" />
                         </FormItem>
@@ -128,7 +137,7 @@ export function SignUpForm() {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-white">Email</FormLabel>
+                            <FormLabel className="text-white">{language === 'tr' ? 'E-posta' : 'Email'}</FormLabel>
                             <FormControl>
                                 <Input placeholder="name@example.com" {...field} className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/30" />
                             </FormControl>
@@ -141,7 +150,7 @@ export function SignUpForm() {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-white">Password</FormLabel>
+                            <FormLabel className="text-white">{language === 'tr' ? 'Şifre' : 'Password'}</FormLabel>
                             <FormControl>
                                 <Input type="password" placeholder="******" {...field} className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-white/30" />
                             </FormControl>
@@ -153,27 +162,34 @@ export function SignUpForm() {
                     control={form.control}
                     name="acceptTerms"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 rounded-md border border-white/10 bg-white/5">
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-3 rounded-md border border-white/10 bg-white/5">
                             <FormControl>
                                 <input
                                     type="checkbox"
-                                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
+                                    className="h-4 w-4 rounded border-white/20 bg-transparent text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
                                     checked={field.value === true}
                                     onChange={(e) => field.onChange(e.target.checked ? true : undefined)}
                                 />
                             </FormControl>
-                            <div className="space-y-1 leading-none">
-                                <FormLabel className="text-white text-xs leading-relaxed">
-                                    Kişisel verilerimin işlenmesine ilişkin <a href="/privacy" className="text-blue-400 hover:underline" target="_blank">Aydınlatma Metni</a>'ni okudum ve onaylıyorum.
+                            <div className="flex items-center">
+                                <FormLabel className="text-white text-xs sm:text-sm font-normal">
+                                    {isMounted && language === 'tr' ? (
+                                        <>
+                                            Kişisel verilerimin işlenmesine ilişkin <a href="/privacy" className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-medium" target="_blank">Aydınlatma Metni</a>'ni okudum ve onaylıyorum.
+                                        </>
+                                    ) : (
+                                        <>
+                                            I have read and agree to the <a href="/privacy" className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-medium" target="_blank">Privacy Policy</a>.
+                                        </>
+                                    )}
                                 </FormLabel>
                             </div>
-                            <FormMessage className="text-red-400 text-xs block pt-1" />
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium h-11" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Account
+                    {isMounted && language === 'tr' ? 'Hesap Oluştur' : 'Create Account'}
                 </Button>
             </form>
         </Form>

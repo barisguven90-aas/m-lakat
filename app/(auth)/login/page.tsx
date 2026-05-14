@@ -9,8 +9,13 @@ import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { BrainCircuit, Sparkles, Target, TrendingUp } from "lucide-react"
 import { AnimatedAuthBackground } from "@/components/ui/animated-background"
+import { useLanguageStore } from "@/store/useLanguageStore"
+import React from "react"
 
 export default function LoginPage() {
+    const { language } = useLanguageStore()
+    const [isMounted, setIsMounted] = React.useState(false)
+    React.useEffect(() => setIsMounted(true), [])
     return (
         <div className="min-h-screen w-full relative flex items-center justify-center p-4 overflow-hidden bg-neutral-950">
             {/* Animated 21st.dev style particle background */}
@@ -18,11 +23,15 @@ export default function LoginPage() {
 
             {/* Feature pills — top */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-3 z-10">
-                {[
+                {(isMounted && language === 'tr' ? [
+                    { icon: Target, label: "İşe Özel Sorular" },
+                    { icon: Sparkles, label: "Yapay Zeka Geri Bildirimi" },
+                    { icon: TrendingUp, label: "Gerçek Zamanlı Puanlama" }
+                ] : [
                     { icon: Target, label: "Job-Specific Questions" },
                     { icon: Sparkles, label: "AI Feedback" },
                     { icon: TrendingUp, label: "Real-Time Scoring" }
-                ].map(({ icon: Icon, label }) => (
+                ]).map(({ icon: Icon, label }) => (
                     <div key={label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-neutral-400 text-xs backdrop-blur-sm">
                         <Icon className="h-3 w-3 text-blue-400" />
                         {label}
@@ -41,7 +50,7 @@ export default function LoginPage() {
                             direction="down"
                         />
                     </div>
-                    <p className="text-neutral-500 text-sm mt-1">AI-Powered Mock Interview Platform</p>
+                    <p className="text-neutral-500 text-sm mt-1">{isMounted && language === 'tr' ? "Yapay Zeka Destekli Mülakat Pratiği Platformu" : "AI-Powered Mock Interview Platform"}</p>
                 </div>
 
                 <Card className="w-full bg-neutral-900/60 backdrop-blur-xl border-neutral-800 shadow-2xl relative overflow-hidden">
@@ -49,7 +58,7 @@ export default function LoginPage() {
 
                     <CardHeader className="pb-2 text-center">
                         <CardDescription className="text-neutral-400">
-                            Sign in to start your practice session
+                            {isMounted && language === 'tr' ? "Pratiğe başlamak için giriş yapın" : "Sign in to start your practice session"}
                         </CardDescription>
                     </CardHeader>
 
@@ -58,25 +67,25 @@ export default function LoginPage() {
 
                         <div className="flex items-center gap-4">
                             <Separator className="flex-1 bg-neutral-800" />
-                            <span className="text-xs text-neutral-600 font-medium">OR</span>
+                            <span className="text-xs text-neutral-600 font-medium">{isMounted && language === 'tr' ? 'VEYA' : 'OR'}</span>
                             <Separator className="flex-1 bg-neutral-800" />
                         </div>
 
-                        <GoogleAuthButton />
+                        <GoogleAuthButton text={isMounted && language === 'tr' ? "Google ile Giriş Yap" : "Sign in with Google"} />
                     </CardContent>
 
                     <CardFooter className="flex justify-center pb-6">
                         <p className="text-sm text-neutral-500">
-                            Don&apos;t have an account?{" "}
+                            {isMounted && language === 'tr' ? "Hesabınız yok mu?" : "Don't have an account?"}{" "}
                             <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                                Create one free
+                                {isMounted && language === 'tr' ? "Ücretsiz oluşturun" : "Create one free"}
                             </Link>
                         </p>
                     </CardFooter>
                 </Card>
 
                 <p className="text-center text-neutral-700 text-xs mt-4">
-                    Practice with Google/Amazon/Startup style questions • Turkish & English
+                    {isMounted && language === 'tr' ? "Google/Amazon/Startup tarzı sorularla pratik yapın • Türkçe ve İngilizce" : "Practice with Google/Amazon/Startup style questions • Turkish & English"}
                 </p>
             </div>
         </div>
