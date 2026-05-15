@@ -19,8 +19,8 @@ export async function POST(request: Request) {
             .single();
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
-        // Limit matrix: free=1 voice, pro=unlimited
-        const FREE_VOICE_LIMIT = 1;
+        // Limit matrix: free=2 voice, pro=unlimited
+        const FREE_VOICE_LIMIT = 2;
 
         if (!isPro) {
             const { data: allSessions } = await supabase
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
             if (voiceCount >= FREE_VOICE_LIMIT) {
                 return NextResponse.json({
-                    error: "You've used your 1 free voice interview. Upgrade to Intervio Pro to unlock unlimited practice.",
+                    error: "You've used your 2 free voice interviews. Upgrade to Intervio Pro to unlock unlimited practice.",
                     code: 'SUBSCRIPTION_REQUIRED'
                 }, { status: 403 });
             }

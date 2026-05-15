@@ -28,8 +28,8 @@ export async function POST(request: Request) {
 
         const isPro = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing';
 
-        // Limit matrix: free=1 text, pro=unlimited
-        const FREE_TEXT_LIMIT = 1;
+        // Limit matrix: free=2 text, pro=unlimited
+        const FREE_TEXT_LIMIT = 2;
 
         if (!isPro) {
             const { data: allSessions } = await supabase
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
             if (textCount >= FREE_TEXT_LIMIT) {
                 return NextResponse.json({
-                    error: "You've used your 1 free text interview. Upgrade to Intervio Pro to unlock unlimited practice.",
+                    error: "You've used your 2 free text interviews. Upgrade to Intervio Pro to unlock unlimited practice.",
                     code: 'SUBSCRIPTION_REQUIRED'
                 }, { status: 403 });
             }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
     title: "Fiyatlandırma | Intervio AI — Ücretsiz Başla",
-    description: "Intervio ile ayda 2 mülakat ücretsiz. Pro planla sınırsız pratik, detaylı feedback ve ilerleme takibi. Kredi kartı gerekmez.",
+    description: "Intervio ile ayda 4 mülakat ücretsiz (2 sesli, 2 yazılı). Pro planla sınırsız pratik, detaylı feedback ve ilerleme takibi. Kredi kartı gerekmez.",
     alternates: {
         canonical: 'https://intervioai.com/pricing',
     },
@@ -60,11 +60,11 @@ export default function PricingPage() {
                                 <ul className="space-y-4">
                                     <li className="flex items-start gap-3">
                                         <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                                        <span className="text-neutral-300">1 Text Interview / month</span>
+                                        <span className="text-neutral-300">2 Text Interviews / month</span>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                                        <span className="text-neutral-300">1 Voice Interview / month</span>
+                                        <span className="text-neutral-300">2 Voice Interviews / month</span>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
