@@ -68,7 +68,7 @@ export function DemoSection() {
                 <div className="w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-xl text-left animate-fade-in-up relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500" />
                     <div className="flex items-center gap-3 mb-4 text-blue-600">
-                        <Image src="/mascot.png" alt="Mascot" width={28} height={28} className="object-contain" />
+                        <Image src="/mascot.png" alt="Mascot" width={32} height={32} className="object-contain mix-blend-multiply" />
                         <span className="font-bold text-sm">{language === 'tr' ? 'Cappy Soruyor:' : 'Coach Cappy:'}</span>
                     </div>
                     <p className="text-xl font-bold text-slate-800 mb-6 leading-relaxed">{currentQuestion}</p>
@@ -102,7 +102,7 @@ export function DemoSection() {
                 <div className="w-full bg-white border border-slate-200 rounded-3xl p-8 animate-fade-in-up text-left shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500" />
                     <div className="flex items-center gap-3 mb-6 text-emerald-600">
-                        <Image src="/mascot.png" alt="Mascot" width={32} height={32} className="object-contain" />
+                        <Image src="/mascot.png" alt="Mascot" width={36} height={36} className="object-contain mix-blend-multiply" />
                         <span className="font-extrabold text-lg">{t("demo_feedback_title")}</span>
                     </div>
                     <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 mb-8 shadow-sm">
