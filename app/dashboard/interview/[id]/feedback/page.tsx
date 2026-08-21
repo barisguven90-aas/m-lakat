@@ -123,8 +123,8 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <div className="p-6 rounded-3xl bg-blue-50 dark:bg-blue-900/20">
                         <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
                     </div>
-                    <h2 className="text-xl font-bold">Generating Your Feedback...</h2>
-                    <p className="text-sm text-slate-500 max-w-sm">Our AI coach is analyzing your interview performance in detail. Please refresh in a moment.</p>
+                    <h2 className="text-xl font-bold">{isTr ? 'Geri Bildiriminiz Hazırlanıyor...' : 'Generating Your Feedback...'}</h2>
+                    <p className="text-sm text-slate-500 max-w-sm">{isTr ? 'Yapay zeka koçumuz mülakat performansınızı detaylı olarak analiz ediyor. Lütfen biraz bekleyip sayfayı yenileyin.' : 'Our AI coach is analyzing your interview performance in detail. Please refresh in a moment.'}</p>
                 </div>
             </div>
         );
@@ -145,10 +145,10 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
     );
 
     const getLevel = (score: number) => {
-        if (score < 41) return { label: 'Beginner', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30', icon: '🌱' };
-        if (score < 61) return { label: 'Intermediate', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: '📈' };
-        if (score < 81) return { label: 'Advanced', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: '🚀' };
-        return { label: 'Expert', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: '👑' };
+        if (score < 41) return { label: isTr ? 'Başlangıç' : 'Beginner', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30', icon: '🌱' };
+        if (score < 61) return { label: isTr ? 'Orta' : 'Intermediate', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: '📈' };
+        if (score < 81) return { label: isTr ? 'İleri' : 'Advanced', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: '🚀' };
+        return { label: isTr ? 'Uzman' : 'Expert', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: '👑' };
     };
     const level = getLevel(overallAvg);
 
@@ -179,17 +179,17 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                     <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
                         <div className="space-y-2">
                             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-slate-200">
-                                <Award className="h-3.5 w-3.5" /> Interview Feedback Report
+                                <Award className="h-3.5 w-3.5" /> {isTr ? 'Mülakat Geri Bildirim Raporu' : 'Interview Feedback Report'}
                             </div>
                             <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                                {session.applications?.job_title || 'Interview'} Feedback
+                                {session.applications?.job_title || 'Interview'} {isTr ? 'Geri Bildirimi' : 'Feedback'}
                             </h1>
                             <p className="text-slate-400">
-                                {session.applications?.job_company || ''} • {session.interview_type?.replace('_', ' ')} Interview
+                                {session.applications?.job_company || ''} • {session.interview_type?.replace('_', ' ')} {isTr ? 'Mülakatı' : 'Interview'}
                             </p>
                             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold border mt-3 ${level.color}`}>
                                 <span>{level.icon}</span>
-                                <span>{level.label} Level</span>
+                                <span>{level.label} {isTr ? 'Seviyesi' : 'Level'}</span>
                                 <span className="text-xs opacity-60">({overallAvg}/100)</span>
                             </div>
                             {/* Duration & Question Count (Feature 8) */}
@@ -197,12 +197,12 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                                 {session.created_at && session.updated_at && (
                                     <span className="flex items-center gap-1">
                                         <Clock className="h-3 w-3" />
-                                        {Math.max(1, Math.round((new Date(session.updated_at).getTime() - new Date(session.created_at).getTime()) / 60000))} min session
+                                        {Math.max(1, Math.round((new Date(session.updated_at).getTime() - new Date(session.created_at).getTime()) / 60000))} {isTr ? 'dk mülakat' : 'min session'}
                                     </span>
                                 )}
                                 <span className="flex items-center gap-1">
                                     <MessageSquare className="h-3 w-3" />
-                                    {questionFeedbacks.length} question{questionFeedbacks.length !== 1 ? 's' : ''}
+                                    {questionFeedbacks.length} {isTr ? 'soru' : (questionFeedbacks.length !== 1 ? 'questions' : 'question')}
                                 </span>
                             </div>
                         </div>
@@ -227,7 +227,7 @@ export default async function FeedbackPage({ params }: { params: { id: string } 
                             />
                             <Button variant="outline" asChild className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
                                 <Link href="/dashboard">
-                                    Back to Dashboard
+                                    {isTr ? 'Panele Dön' : 'Back to Dashboard'}
                                 </Link>
                             </Button>
                         </div>

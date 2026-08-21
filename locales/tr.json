@@ -15,7 +15,6 @@
   "demo_your_answer": "Cevabınız",
   "demo_feedback_title": "Yapay Zeka Geri Bildirimi",
   "get_started": "Hemen Başla",
-  
   "nav_pricing": "Fiyatlandırma",
   "nav_login": "Giriş Yap",
   "hero_badge": "Ücretsiz: Ayda 2 mülakat — Kredi kartı gerekmez",
@@ -28,10 +27,8 @@
   "trust_3": "Anında işe alım olasılığı",
   "mockup_speaking": "Mülakatçı konuşuyor...",
   "mockup_question": "Bana zor bir müşteriyle başa çıkmak zorunda kaldığınız bir zamanı anlatır mısınız?",
-  
   "testimonials_title": "Kullanıcılarımızın mülakat yaptığı şirketler",
   "testimonials_sub": "En iyi roller için pratik yapan binlerce adaya katıl",
-  
   "how_it_works_badge": "Öncü Teknoloji",
   "how_it_works_title": "AI Mülakat Koçu Nasıl Çalışır?",
   "how_it_works_sub": "Özgeçmişinize, iş tanımınıza ve şirketinize göre uyarlanmış gerçek zamanlı, kişiselleştirilmiş koçluk alın.",
@@ -41,7 +38,6 @@
   "step2_desc": "Anında, kesin bağlamsal cevaplar için soruları otomatik olarak algılar. STAR çerçevesi hassasiyeti üzerinden yüksek oranda puanlanın.",
   "step3_title": "Kişiselleştirilmiş AI Asistanı",
   "step3_desc": "CV'nizdeki şirket değerleri ve iş gereksinimleriyle mükemmel bir şekilde uyuşan beceri ve deneyimleri vurgulayın.",
-  
   "features_title": "Başarılı Mülakat İçin İhtiyacın Her Şey",
   "feat1_title": "Gerçek Zamanlı Sesli Etkileşimler",
   "feat1_desc": "Gelişmiş WebRTC ve metin-ses (text-to-speech) teknolojisi ile AI mülakatçınız gerçek bir insan gibi gecikme ve duraksamalarla sizinle konuşur.",
@@ -51,10 +47,19 @@
   "feat3_desc": "Amazon için mi çalışıyorsunuz? Sizi Liderlik Prensipleri üzerinden test edeceğiz. Bir startup ile mi mülakat yapıyorsunuz? Belirsizlik üzerine sorular bekleyin.",
   "feat4_title": "Çift Dil Desteği",
   "feat4_desc": "İngilizce veya Türkçe pratik yapın. Küresel roller veya yerel fırsatlar için hazırlanan ana dili olmayan konuşmacılar için mükemmeldir.",
-  
   "cta_title": "Hayalindeki İşe Hazır Mısın? Ücretsiz Başla",
   "cta_button": "Ücretsiz hesabını oluştur",
   "footer_privacy": "Gizlilik Politikası",
   "footer_terms": "Kullanım Koşulları",
-  "footer_desc": "Intervio, iş mülakatı hazırlığı için yapay zeka destekli bir platform. AI mock interview, bilingual mülakat pratiği ve anlık hire probability skoru ile fark yarat."
+  "footer_desc": "Intervio, iş mülakatı hazırlığı için yapay zeka destekli bir platform. AI mock interview, bilingual mülakat pratiği ve anlık hire probability skoru ile fark yarat.",
+  "nav_dashboard": "Panel",
+  "nav_applications": "Başvurular",
+  "nav_interviews": "Mülakatlar",
+  "nav_billing": "Faturalandırma",
+  "nav_settings": "Ayarlar",
+  "nav_navigation": "Menü",
+  "nav_admin_panel": "Yönetici Paneli",
+  "nav_sign_out": "Çıkış Yap",
+  "nav_desktop_app": "Masaüstü Uygulaması",
+  "nav_new": "Yeni"
 }

@@ -88,6 +88,15 @@ export function ProComingSoonModal({
                 </VisuallyHidden>
 
                 <div id="pro-waitlist-content" className="relative p-5 sm:p-8 overflow-y-auto max-h-[90vh]">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="absolute right-4 top-4 z-50 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full h-8 w-8"
+                        onClick={handleClose}
+                    >
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
+                    </Button>
                     {/* Background glows */}
                     <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]" />
                     <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px]" />

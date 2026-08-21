@@ -66,7 +66,7 @@ export async function scoreTurn(
         return { score: s, feedback: 'Good answer.', isStrong: s >= 70, technical_score: s, communication_score: s, behavioral_score: s, confidence_score: s };
     }
 
-    const langNote = language === 'tr' ? 'All string values MUST be in Turkish.' : 'All string values MUST be in English.';
+    const langNote = language === 'tr' ? 'IMPORTANT: You MUST respond ENTIRELY in Turkish. Do not use any English. Bütün geri bildirimleri %100 Türkçe yaz.' : 'IMPORTANT: You MUST respond ENTIRELY in English. Do not use any Turkish.';
 
     const prompt = `You are an expert interview evaluator for the role: "${jobTitle}".
 Evaluate the candidate's answer to the interview question below.
@@ -85,7 +85,7 @@ Score each dimension 0–100 based on the answer quality:
 Return ONLY valid JSON:
 {
   "score": <overall 0-100>,
-  "feedback": "<2-sentence feedback in ${language === 'tr' ? 'Turkish' : 'English'}>",
+  "feedback": "<2-sentence feedback strictly in ${language === 'tr' ? 'Turkish (Türkçe)' : 'English'}>",
   "isStrong": <true if score >= 70>,
   "technical_score": <0-100>,
   "communication_score": <0-100>,
@@ -130,7 +130,9 @@ export async function computeFinalScore(params: {
     // Generate AI feedback summary
     let feedback_summary = '';
     try {
-        const langNote = language === 'tr' ? 'Respond in Turkish.' : 'Respond in English.';
+        const langNote = language === 'tr' 
+            ? 'IMPORTANT: You MUST respond ENTIRELY in Turkish (Türkçe). No English headers, no English words. Bütün raporu %100 Türkçe yaz.' 
+            : 'IMPORTANT: You MUST respond ENTIRELY in English. No Turkish words.';
         const summaryPrompt = `Based on this interview performance for "${jobTitle}":
 CV Match: ${breakdown.cv_match}/100
 Technical: ${breakdown.technical}/100

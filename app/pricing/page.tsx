@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { BrainCircuit, CheckCircle2, Rocket, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
     title: "Fiyatlandırma | Intervio AI — Ücretsiz Başla",
@@ -11,7 +12,10 @@ export const metadata = {
     },
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     return (
         <div className="min-h-screen bg-[#050505] text-neutral-50 selection:bg-blue-500/30 overflow-x-hidden flex flex-col">
             <div className="fixed inset-0 z-0 pointer-events-none">
@@ -27,12 +31,20 @@ export default function PricingPage() {
             <span translate="no" className="notranslate font-bold text-lg tracking-tight text-white">Intervio</span>
                     </Link>
                     <div className="flex items-center gap-5">
-                        <Link href="/login" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
-                            Log In
-                        </Link>
-                        <Button asChild className="bg-white text-black hover:bg-neutral-200 rounded-full px-5 h-9 text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                            <Link href="/signup">Get Started</Link>
-                        </Button>
+                        {!user ? (
+                            <>
+                                <Link href="/login" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
+                                    Log In
+                                </Link>
+                                <Button asChild className="bg-white text-black hover:bg-neutral-200 rounded-full px-5 h-9 text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                                    <Link href="/signup">Get Started</Link>
+                                </Button>
+                            </>
+                        ) : (
+                            <Button asChild className="bg-white text-black hover:bg-neutral-200 rounded-full px-5 h-9 text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                                <Link href="/dashboard">Go to Dashboard</Link>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </nav>
@@ -78,7 +90,7 @@ export default function PricingPage() {
                             </div>
 
                             <Button asChild className="w-full h-12 rounded-xl bg-white text-black hover:bg-neutral-200 text-base font-semibold">
-                                <Link href="/signup">Start for Free</Link>
+                                <Link href={user ? "/dashboard" : "/signup"}>{user ? "Go to Dashboard" : "Start for Free"}</Link>
                             </Button>
                         </div>
 
@@ -125,7 +137,7 @@ export default function PricingPage() {
                             </div>
 
                             <Button asChild className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none text-base font-semibold shadow-lg shadow-blue-500/25">
-                                <Link href="/signup">Join the Waitlist</Link>
+                                <Link href={user ? "/dashboard" : "/signup"}>{user ? "Go to Dashboard" : "Join the Waitlist"}</Link>
                             </Button>
                         </div>
                     </div>
@@ -141,7 +153,7 @@ export default function PricingPage() {
                     </div>
                     <div className="flex gap-6">
                         <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                        <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+                        {!user && <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>}
                     </div>
                 </div>
             </footer>

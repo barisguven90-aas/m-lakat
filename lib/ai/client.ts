@@ -22,7 +22,7 @@ export async function aiChat(
     messages.push({ role: 'user', content: prompt });
 
     const response = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
+        model: 'groq/compound',
         max_tokens: options?.maxTokens || 2000,
         temperature: options?.temperature || 0.7,
         messages,
@@ -49,7 +49,7 @@ export async function aiJSON<T = any>(
     messages.push({ role: 'user', content: prompt });
 
     const response = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
+        model: 'groq/compound',
         max_tokens: options?.maxTokens || 4000,
         temperature: 0.3,
         response_format: { type: 'json_object' },

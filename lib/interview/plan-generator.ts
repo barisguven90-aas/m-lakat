@@ -63,8 +63,8 @@ export async function generateInterviewPlan(params: {
     const cvSummary = JSON.stringify(cvData || {}).slice(0, 1500);
     const jobSlice = jobDescription?.slice(0, 2000) || '';
     const langNote = language === 'tr'
-        ? 'All question strings MUST be in Turkish.'
-        : 'All question strings MUST be in English.';
+        ? 'IMPORTANT: You MUST generate all question strings ENTIRELY in Turkish (Türkçe). Do NOT use any English in the questions.'
+        : 'IMPORTANT: You MUST generate all question strings ENTIRELY in English. Do NOT use any Turkish.';
 
     const prompt = `You are a senior recruiter preparing an interview for the role: "${jobTitle}".
 

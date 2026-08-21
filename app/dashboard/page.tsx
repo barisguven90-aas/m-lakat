@@ -122,12 +122,12 @@ export default function DashboardPage() {
         return (
             <div className="space-y-8 animate-in fade-in duration-500 pb-10 max-w-4xl mx-auto">
                 {/* Welcome Hero */}
-                <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" style={{ background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1a3a 40%, #0a1628 70%, #060d1f 100%)' }}>
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.2),transparent)]" />
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <div className="relative rounded-3xl overflow-hidden border-0 shadow-xl bg-gradient-to-br from-blue-600 to-indigo-700">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,255,255,0.2),transparent)]" />
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
                     <div className="relative z-10 p-8 md:p-12">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 font-medium mb-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 text-xs text-white font-semibold mb-4 shadow-sm">
                             <Sparkles className="h-3 w-3" /> Welcome to Intervio
                         </div>
                         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3">
@@ -219,21 +219,21 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-10">
             {/* Hero Section */}
-            <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl group" style={{ background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1a3a 40%, #0a1628 70%, #060d1f 100%)' }}>
+            <div className="relative rounded-3xl overflow-hidden border-0 shadow-xl bg-gradient-to-br from-blue-600 to-indigo-700 group">
                 <div className="absolute inset-0 opacity-20">
                     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(99,179,237,0.4)" strokeWidth="0.5" />
+                                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" />
                             </pattern>
                         </defs>
                         <rect width="100%" height="100%" fill="url(#grid)" />
                     </svg>
                 </div>
 
-                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-indigo-600/8 rounded-full blur-2xl translate-y-1/2" />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-transparent" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-700/50 via-blue-700/20 to-transparent" />
 
                 <div className="relative z-10 p-8 md:p-12 flex flex-col items-start gap-6 max-w-3xl">
                     <div>

@@ -21,19 +21,21 @@ import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { DesktopAppModal } from "./DesktopAppModal"
+import { useLanguageStore } from "@/store/useLanguageStore"
 
 const navItems = [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Applications", url: "/dashboard/applications", icon: FileText },
-    { title: "Interviews", url: "/dashboard/interviews", icon: User },
-    { title: "Billing", url: "/pricing", icon: CreditCard },
-    { title: "Settings", url: "/dashboard/settings", icon: Settings },
+    { titleKey: "nav_dashboard", url: "/dashboard", icon: Home },
+    { titleKey: "nav_applications", url: "/dashboard/applications", icon: FileText },
+    { titleKey: "nav_interviews", url: "/dashboard/interviews", icon: User },
+    { titleKey: "nav_billing", url: "/pricing", icon: CreditCard },
+    { titleKey: "nav_settings", url: "/dashboard/settings", icon: Settings },
 ]
 
 export function AppSidebar() {
     const router = useRouter()
     const pathname = usePathname()
     const supabase = createClient()
+    const { t } = useLanguageStore()
     const [userInitial, setUserInitial] = useState("?")
     const [userName, setUserName] = useState("")
     const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false)
@@ -84,29 +86,29 @@ export function AppSidebar() {
 
                 <SidebarContent>
                     <SidebarGroup>
-                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                        <SidebarGroupLabel>{t('nav_navigation') as string}</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 {navItems.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuItem key={item.url}>
                                         <SidebarMenuButton
                                             asChild
                                             isActive={isActive(item.url)}
-                                            tooltip={item.title}
+                                            tooltip={t(item.titleKey as any) as string}
                                         >
                                             <Link href={item.url}>
                                                 <item.icon />
-                                                <span>{item.title}</span>
+                                                <span>{t(item.titleKey as any) as string}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}
                                 {isAdmin && (
                                     <SidebarMenuItem>
-                                        <SidebarMenuButton asChild isActive={isActive('/dashboard/admin')} tooltip="Admin Panel">
+                                        <SidebarMenuButton asChild isActive={isActive('/dashboard/admin')} tooltip={t('nav_admin_panel') as string}>
                                             <Link href="/dashboard/admin">
                                                 <Shield className="text-amber-500" />
-                                                <span className="text-amber-500 font-medium">Admin Panel</span>
+                                                <span className="text-amber-500 font-medium">{t('nav_admin_panel') as string}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
@@ -122,22 +124,22 @@ export function AppSidebar() {
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 onClick={() => setIsDesktopModalOpen(true)}
-                                tooltip="Desktop App"
+                                tooltip={t('nav_desktop_app') as string}
                                 className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
                             >
                                 <MonitorSmartphone />
-                                <span>Desktop App</span>
-                                <div className="ml-auto text-[10px] font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider">New</div>
+                                <span>{t('nav_desktop_app') as string}</span>
+                                <div className="ml-auto text-[10px] font-bold bg-blue-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wider">{t('nav_new') as string}</div>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 onClick={handleSignOut}
-                                tooltip="Sign Out"
+                                tooltip={t('nav_sign_out') as string}
                                 className="text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                             >
                                 <LogOut />
-                                <span>Sign Out</span>
+                                <span>{t('nav_sign_out') as string}</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>

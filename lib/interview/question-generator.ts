@@ -29,7 +29,7 @@ const COMPANY_STYLE_PROMPTS: Record<string, string> = {
 
 const LANGUAGE_INSTRUCTIONS: Record<string, { instruction: string; initial: string; fallback: string }> = {
     en: { instruction: 'Conduct the entire interview strictly in English.', initial: 'Candidate has entered the room. Welcome them and ask them to introduce themselves.', fallback: 'Could you tell me more about your background?' },
-    tr: { instruction: 'Mülakatı tamamen Türkçe olarak yürüt. Samimi ama profesyonel bir dil kullan.', initial: 'Aday odaya girdi. Mülakata başla — kısa bir karşılama yap ve kendisini tanıtmasını iste.', fallback: 'Geçmişiniz hakkında biraz daha bilgi verebilir misiniz?' },
+    tr: { instruction: 'IMPORTANT: Mülakatı tamamen Türkçe (Turkish) olarak yürüt. Hiçbir şekilde İngilizce kelime veya cümle kullanma. Samimi ama profesyonel bir dil kullan.', initial: 'Aday odaya girdi. Mülakata başla — kısa bir karşılama yap ve kendisini tanıtmasını iste.', fallback: 'Geçmişiniz hakkında biraz daha bilgi verebilir misiniz?' },
 };
 
 // ─── TYPE-SPECIFIC SYSTEM PROMPTS ───
@@ -129,8 +129,8 @@ export async function generateQuestion(context: QuestionContext) {
     const typeSpecificInstructions = typePromptFn(jobTitle, jobReqStr, cvStr, difficulty);
 
     const systemPrompt = `You are a professional job interviewer.
-Always conduct the interview in the user's selected language.
-Selected language: ${langLabel}
+IMPORTANT: You MUST conduct the entire interview ENTIRELY in ${langLabel}. Do NOT use any other language.
+If ${langLabel} is Türkçe, you must not use a single English word.
 
 Ask realistic interview questions based on the user's CV and job description.
 Be concise and professional.

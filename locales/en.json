@@ -15,7 +15,6 @@
   "demo_your_answer": "Your Answer",
   "demo_feedback_title": "AI Feedback",
   "get_started": "Get Started",
-  
   "nav_pricing": "Pricing",
   "nav_login": "Log In",
   "hero_badge": "Free: 2 interviews/month — No credit card needed",
@@ -28,10 +27,8 @@
   "trust_3": "Instant hire probability",
   "mockup_speaking": "Interviewer is speaking...",
   "mockup_question": "Can you tell me about a time you had to deal with an unhappy customer?",
-  
   "testimonials_title": "Our users interview for companies like",
   "testimonials_sub": "Join thousands of candidates practicing for top-tier roles",
-  
   "how_it_works_badge": "Leading Technology",
   "how_it_works_title": "How AI Interview Copilot works?",
   "how_it_works_sub": "Get real-time, personalized coaching tailored to your resume, job description, and company",
@@ -41,7 +38,6 @@
   "step2_desc": "Automatically detects questions for instant, precise contextual answers. Get scored heavily on STAR framework precision.",
   "step3_title": "Personalized AI Copilot",
   "step3_desc": "Highlight skills and experience from your CV that perfectly align with company values and job requirements.",
-  
   "features_title": "Everything you need to succeed",
   "feat1_title": "Real-time Voice Interactions",
   "feat1_desc": "Using advanced WebRTC and text-to-speech, your AI interviewer talks to you with realistic latency and pauses, just like a human.",
@@ -51,10 +47,19 @@
   "feat3_desc": "Practicing for Amazon? We'll test you heavily on Leadership Principles. Interviewing with a startup? Expect questions about ambiguity.",
   "feat4_title": "Bilingual Support",
   "feat4_desc": "Practice in English or Turkish. Perfect for non-native speakers preparing for global roles or local opportunities.",
-  
   "cta_title": "Ready to land your dream job?",
   "cta_button": "Create your free account",
   "footer_privacy": "Privacy Policy",
   "footer_terms": "Terms of Service",
-  "footer_desc": "Intervio is an AI-powered platform for job interview preparation. Stand out with bilingual mock interviews and instant hire probability scores."
+  "footer_desc": "Intervio is an AI-powered platform for job interview preparation. Stand out with bilingual mock interviews and instant hire probability scores.",
+  "nav_dashboard": "Dashboard",
+  "nav_applications": "Applications",
+  "nav_interviews": "Interviews",
+  "nav_billing": "Billing",
+  "nav_settings": "Settings",
+  "nav_navigation": "Navigation",
+  "nav_admin_panel": "Admin Panel",
+  "nav_sign_out": "Sign Out",
+  "nav_desktop_app": "Desktop App",
+  "nav_new": "New"
 }

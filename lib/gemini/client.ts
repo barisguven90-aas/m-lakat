@@ -13,7 +13,7 @@ export async function geminiChat(
     options?: { maxTokens?: number; temperature?: number }
 ): Promise<string> {
     const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.6-flash',
         ...(systemInstruction ? { systemInstruction } : {}),
         generationConfig: {
             maxOutputTokens: options?.maxTokens || 2000,
@@ -34,7 +34,7 @@ export async function geminiJSON<T = any>(
     options?: { maxTokens?: number }
 ): Promise<T> {
     const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.6-flash',
         ...(systemInstruction ? { systemInstruction } : {}),
         generationConfig: {
             maxOutputTokens: options?.maxTokens || 4000,
